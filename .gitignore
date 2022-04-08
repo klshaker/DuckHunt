@@ -1,5 +1,13 @@
+modules.order
+.tmp_versions*
 *.tar.gz
 *.so
 *.ko
 *.o
 *.swp
+hello 
+*.cmd
+duck_hunt.mod.c
+Module.symvers
+
+

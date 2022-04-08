@@ -1,3 +1,4 @@
+#include "duck_hunt.h"
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/errno.h>
@@ -30,12 +31,6 @@
 /*
  * Information about our device
  */
-typedef struct {
-  duck_config_t duck_1;
-  duck_config_t duck_2;
-  game_config_t game_conf;
-} all_game_data_t;
-
 struct duck_hunt_dev {
 	struct resource res; /* Resource: our registers */
 	void __iomem *virtbase; /* Where registers can be accessed in memory */
@@ -47,16 +42,11 @@ struct duck_hunt_dev {
  * Assumes digit is in range and the device information has been set up
  */
 // Selector is which duck we are writing information about 
-static void write_duck_config(duck_config_t *duck_conf, int selector)
+static void write_duck_config(duck_config_t *duck_conf)
 {
-	if(selector == 1){
-	  selected_duck = &dev.game.duck_1;
-	  *selected_duck = *duck_conf;
-
-		iowrite16(seleced_duck->x, DUCK_1_X(dev.virtbase) );
-		iowrite16(selected_duck->y, DUCK_1_Y(dev.virtbase) );
-		iowrite16(selected_duck->state, DUCK_1_STATE(dev.virtbase) );
-	}
+	iowrite16(duck_conf->x, DUCK_1_X(dev.virtbase) );
+	iowrite16(duck_conf->y, DUCK_1_Y(dev.virtbase) );
+	iowrite16(duck_conf->state, DUCK_1_STATE(dev.virtbase) );
 }
 
 /*
@@ -66,20 +56,20 @@ static void write_duck_config(duck_config_t *duck_conf, int selector)
  */
 static long duck_hunt_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
-	vga_ball_arg_t vla;
+	all_game_data_t game_data;
 
 	switch (cmd) {
-	case VGA_BALL_WRITE_BACKGROUND:
-		if (copy_from_user(&vla, (vga_ball_arg_t *) arg,
-				   sizeof(vga_ball_arg_t)))
+	case DUCK_HUNT_WRITE_GAME_DATA:
+		if (copy_from_user(&game_data, (all_game_data_t *) arg,
+				   sizeof(all_game_data_t)))
 			return -EACCES;
-		write_background(&vla.background);
+		write_duck_config(&game_data.duck_1);
 		break;
 
-	case VGA_BALL_READ_BACKGROUND:
-	  	vla.background = dev.background;
-		if (copy_to_user((vga_ball_arg_t *) arg, &vla,
-				 sizeof(vga_ball_arg_t)))
+	case DUCK_HUNT_READ_GAME_DATA:
+	  	game_data = dev.game;
+		if (copy_to_user((all_game_data_t *) arg, &game_data,
+				 sizeof(all_game_data_t)))
 			return -EACCES;
 		break;
 
@@ -109,7 +99,7 @@ static struct miscdevice duck_hunt_misc_device = {
  */
 static int __init duck_hunt_probe(struct platform_device *pdev)
 {
-        vga_ball_color_t beige = { 0xf9, 0xe4, 0xb7 };
+        //vga_ball_color_t beige = { 0xf9, 0xe4, 0xb7 };
 	int ret;
 
 	/* Register ourselves as a misc device: creates /dev/vga_ball */
@@ -137,7 +127,7 @@ static int __init duck_hunt_probe(struct platform_device *pdev)
 	}
         
 	/* Set an initial color */
-        write_background(&beige);
+        //write_background(&beige);
 
 	return 0;
 
@@ -172,7 +162,7 @@ static struct platform_driver duck_hunt_driver = {
 	.driver	= {
 		.name	= DRIVER_NAME,
 		.owner	= THIS_MODULE,
-		.of_match_table = of_match_ptr(duck_hunt_match),
+		.of_match_table = of_match_ptr(duck_hunt_of_match),
 	},
 	.remove	= __exit_p(duck_hunt_remove),
 };
@@ -196,5 +186,4 @@ module_exit(duck_hunt_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Stephen A. Edwards, Columbia University");
-MODULE_DESCRIPTION("VGA ball driver");
-
+MODULE_DESCRIPTION("Duck Hunt driver");

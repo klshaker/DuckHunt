@@ -1,7 +1,7 @@
 ifneq (${KERNELRELEASE},)
 
 # KERNELRELEASE defined: we are being compiled as part of the Kernel
-        obj-m := vga_ball.o
+        obj-m := duck_hunt.o
 
 else
 
@@ -19,11 +19,11 @@ clean:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
 	${RM} hello
 
-duck_hunt.o: duck_hunt.c duck_hunt.h 
-	gcc -c duck_hunt.c -o duck_hunt.o 
+#duck_hunt.o: duck_hunt.c duck_hunt.h 
+#	gcc -c duck_hunt.c -o duck_hunt.o 
 
-duck_hunt: duck_hunt.o 
-	gcc -o duck_hunt duck_hunt.o 
+#duck_hunt: duck_hunt.o 
+#	gcc -o duck_hunt duck_hunt.o 
 
 TARFILES = Makefile README vga_ball.h vga_ball.c hello.c
 TARFILE = lab3-sw.tar.gz
