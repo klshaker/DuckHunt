@@ -1,3 +1,5 @@
 *.tar.gz
 *.so
 *.ko
+*.o
+*.swp
