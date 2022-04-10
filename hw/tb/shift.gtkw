@@ -1,0 +1,43 @@
+[*]
+[*] GTKWave Analyzer v3.3.111 (w)1999-2020 BSI
+[*] Sun Apr 10 05:17:17 2022
+[*]
+[dumpfile] "/home/bryce/DuckHunt/hw/tb/shift.vcd"
+[dumpfile_mtime] "Sun Apr 10 05:16:15 2022"
+[dumpfile_size] 2042
+[savefile] "/home/bryce/DuckHunt/hw/tb/shift.gtkw"
+[timestart] 10
+[size] 1000 600
+[pos] 1358 702
+*-6.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[sst_width] 273
+[signals_width] 134
+[sst_expanded] 1
+[sst_vpaned_height] 157
+@28
+TOP.shift.clk
+@22
+TOP.shift.data_in[47:0]
+@28
+TOP.shift.data_out[2:0]
+TOP.shift.en
+TOP.shift.ld
+TOP.shift.mem[0][2:0]
+TOP.shift.mem[1][2:0]
+TOP.shift.mem[2][2:0]
+TOP.shift.mem[3][2:0]
+TOP.shift.mem[4][2:0]
+TOP.shift.mem[5][2:0]
+TOP.shift.mem[6][2:0]
+TOP.shift.mem[7][2:0]
+TOP.shift.mem[8][2:0]
+TOP.shift.mem[9][2:0]
+TOP.shift.mem[10][2:0]
+TOP.shift.mem[11][2:0]
+TOP.shift.mem[12][2:0]
+TOP.shift.mem[13][2:0]
+TOP.shift.mem[14][2:0]
+TOP.shift.mem[15][2:0]
+[pattern_trace] 1
+[pattern_trace] 0

@@ -1,6 +1,7 @@
 .PHONY: default program clean lint
 SRC = ../src
-SVFILES = memory.sv
+FILES = memory.sv down_counter.sv shift.sv
+SVFILES = $(patsubst %, $(SRC)/%, $(FILES))
 
 default :
 	@echo "No target given. Try:"
@@ -20,6 +21,9 @@ lint :
 memory : obj_dir/Vmemory
 	obj_dir/Vmemory
 
+shift : obj_dir/Vshift
+	obj_dir/Vshift
+
 
 # Create Verilator simulations
 obj_dir/Vmemory : $(SRC)/memory.sv memory.cpp
@@ -27,6 +31,10 @@ obj_dir/Vmemory : $(SRC)/memory.sv memory.cpp
 		-top-module memory
 	cd obj_dir && make -j -f Vmemory.mk
 
+obj_dir/Vshift : $(SRC)/shift.sv shift.cpp
+	verilator -trace -Wall -cc $(SRC)/shift.sv -exe shift.cpp \
+		-top-module shift
+	cd obj_dir && make -j -f Vshift.mk
 
 clean :
 	rm -rf obj_dir db incremental_db output_files \
