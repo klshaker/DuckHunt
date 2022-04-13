@@ -11,6 +11,11 @@ int calculate_hit(duck_t * duck, coord_t cross_hair){
 	return cross_hair.x < (duck->coord.x + 5) && cross_hair.x > (duck->coord.x - 5)
 		&& cross_hair.y < (duck->coord.y + 5) && cross_hair.y > (duck->coord.y - 5);
 }
+int move_ducks(duck_t* ducks, int num_ducks){
+	for(int i = 0; i < num_ducks; ++i){
+		move_duck(&ducks[i]);
+	}
+}
 
 int move_duck(duck_t * duck){
 
@@ -48,8 +53,25 @@ int shoot_at_ducks(duck_t* ducks, int num_ducks, coord_t cross_hair, game_config
 		if(hit){
 			kill_duck_update_config(&ducks[i], config);
 		}	
-
 	}
 
 	return 1;
+}
+
+void play_game(){
+	duck_t ducks[2];
+	ducks[0].coord.x = 0;
+	ducks[0].coord.y = 200;
+	ducks[0].value = 5;
+
+	ducks[0].coord.x = 0;
+	ducks[0].coord.y = 400;
+	ducks[0].value = 10;
+
+	while(1){
+		// poll wii controller.
+
+		move_ducks(ducks, 2);
+	}
+
 }

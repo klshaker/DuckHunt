@@ -43,9 +43,12 @@ int set_up_config(game_config_t * game_config);
 // Deducts from bullet count, adds ducks value to the total score.
 void kill_duck_update_config(duck_t * duck, game_config_t* config);
 
-// Moves ducks across the x plane.
+// Moves ducks across the x plane. (y plane if the duck is dead).
 int move_duck(duck_t * duck);
 
-int play_game();
+// moves all of the ducks.
+int move_ducks(duck_t* ducks, int num_ducks);
+
+void play_game();
 
 #endif
