@@ -1,0 +1,28 @@
+[*]
+[*] GTKWave Analyzer v3.3.111 (w)1999-2020 BSI
+[*] Wed Apr 13 23:27:04 2022
+[*]
+[dumpfile] "/home/bryce/DuckHunt/hw/tb/down_counter.vcd"
+[dumpfile_mtime] "Wed Apr 13 23:21:57 2022"
+[dumpfile_size] 1188
+[savefile] "/home/bryce/DuckHunt/hw/tb/down_counter.gtkw"
+[timestart] 10
+[size] 2560 1521
+[pos] 587 1448
+*-6.300000 493 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[sst_width] 273
+[signals_width] 126
+[sst_expanded] 1
+[sst_vpaned_height] 477
+@28
+TOP.down_counter.clk
+@23
+TOP.down_counter.count[9:0]
+TOP.down_counter.data_in[9:0]
+@29
+TOP.down_counter.done
+TOP.down_counter.en
+TOP.down_counter.ld
+[pattern_trace] 1
+[pattern_trace] 0

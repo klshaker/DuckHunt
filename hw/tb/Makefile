@@ -5,8 +5,10 @@ SVFILES = $(patsubst %, $(SRC)/%, $(FILES))
 
 default :
 	@echo "No target given. Try:"
-	@echo ""
+	@echo "make all"
 	@echo "make memory"
+	@echo "make shift"
+	@echo "make down_counter"
 	@echo "make lint"
 
 
@@ -24,8 +26,16 @@ memory : obj_dir/Vmemory
 shift : obj_dir/Vshift
 	obj_dir/Vshift
 
+down_counter : obj_dir/Vdown_counter
+	obj_dir/Vdown_counter
+
 
 # Create Verilator simulations
+obj_dir/Vdown_counter : $(SRC)/down_counter.sv down_counter.cpp
+	verilator -trace -Wall -cc $(SRC)/down_counter.sv -exe down_counter.cpp \
+		-top-module down_counter
+	cd obj_dir && make -j -f Vdown_counter.mk
+
 obj_dir/Vmemory : $(SRC)/memory.sv memory.cpp
 	verilator -trace -Wall -cc $(SRC)/memory.sv -exe memory.cpp \
 		-top-module memory
@@ -37,5 +47,6 @@ obj_dir/Vshift : $(SRC)/shift.sv shift.cpp
 	cd obj_dir && make -j -f Vshift.mk
 
 clean :
-	rm -rf obj_dir db incremental_db output_files \
-	lab1.qpf lab1.qsf lab1.sdc lab1.qws c5_pin_model_dump.txt
+	rm -rf obj_dir *.vcd
+
+all : clean lint memory shift down_counter
