@@ -59,11 +59,11 @@ void test_move_duck(){
 		assert(duck.x_direction == east);
 	}
 
-// moves duck to 640, where we should set direction to west 
-		success = move_duck(&duck);
-		assert(success == 1);
-		assert(duck.coord.x == kHorizontalScreenSize);
-		assert(duck.x_direction == west);
+	// moves duck to 640, where we should set direction to west 
+	success = move_duck(&duck);
+	assert(success == 1);
+	assert(duck.coord.x == kHorizontalScreenSize);
+	assert(duck.x_direction == west);
 
 
 	for(int i = kHorizontalScreenSize; i > 1; --i){
@@ -73,7 +73,7 @@ void test_move_duck(){
 		assert(duck.coord.x == i-1);
 		assert(duck.x_direction == west);
 	}
-	
+
 	assert(duck.coord.x == 1);
 	success = move_duck(&duck);
 	assert(success == 1);
@@ -84,14 +84,27 @@ void test_move_duck(){
 	assert(success == 1);
 	assert(duck.coord.x == 1);
 	assert(duck.x_direction == east);
+
+
+	// dead ducks don't move on the x plane and fall to the ground.
+	duck_t dead_duck;
+	dead_duck.state = dead;
+	dead_duck.coord.x = 52;
+	dead_duck.coord.y = 300;
+	for(int i =0; i < 500; i++){
+		move_duck(&dead_duck);
+	}
+	assert(dead_duck.coord.x==52);
+	assert(dead_duck.coord.y ==0);
 }
+
 
 void test_kill_duck_update_score(){
 	game_config_t config;
 	config.bullets = 3;
 	config.score = 0;
 	config.round = 0;
-	
+
 	duck_t ducks[2] = {};
 	ducks[0].coord.x = 5;
 	ducks[0].coord.y = 10;
@@ -100,19 +113,17 @@ void test_kill_duck_update_score(){
 	ducks[1].coord.x = 200;
 	ducks[1].coord.y = 200;
 	ducks[1].value = 5;
-	 
+
 	// We should hit duck one 
 	coord_t cross_hair;
 	cross_hair.x = 5;
 	cross_hair.y = 10;
-
 
 	shoot_at_ducks(ducks, 2, cross_hair, &config);
 	assert(config.score == 5);
 	assert(ducks[0].state == dead);
 	assert(ducks[1].state !=dead);
 	assert(config.bullets == 2);
-	
 }
 
 int main() {

@@ -13,6 +13,12 @@ int calculate_hit(duck_t * duck, coord_t cross_hair){
 }
 
 int move_duck(duck_t * duck){
+
+	// a dead duck should not move at all on the x plane. It should drop down where it was shot.
+	if(duck->state == dead && duck->coord.y !=0){
+		duck->coord.y--;	
+		return 1;
+	}
 	if(duck->x_direction == east){
 		duck->coord.x++;
 	}
@@ -29,7 +35,7 @@ int move_duck(duck_t * duck){
 	return 1;
 }
 
-void kill_duck_update_score(duck_t * duck, game_config_t* config){
+void kill_duck_update_config(duck_t * duck, game_config_t* config){
 	duck->state = dead;
 	config->score += duck->value;
 	config->bullets--;
@@ -40,13 +46,10 @@ int shoot_at_ducks(duck_t* ducks, int num_ducks, coord_t cross_hair, game_config
 	for(int i = 0; i < num_ducks; i++){
 		int hit = calculate_hit(&ducks[i], cross_hair);
 		if(hit){
-			kill_duck_update_score(&ducks[i], config);
+			kill_duck_update_config(&ducks[i], config);
 		}	
 
 	}
 
 	return 1;
 }
-
-
-
