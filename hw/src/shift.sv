@@ -1,10 +1,10 @@
 
 module shift
-	(input logic 		      clk,
-	 input logic 		      en,
-	 input logic 		      ld,
-	 input logic [47:0] 	      data_in,
-	 output logic [2:0] data_out);
+	(input logic 		 clk,
+	 input logic 		 en,
+	 input logic 		 ld,
+	 input logic [47:0] 	 data_in,
+	 output logic [2:0]  	 data_out);
 
 	 logic [2:0] mem[15:0];
 	 

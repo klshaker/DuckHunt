@@ -1,52 +1,94 @@
 /*
- * Sprite Engine for Duck Game 
+ * Picture Processing Unit
  *
  * Bryce Natter
  * Columbia University
  */
 
-module ppu(input logic        clk,
-	        input logic 	   reset,
-		input logic [31:0]  writedata,
-		input logic 	   write,
-		input 		   chipselect,
-		input logic [2:0]  address,
+`include "down_counter.sv"
+`include "shift.sv"
+`include "memory.sv"
 
-		output logic [7:0] VGA_R, VGA_G, VGA_B,
-		output logic 	   VGA_CLK, VGA_HS, VGA_VS,
-		                   VGA_BLANK_n,
-		output logic 	   VGA_SYNC_n);
+module ppu
+	#(parameter
+	SPRITE_ATTS = 1)
+	(input logic        	clk,
+	input logic 	   	reset,
+	input logic [31:0]  	writedata,
+	input logic 	   	write,
+	input 			chipselect,
+	input logic [3:0]  	address,
 
-   logic [10:0]	   hcount;
-   logic [9:0]     vcount;
+	output logic [7:0] 	VGA_R, VGA_G, VGA_B,
+	output logic 		VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_n,
+	output logic 	   	VGA_SYNC_n);
 
-   logic [7:0] 	   background_r, background_g, background_b;
-	
-   vga_counters counters(.clk50(clk), .*);
 
-   always_ff @(posedge clk)
-     if (reset) begin
-	background_r <= 8'h0;
-	background_g <= 8'h0;
-	background_b <= 8'h80;
-     end else if (chipselect && write)
-       case (address)
-	 3'h0 : background_r <= writedata;
-	 3'h1 : background_g <= writedata;
-	 3'h2 : background_b <= writedata;
-       endcase
+	logic [1:0]	mem_write;
+	logic [10:0]    hcount, sprite_x;
+	logic [9:0]     vcount, sprite_y;
+	logic [31:0]	sprite_attr, sprite;
+	logic [15:0] 	dc_en, dc_ld, dc_done;
+	logic [15:0] 	sh_en, sh_ld, sh_done;
+	logic [3:0] 	sh_out [2:0];
 
-   always_comb begin
-      {VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0};
-      if (VGA_BLANK_n )
-	if (hcount[10:6] == 5'd3 &&
-	    vcount[9:5] == 5'd3)
-	  {VGA_R, VGA_G, VGA_B} = {8'hff, 8'hff, 8'hff};
-	else
-	  {VGA_R, VGA_G, VGA_B} =
-             {background_r, background_g, background_b};
-   end
-	       
+	logic [7:0] 	background_r, background_g, background_b;
+
+	vga_counters 		counters(.clk50(clk), .*);
+	sprite_attr_table	memory(clk, mem_write[0], address, writedata, sprite_attr);
+	sprite_table 		memory(clk, mem_write[1], address, writedata, sprite);
+
+	genvar k;
+	generate
+	for(k = 0; k < SPRITE_ATTS; k = k+1)
+		begin: down_counters
+			down_counter(clk, dc_en[k], dc_ld[k], sprite_x, dc_done[k]);
+		end
+		begin: shifters
+			shift(clk, sh_en[k], sh_ld[k], sprite, sh_out[k]);
+		end
+	endgenerate
+	assign sh_en = dc_done;
+
+
+	always_ff @(posedge clk)
+		mem_write = 0;
+		if (reset) begin
+			background_r <= 8'h0;
+			background_g <= 8'h0;
+			background_b <= 8'h80;
+		end else if (chipselect && write) begin
+			mem_write[write[7:6]] = 1;
+
+		end
+	end
+
+
+	enum logic [1:0] {A, S, O} state;
+	logic [3:0] xfer_addr = 0;
+	always_ff @(posedge clk)
+	dc_ld = 15'b0;
+		if (hcount == 1279) begin
+			state <= O;
+			dc_en = {15{1'b1}};
+		end
+		if (hcount == 1599) begin
+			state <= S;
+			dc_ld[addr] 
+			xfer_addr <= xfer_addr + 1;
+
+			
+
+	always_comb begin
+		if (VGA_BLANK_n )
+			{VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0};
+		if (hcount[10:6] == 5'd3 && vcount[9:5] == 5'd3)
+			{VGA_R, VGA_G, VGA_B} = {8'hff, 8'hff, 8'hff};
+		else
+			{VGA_R, VGA_G, VGA_B} = {background_r, background_g, background_b};
+		end
+	end
+
 endmodule
 
 module vga_counters(
