@@ -1,9 +1,11 @@
-#ifndef _VGA_BALL_H
-#define _VGA_BALL_H
+#ifndef _DUCK_HUNT_H
+#define _DUCK_HUNT_H
 
 #include <linux/ioctl.h>
-#include "game.h"
+#include "game/game.h"
 
+extern const int GameDataSize;
+extern const int DuckDataCoordSize;
 
 #define DUCK_HUNT_MAGIC 'q'
 

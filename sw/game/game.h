@@ -5,6 +5,7 @@ extern const int kHorizontalScreenSize;
 
 // Confer with Bryce about how big these sprites are.
 extern const int kDuckXSize;
+extern const int kMaxDucksPerGame;
 
 enum duck_state { flap_up, flap_down, dead, inactive };
 // start with only being able to move on the x axis.
@@ -49,6 +50,9 @@ int move_duck(duck_t * duck);
 // moves all of the ducks.
 int move_ducks(duck_t* ducks, int num_ducks);
 
-void play_game();
+// game is over if we are out of bullets or if we've seen a set number of ducks.
+int is_game_over(game_config_t * config, int num_ducks_seen);
+
+
 
 #endif

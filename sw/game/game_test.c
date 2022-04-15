@@ -126,8 +126,26 @@ void test_kill_duck_update_score(){
 	assert(config.bullets == 2);
 }
 
+void test_game_over(){
+	game_config_t config;
+	config.bullets = 3;
+	config.score = 0;
+	config.round = 0;
+	int num_ducks_seen = 0;
+
+	assert(is_game_over(&config, num_ducks_seen) == 0);
+	config.bullets = 0;
+	assert(is_game_over(&config, num_ducks_seen) == 1);
+	config.bullets = 3;
+	num_ducks_seen = 8;
+	assert(is_game_over(&config, num_ducks_seen) == 1);
+
+}
+
+
 int main() {
 	test_calculate_hit();
 	test_move_duck();
 	test_kill_duck_update_score();
+	test_game_over();
 }

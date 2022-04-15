@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include "duck_hunt.h"
+#include "game/game.h"
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -30,18 +31,51 @@ int duck_hunt_fd;
 }*/
 
 /* Set the background color */
-void set_background_color(const all_game_data_t *c)
+void update_game_data(const all_game_data_t *g)
 {
-  all_game_data_t game;
+  all_game_data_t game = *g;
+	// does this write to the file and copy_from user accesses that same file?
   if (ioctl(duck_hunt_fd, DUCK_HUNT_WRITE_GAME_DATA, &game)) {
       perror("ioctl(DUCK_HUNT_WRITE_GAME_DATA) failed");
       return;
   }
 }
+void play_game(){
+
+	while(1){
+	game_config_t config;
+	config.bullets = 3;
+	config.score = 0;
+	config.round = 0;
+
+	duck_t ducks[2];
+	ducks[0].coord.x = 0;
+	ducks[0].coord.y = 200;
+	ducks[0].value = 5;
+
+	ducks[0].coord.x = 0;
+	ducks[0].coord.y = 400;
+	ducks[0].value = 10;
+	all_game_data_t game_data;
+	game_data.game_conf = config;
+	game_data.ducks = ducks;
+	int num_ducks_seen =0;
+
+	while(!is_game_over(&all_game_data, num_ducks_seen)){
+		
+		// poll wii controller.
+		// if trigger pressed
+		
+		move_ducks(ducks, 2);
+		// call kernel driver APIs.
+		update_game_data(&game_data);
+	}
+
+}
+}
 
 int main()
 {
-  all_game_data_t game;
   int i;
   static const char filename[] = "/dev/duck_hunt";
 
@@ -53,14 +87,7 @@ int main()
   }
 
   printf("initial state: ");
-  //print_background_color();
-
-/*
-  for (i = 0 ; i < 24 ; i++) {
-    set_background_color(&colors[i % COLORS ]);
-    print_background_color();
-    usleep(400000);
-  }*/
+  play_game();
   
   printf("VGA BALL Userspace program terminating\n");
   return 0;

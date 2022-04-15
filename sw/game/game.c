@@ -5,6 +5,7 @@ const int kHorizontalScreenSize = 640;
 
 // Confer with Bryce about how big these sprites are.
 const int kDuckXSize = 10;
+const int kMaxDucksPerGame = 8;
 
 
 int calculate_hit(duck_t * duck, coord_t cross_hair){
@@ -58,20 +59,9 @@ int shoot_at_ducks(duck_t* ducks, int num_ducks, coord_t cross_hair, game_config
 	return 1;
 }
 
-void play_game(){
-	duck_t ducks[2];
-	ducks[0].coord.x = 0;
-	ducks[0].coord.y = 200;
-	ducks[0].value = 5;
 
-	ducks[0].coord.x = 0;
-	ducks[0].coord.y = 400;
-	ducks[0].value = 10;
 
-	while(1){
-		// poll wii controller.
-
-		move_ducks(ducks, 2);
-	}
-
+int is_game_over(game_config_t * config, int num_ducks_seen){
+	return config->bullets ==0 || num_ducks_seen == kMaxDucksPerGame;
 }
+

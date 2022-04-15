@@ -17,36 +17,46 @@
 
 /* Device registers */
 // Are these registers or just selectors? Don't we just use this ass the address? 
-#define SCORE(x) (x) 
-#define BULLETS(x) ((x)+1)
-#define ROUND(x) ((x)+2)
-#define DUCK_1_X(x) ((x)+3)
-#define DUCK_1_Y(x) ((x)+4)
-#define DUCK_1_STATE(x) ((x)+5)
-#define DUCK_2_X(x) ((x)+6)
-#define DUCK_2_Y(x) ((x)+7)
-#define DUCK_2_STATE(x) ((x)+8)
-#define GAME_STATE(X) ((x+9)) // start, game over, game 
+// are these 32 bits each? 
+#define GAMEDATA(x) (x) 
+#define DUCK_0(x) ((x)+1)
+#define DUCK_1(x) ((x)+2)
 
+// Number of bits for each piece of data
+const int GameDataSize = 8;
+const int DuckDataCoordSize = 10;
 /*
  * Information about our device
  */
 struct duck_hunt_dev {
 	struct resource res; /* Resource: our registers */
 	void __iomem *virtbase; /* Where registers can be accessed in memory */
-        all_game_data_t game;
+	all_game_data_t game;
 } dev;
 
-/*
- * Write segments of a single digit
- * Assumes digit is in range and the device information has been set up
- */
-// Selector is which duck we are writing information about 
-static void write_duck_config(duck_config_t *duck_conf)
+static void write_duck_config(duck_config_t *duck_conf, int num_duck)
 {
-	iowrite16(duck_conf->x, DUCK_1_X(dev.virtbase) );
-	iowrite16(duck_conf->y, DUCK_1_Y(dev.virtbase) );
-	iowrite16(duck_conf->state, DUCK_1_STATE(dev.virtbase) );
+	int32_t duck_data = duck_conf->coord.y;
+	duck_data << DuckDataCoordSize;
+	duck_data = duck_data && duck_conf->coord.x;
+	duck_data << DuckDataCoordSize;
+	duck_data = duck_data && duck_conf->state;
+	if(num_duck == 0){
+		iowrite32(duck_data, DUCK_2(dev.virtbase) );
+	}	
+	else {
+		iowrite32(duck_data, DUCK_2(dev.virtbase) );
+	}
+}
+
+static void write_game_config_data(game_config_t *config){
+
+	int32_t game_config = config->bullets;
+	game_config << GameDataSize;
+	game_config = game_config && config->score;
+	game_config << GameDataSize;
+	game_config = game_config && config->round;
+	iowrite32(game_config, GAMEDATA(dev.virtbase));
 }
 
 /*
@@ -59,22 +69,22 @@ static long duck_hunt_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	all_game_data_t game_data;
 
 	switch (cmd) {
-	case DUCK_HUNT_WRITE_GAME_DATA:
-		if (copy_from_user(&game_data, (all_game_data_t *) arg,
-				   sizeof(all_game_data_t)))
-			return -EACCES;
-		write_duck_config(&game_data.duck_1);
-		break;
+		case DUCK_HUNT_WRITE_GAME_DATA:
+			if (copy_from_user(&game_data, (all_game_data_t *) arg,
+						sizeof(all_game_data_t)))
+				return -EACCES;
+			write_duck_config(&game_data.duck_1);
+			break;
 
-	case DUCK_HUNT_READ_GAME_DATA:
-	  	game_data = dev.game;
-		if (copy_to_user((all_game_data_t *) arg, &game_data,
-				 sizeof(all_game_data_t)))
-			return -EACCES;
-		break;
+		case DUCK_HUNT_READ_GAME_DATA:
+			game_data = dev.game;
+			if (copy_to_user((all_game_data_t *) arg, &game_data,
+						sizeof(all_game_data_t)))
+				return -EACCES;
+			break;
 
-	default:
-		return -EINVAL;
+		default:
+			return -EINVAL;
 	}
 
 	return 0;
@@ -99,7 +109,7 @@ static struct miscdevice duck_hunt_misc_device = {
  */
 static int __init duck_hunt_probe(struct platform_device *pdev)
 {
-        //vga_ball_color_t beige = { 0xf9, 0xe4, 0xb7 };
+	//vga_ball_color_t beige = { 0xf9, 0xe4, 0xb7 };
 	int ret;
 
 	/* Register ourselves as a misc device: creates /dev/vga_ball */
@@ -114,7 +124,7 @@ static int __init duck_hunt_probe(struct platform_device *pdev)
 
 	/* Make sure we can use these registers */
 	if (request_mem_region(dev.res.start, resource_size(&dev.res),
-			       DRIVER_NAME) == NULL) {
+				DRIVER_NAME) == NULL) {
 		ret = -EBUSY;
 		goto out_deregister;
 	}
@@ -125,9 +135,9 @@ static int __init duck_hunt_probe(struct platform_device *pdev)
 		ret = -ENOMEM;
 		goto out_release_mem_region;
 	}
-        
+
 	/* Set an initial color */
-        //write_background(&beige);
+	//write_background(&beige);
 
 	return 0;
 
