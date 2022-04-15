@@ -1,7 +1,7 @@
 ifneq (${KERNELRELEASE},)
 
 # KERNELRELEASE defined: we are being compiled as part of the Kernel
-        obj-m := duck_hunt.o
+        obj-m := duck_hunt.o 
 
 else
 
@@ -10,10 +10,13 @@ else
 	KERNEL_SOURCE := /usr/src/linux-headers-$(shell uname -r)
         PWD := $(shell pwd)
 
-default: module hello
+EXTRA_CFLAGS = -I$(src)/game
+default: module hello 
 
-module:
-	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} modules
+hello: game/game.o
+
+module: 
+	${MAKE} -C ${KERNEL_SOURCE} ${EXTRA_CFLAGS} SUBDIRS=${PWD}  modules
 
 clean:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean

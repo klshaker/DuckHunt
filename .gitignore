@@ -4,7 +4,9 @@ modules.order
 *.so
 *.ko
 *.o
+*.o.d
 *.swp
+*.swo
 hello 
 *.cmd
 duck_hunt.mod.c

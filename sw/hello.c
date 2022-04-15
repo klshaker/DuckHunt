@@ -18,11 +18,11 @@
 
 int duck_hunt_fd;
 
-/* Read and print the background color */
+/* Read and print the game state */
 /*void print_background_color() {
-  vga_ball_arg_t vla;
+  all_game_data_t game_data;
   
-  if (ioctl(vga_ball_fd, VGA_BALL_READ_BACKGROUND, &vla)) {
+  if (ioctl(vga_ball_fd, VGA_BALL_READ_BACKGROUND, &game_data)) {
       perror("ioctl(VGA_BALL_READ_BACKGROUND) failed");
       return;
   }
@@ -56,12 +56,13 @@ void play_game(){
 	ducks[0].coord.x = 0;
 	ducks[0].coord.y = 400;
 	ducks[0].value = 10;
+	coord_t cross_hair = { 0, 0};
 	all_game_data_t game_data;
+	
 	game_data.game_conf = config;
-	game_data.ducks = ducks;
 	int num_ducks_seen =0;
 
-	while(!is_game_over(&all_game_data, num_ducks_seen)){
+	while(!is_game_over(&game_data.game_conf, num_ducks_seen)){
 		
 		// poll wii controller.
 		// if trigger pressed
@@ -76,7 +77,6 @@ void play_game(){
 
 int main()
 {
-  int i;
   static const char filename[] = "/dev/duck_hunt";
 
   printf("Duck Hunt userspace program started\n");

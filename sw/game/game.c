@@ -59,8 +59,6 @@ int shoot_at_ducks(duck_t* ducks, int num_ducks, coord_t cross_hair, game_config
 	return 1;
 }
 
-
-
 int is_game_over(game_config_t * config, int num_ducks_seen){
 	return config->bullets ==0 || num_ducks_seen == kMaxDucksPerGame;
 }
