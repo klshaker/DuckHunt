@@ -50,7 +50,7 @@ static void write_to_sprite_attr_table(attr_table_entry_t *sprite)
 }
 
 // Called at program startup to initialize all of the sprites. This data will not change throughout the lifetime of the program.
-static void write_sprite_table(sprite_data_t * sprite)
+static void write_to_sprite_table(sprite_data_t * sprite)
 {
 	int i = 0;
 	for(; i < SPRITE_SIZE; i ++){
@@ -80,7 +80,7 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 			if (copy_from_user(&sprite, (sprite_data_t*) arg,
 						sizeof(sprite_data_t)))
 				return -EACCES;
-			write_sprite_table(&sprite);
+			write_to_sprite_table(&sprite);
 			break;
 
 		default:

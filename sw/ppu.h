@@ -2,7 +2,6 @@
 #define _PPU_H_
 
 #include <linux/ioctl.h>
-#include "game/game.h"
 
 #define PPU_MAGIC 'q'
 

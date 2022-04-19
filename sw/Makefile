@@ -13,7 +13,7 @@ else
 EXTRA_CFLAGS = -I$(src)/game
 default: module hello 
 
-hello: game/game.o
+hello: game/game.o sprites.o
 
 module: 
 	${MAKE} -C ${KERNEL_SOURCE} ${EXTRA_CFLAGS} SUBDIRS=${PWD}  modules

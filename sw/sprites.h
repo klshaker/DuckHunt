@@ -7,10 +7,11 @@
 
 #include "game/game.h"
 
-#define NUM_SPRITES 32 // may add more later
-#define NUM_BULLETS_POSSIBLE 3
+#define NUM_SPRITES 16 // may add more later
+#define NUM_BULLETS 3
 #define SPRITE_SIZE 16
 // assume the duck sprites are the first sprites in the sprite table.
+#define NUM_DUCKS 2
 #define DUCK_SPRITE_OFFSET 0
 #define DUCK_SPRITE_ATTR_TABLE_OFFSET 0
 
@@ -18,6 +19,10 @@
 #define BULLET_SPRITE_ATTR_TABLE_OFFSET 2
 #define BULLET_SPRITE_X_LOC 10
 #define BULLET_SPRITE_Y_LOC 10
+
+#define NUMBER_SPRITE_OFFSET 80
+#define SCORE_SPRITE_ATTR_TABLE_OFFSET 5
+#define NUM_SCORE_DIGITS 2 
 
 typedef struct {
 	coord_t coord;
@@ -35,19 +40,16 @@ typedef struct {
 
 // data tables
 
-int attr_table[32] = {};
 sprite_data_t sprites[NUM_SPRITES];
 int color_table[NUM_SPRITES*4];
 
+// Writes the sprite attr table to FPGA memory using ioctl calls. Returns 1 if table written succesfully. Returns 0 otherwise.
+int write_sprite_attr_table(int fd);
+
+//int write_sprite_table(int fd);
 
 // Takes the duck in the game and pulls the info that is needed for the attr table for it.
 attr_table_entry_t convert_duck_to_attr_entry(duck_t* duck);
-
-// takes an entries array by reference and populates it with 
-// bullet 1, bullet 2, bullet 3, score 1, score 2, round
-void get_game_config_attr_entries(game_config_t * game_config, attr_table_entry_t* entries);
-
-
 
 
 #endif
