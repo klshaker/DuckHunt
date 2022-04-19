@@ -7,9 +7,9 @@ modules.order
 *.o.d
 *.swp
 *.swo
+*.mod.c
 hello 
 *.cmd
-duck_hunt.mod.c
 Module.symvers
 
 

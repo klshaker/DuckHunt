@@ -1,4 +1,4 @@
-#include "duck_hunt.h"
+#include "ppu.h"
 #include "sprites.h"
 #include <linux/module.h>
 #include <linux/init.h>

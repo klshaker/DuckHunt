@@ -1,9 +1,8 @@
-#ifndef _DUCK_HUNT_H
-#define _DUCK_HUNT_H
+#ifndef _PPU_H_
+#define _PPU_H_
 
 #include <linux/ioctl.h>
 #include "game/game.h"
-
 
 #define PPU_MAGIC 'q'
 
