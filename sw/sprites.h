@@ -32,24 +32,20 @@ typedef struct {
 	int addr;
 } attr_table_entry_t;
 
+// one sprite in the sprite table
 typedef struct {
 	int addr; // address offset from beginning of sprite table.
 	int sprite[SPRITE_SIZE];
 } sprite_data_t;
 
-
-// data tables
-
-sprite_data_t sprites[NUM_SPRITES];
-int color_table[NUM_SPRITES*4];
-
 // Writes the sprite attr table to FPGA memory using ioctl calls. Returns 1 if table written succesfully. Returns 0 otherwise.
 int write_sprite_attr_table(int fd);
 
-//int write_sprite_table(int fd);
+// Writes the sprite table to FPGA memory using ioctl calls.
+int write_sprite_table(int fd);
 
-// Takes the duck in the game and pulls the info that is needed for the attr table for it.
-attr_table_entry_t convert_duck_to_attr_entry(duck_t* duck);
+// Takes the duck in the game and pulls the info that is needed for the attr table for it. Writes that info to the attribution table with an ioctl call.
+int update_duck_attr(int fd, duck_t * duck, int num_ducks);
 
 
 #endif

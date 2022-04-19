@@ -69,6 +69,8 @@ void play_game(){
 			// if trigger pressed
 
 			move_ducks(ducks, 2);
+			update_duck_attr(duck_hunt_fd, ducks, 2);
+			
 			// call kernel driver APIs.
 			//update_game_data(&game_data);
 		}
@@ -87,6 +89,7 @@ int main()
 		return -1;
 	}
 	write_sprite_attr_table(duck_hunt_fd);
+	write_sprite_table(duck_hunt_fd);
 
 
 	printf("initial state: ");
