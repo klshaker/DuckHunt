@@ -70,8 +70,6 @@ void play_game(){
 
 			move_ducks(ducks, 2);
 			update_duck_attr(duck_hunt_fd, ducks, 2);
-			
-			// call kernel driver APIs.
 			//update_game_data(&game_data);
 		}
 

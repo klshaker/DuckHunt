@@ -22,11 +22,13 @@ clean:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
 	${RM} hello
 
-#duck_hunt.o: duck_hunt.c duck_hunt.h 
-#	gcc -c duck_hunt.c -o duck_hunt.o 
+sprites_test.o: sprites.h sprites.c
+	gcc -c sprites_test.c 
 
-#duck_hunt: duck_hunt.o 
-#	gcc -o duck_hunt duck_hunt.o 
+sprites_test: sprites_test.o sprites.o 
+	gcc sprites_test.o sprites.o -o sprites_test
+	./sprites_test
+
 
 TARFILES = Makefile README vga_ball.h vga_ball.c hello.c
 TARFILE = lab3-sw.tar.gz

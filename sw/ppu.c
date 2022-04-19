@@ -16,10 +16,6 @@
 
 #define DRIVER_NAME "ppu"
 
-#define ATTR_TABLE_OFFSET(x, y) (x+0x000 + y)
-#define SPRITE_TABLE_OFFSET(x, y) (x+0x100 + y)
-#define COLOR_OFFSET_TABLE(x, y) (x+0x200 +y )
-
 #define OBJ_SPRITE_OFFSET 20
 #define OBJ_X_COORD_OFFSET 10
 #define OBJ_Y_COORD_OFFSET 0

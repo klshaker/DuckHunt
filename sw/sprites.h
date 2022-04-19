@@ -24,6 +24,16 @@
 #define SCORE_SPRITE_ATTR_TABLE_OFFSET 5
 #define NUM_SCORE_DIGITS 2 
 
+#define CROSSHAIR_SPRITE_OFFSET 240
+
+
+#define ATTR_TABLE_OFFSET 0x000 
+#define ATTR_TABLE_WRITE_LOCATION(x,y) (x + ATTR_TABLE_OFFSET + y)
+#define SPRITE_TABLE_OFFSET(x, y) (x+0x100 + y)
+#define COLOR_OFFSET_TABLE(x, y) (x+0x200 +y )
+
+
+
 typedef struct {
 	coord_t coord;
 	char sprite;
@@ -40,6 +50,9 @@ typedef struct {
 
 // Writes the sprite attr table to FPGA memory using ioctl calls. Returns 1 if table written succesfully. Returns 0 otherwise.
 int write_sprite_attr_table(int fd);
+
+// populates a attr_table_entry_t array with all of the attr table entries.
+int build_sprite_attr_table(attr_table_entry_t * entries, int num_entries);
 
 // Writes the sprite table to FPGA memory using ioctl calls.
 int write_sprite_table(int fd);
