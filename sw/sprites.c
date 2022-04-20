@@ -9,7 +9,7 @@
 #define black 0x000FFFFFF
 
 //TODO(kristenshaker) update the number of sprites
-const int sprites[2][SPRITE_SIZE] = { 
+const int kSprites[2][SPRITE_SIZE] = { 
 //duckUp
 {
 	second,
@@ -135,13 +135,13 @@ int build_sprite_table(sprite_data_t* sprites, int *num_actual_sprites){
 	*num_actual_sprites = 0;
 	sprite_data_t duck_up;
 	duck_up.addr = DUCK_SPRITE_OFFSET;
-	memcpy(&sprites[*num_actual_sprites].sprite, &sprites[0], sizeof(int) * SPRITE_SIZE);
+	memcpy(&sprites[*num_actual_sprites].sprite, &kSprites[0], sizeof(int) * SPRITE_SIZE);
 	memcpy(&sprites[*num_actual_sprites].addr, &duck_up.addr, sizeof(int));
 	++(*num_actual_sprites);
 
 	sprite_data_t duck_down;
 	duck_down.addr = DUCK_SPRITE_OFFSET + SPRITE_SIZE;
-	memcpy(&sprites[*num_actual_sprites].sprite, &sprites[0], sizeof(int)*SPRITE_SIZE);
+	memcpy(&sprites[*num_actual_sprites].sprite, &kSprites[0], sizeof(int)*SPRITE_SIZE);
 	memcpy(&sprites[*num_actual_sprites].addr, &duck_down.addr, sizeof(int));
 	++(*num_actual_sprites);
 
