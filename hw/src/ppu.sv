@@ -17,7 +17,7 @@ module ppu
 	input logic [31:0]  	writedata,
 	input logic 	   	write,
 	input 			chipselect,
-	input logic [3:0]  	address,
+	input logic [11:0]  	address,
 
 	output logic [7:0] 	VGA_R, VGA_G, VGA_B,
 	output logic 		VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_n,
@@ -35,8 +35,9 @@ module ppu
 	logic [7:0] 	background_r, background_g, background_b;
 
 	vga_counters 		counters(.clk50(clk), .*);
-	sprite_attr_table	memory(clk, mem_write[0], address, writedata, sprite_attr);
-	sprite_table 		memory(clk, mem_write[1], address, writedata, sprite);
+	sprite_attr_table	#(32,  16, 4)  memory(clk, mem_write[0], address[3:0], writedata, sprite_attr);
+	sprite_table 		#(32, 256, 8)  memory(clk, mem_write[1], address[7:0], writedata, sprite);
+	color_table 		#(32,  16, 4)  memory(clk, mem_write[2], address[3:0], writedata, sprite);
 
 	genvar k;
 	generate
@@ -58,27 +59,63 @@ module ppu
 			background_g <= 8'h0;
 			background_b <= 8'h80;
 		end else if (chipselect && write) begin
-			mem_write[write[7:6]] = 1;
+			mem_write[address[11:9]] = 1;
 
 		end
 	end
 
 
-	enum logic [1:0] {A, S, O} state;
-	logic [3:0] xfer_addr = 0;
-	always_ff @(posedge clk)
-	dc_ld = 15'b0;
-		if (hcount == 1279) begin
-			state <= O;
-			dc_en = {15{1'b1}};
-		end
-		if (hcount == 1599) begin
-			state <= S;
-			dc_ld[addr] 
-			xfer_addr <= xfer_addr + 1;
-
+	logic [3:0]	scount;
+	logic [9:0]	tx, ty;
+	logic [12:0]	taddr;
+	logic [3:0]	tcolor;
+	logic [3:0] 	colors[3:0];
 			
+	enum logic [3:0] {CHECK, SET, IDLE, OUTPUT} state;
+	always_ff @(posedge clk) begin
+		scount = 3'b0;
+		dc_en, dc_ld, sh_ld <= 15'b0;
+		case (state)
+			CHECK: begin
+				ty	<= sprite_attr[9:0];
+				tx	<= sprite_attr[19:10];
+				tcolor	<= sprite_attr[31:28];
+				if (scount == 15) state <= IDLE;
+				else if (vcount <= attr.y + 15 && vcount >= attr.y) begin
+					state 	<= SET;
+					taddr	<= sprite_attr[27:20];
+					dc_ld[scount] <= 1'b1;
+					sh_ld[scount] <= 1'b1;
+				end else taddr 	<= scount + 1;
 
+			end
+			SET: begin
+				scount <= scount +1;
+				taddr  <= scount + 1;
+				state  <= CHECK;
+			end
+			IDLE: begin
+				if (hcount == 1278) begin
+					state <= OUTPUT;
+					dc_en <= {15{1'b1}};
+				end
+			end
+			OUTPUT: begin
+				if (hcount == 1599) state <= CHECK;
+				for (int i = 0; i < 15; i++)
+				{
+					if (sh_out[i] != 0)
+						color_sel <= colors[i] + sh_out[i];
+						break;
+				}
+				background_r <= color_table[color_sel][7:0];
+				background_g <= color_table[color_sel][15:8];
+				background_b <= color_table[color_sel][23:16];
+			end;
+
+
+
+	//Write background color to VGA
 	always_comb begin
 		if (VGA_BLANK_n )
 			{VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0};
@@ -88,6 +125,8 @@ module ppu
 			{VGA_R, VGA_G, VGA_B} = {background_r, background_g, background_b};
 		end
 	end
+
+	function
 
 endmodule
 
