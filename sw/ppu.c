@@ -37,16 +37,31 @@ struct ppu_dev {
 // Write to the attribution table sprite related information. Addr will vary based on which sprite we are updating. 
 static void write_to_sprite_attr_table(attr_table_entry_t *sprite)
 {
-	
+
 	int data = 0xFFFF;
 
 	data = data && (sprite->coord.x << OBJ_X_COORD_OFFSET);
 	data = data && (sprite->coord.y << OBJ_Y_COORD_OFFSET);
 	data = data && (sprite->sprite  << OBJ_SPRITE_OFFSET);
 	data = data && (sprite->color_table   << OBJ_COLOR_OFFSET);
-	
+
 	iowrite32(data, ATTR_TABLE_OFFSET(dev.virtbase , sprite->addr));
-	
+
+}
+
+static void write_to_color_table(color_data_t *color)
+{
+
+	int i = 0;
+	for(; i < NUM_COLORS_PER_TABLE; ++i){
+		int data = 0xFFFF;
+
+		iowrite32(data, COLOR_TABLE_OFFSET(dev.virtbase , sprite->addr + i));
+
+
+
+	}	
+
 }
 
 // Called at program startup to initialize all of the sprites. This data will not change throughout the lifetime of the program.
@@ -67,7 +82,8 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
 	attr_table_entry_t attr_table_entry;
 	sprite_data_t sprite;
-	
+	color_data_t color;
+
 	switch (cmd) {
 		case ATTR_TABLE_WRITE_DATA:  
 			if (copy_from_user(&attr_table_entry, (attr_table_entry_t *) arg,
@@ -81,6 +97,12 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 						sizeof(sprite_data_t)))
 				return -EACCES;
 			write_to_sprite_table(&sprite);
+			break;
+		case COLOR_TABLE_WRITE_DATA:
+			if (copy_from_user(&color, (color_data_t*) arg,
+						sizeof(color_data_t)))
+				return -EACCES;
+			write_to_color_table(&color);
 			break;
 
 		default:

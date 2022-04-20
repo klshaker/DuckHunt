@@ -26,6 +26,8 @@
 
 #define CROSSHAIR_SPRITE_OFFSET 240
 
+#define NUM_COLORS_PER_TABLE 4
+
 
 #define ATTR_TABLE_OFFSET 0x000 
 #define ATTR_TABLE_WRITE_LOCATION(x,y) (x + ATTR_TABLE_OFFSET + y)
@@ -45,6 +47,11 @@ typedef struct {
 	unsigned int sprite[SPRITE_SIZE];
 } sprite_data_t;
 
+typedef struct {
+	int addr;
+	int colors[4];
+} color_data_t;
+
 // Writes the sprite attr table to FPGA memory using ioctl calls. Returns 1 if table written succesfully. Returns 0 otherwise.
 int write_sprite_attr_table(int fd);
 
@@ -55,6 +62,8 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries);
 int write_sprite_table(int fd);
 
 int build_sprite_table(sprite_data_t* sprites, int *num_actual_sprites);
+
+int write_color_table(int fd);
 
 // Takes the duck in the game and pulls the info that is needed for the attr table for it. Writes that info to the attribution table with an ioctl call.
 int update_duck_attr(int fd, duck_t * duck, int num_ducks);

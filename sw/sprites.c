@@ -4,42 +4,57 @@
 #include "ppu.h"
 #include <sys/ioctl.h>
 
-// zero initialized
-#define black  0xAAAAAAAA
+// second entry in the color table for the entire sprite.
+#define second  0xAAAAAAAA
+#define black 0x000FFFFFF
 
-const int kDuckUp[SPRITE_SIZE] = { 
-	black,
-	black,
-	black,
-	black,
-	black,
-	black,
-	black,
-	black,
-	black,
-	black,
-	black,
-	black,
-	black,
-	black,
-	black,
-	black,
+//TODO(kristenshaker) update the number of sprites
+const int sprites[2][SPRITE_SIZE] = { 
+//duckUp
+{
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+},
+{
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+	second,
+}
 };
 
-const int kDuckDown[SPRITE_SIZE] = {};
-const int kDuckDead[SPRITE_SIZE] = {};
-const int kBulletShaded[SPRITE_SIZE] = {};
-const int kBulletTransparent[SPRITE_SIZE] = {};
-const int kOne[SPRITE_SIZE] = {};
-const int kTwo[SPRITE_SIZE] = {};
-const int kThree[SPRITE_SIZE] = {};
-const int kFour[SPRITE_SIZE] = {};
-const int kFive[SPRITE_SIZE] = {};
-const int kSix[SPRITE_SIZE] = {};
-const int kSeven[SPRITE_SIZE] = {};
-const int kEight[SPRITE_SIZE] = {};
-const int kNine[SPRITE_SIZE] = {};
-const int kCrosshair[SPRITE_SIZE] = {};
+const int kColors[2][4] ={
+
+{black, black, black, black},
+{black, black, black, black},
+
+};
 
 int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 
@@ -120,13 +135,13 @@ int build_sprite_table(sprite_data_t* sprites, int *num_actual_sprites){
 	*num_actual_sprites = 0;
 	sprite_data_t duck_up;
 	duck_up.addr = DUCK_SPRITE_OFFSET;
-	memcpy(&sprites[*num_actual_sprites].sprite, kDuckUp, sizeof(int) * SPRITE_SIZE);
+	memcpy(&sprites[*num_actual_sprites].sprite, &sprites[0], sizeof(int) * SPRITE_SIZE);
 	memcpy(&sprites[*num_actual_sprites].addr, &duck_up.addr, sizeof(int));
 	++(*num_actual_sprites);
 
 	sprite_data_t duck_down;
 	duck_down.addr = DUCK_SPRITE_OFFSET + SPRITE_SIZE;
-	memcpy(&sprites[*num_actual_sprites].sprite, kDuckUp, sizeof(int)*SPRITE_SIZE);
+	memcpy(&sprites[*num_actual_sprites].sprite, &sprites[0], sizeof(int)*SPRITE_SIZE);
 	memcpy(&sprites[*num_actual_sprites].addr, &duck_down.addr, sizeof(int));
 	++(*num_actual_sprites);
 
@@ -143,6 +158,31 @@ int write_sprite_table(int fd){
 	int i =0;
 	for(;i<num_actual_sprites; ++i){
 		if (ioctl(fd, SPRITE_TABLE_WRITE_DATA, &sprites[i])) {
+			perror("ioctl(SPRITE_TABLE_WRITE_DATA) failed");
+			return 0;
+		}
+
+	}
+}
+
+int build_color_table(color_data_t* colors){
+	int i = 0;
+	for(;i< 2; ++i){
+		memcpy(&colors[i], &kColors[i], sizeof(int) * NUM_COLORS_PER_TABLE);
+		colors[i].addr = i * NUM_COLORS_PER_TABLE;
+	}
+}
+
+int write_color_table(int fd){
+
+	color_data_t colors[2];
+	if(!build_color_table(colors)){
+		return 0;
+	}
+	
+	int i = 0;
+	for(;i<2; ++i){
+		if (ioctl(fd, COLOR_TABLE_WRITE_DATA, &colors[i])) {
 			perror("ioctl(SPRITE_TABLE_WRITE_DATA) failed");
 			return 0;
 		}
