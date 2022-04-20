@@ -5,7 +5,27 @@
 #include <sys/ioctl.h>
 
 // zero initialized
-const int kDuckUp[SPRITE_SIZE] = {};
+#define black  0xAAAAAAAA
+
+const int kDuckUp[SPRITE_SIZE] = { 
+	black,
+	black,
+	black,
+	black,
+	black,
+	black,
+	black,
+	black,
+	black,
+	black,
+	black,
+	black,
+	black,
+	black,
+	black,
+	black,
+};
+
 const int kDuckDown[SPRITE_SIZE] = {};
 const int kDuckDead[SPRITE_SIZE] = {};
 const int kBulletShaded[SPRITE_SIZE] = {};
@@ -23,16 +43,17 @@ const int kCrosshair[SPRITE_SIZE] = {};
 
 int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 
+	*num_entries = 0;
+
 	int i = 0;
 	for(;i < NUM_DUCKS; i++){
 		attr_table_entry_t duck;
 		duck.coord.x = 0;
 		duck.coord.y = 0;
 		duck.sprite = DUCK_SPRITE_OFFSET;
-		duck.addr = DUCK_SPRITE_ATTR_TABLE_OFFSET + i;
+		duck.addr = *num_entries;
 
-		memcpy(&entries[*num_entries], &duck, sizeof(duck));
-
+		entries[*num_entries] = duck;
 		++(*num_entries);
 
 	}
@@ -46,13 +67,12 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 		bullet.coord.y = BULLET_SPRITE_Y_LOC;
 		// all bullets start off shaded.
 		bullet.sprite = BULLET_SPRITE_OFFSET;
-		bullet.addr = BULLET_SPRITE_ATTR_TABLE_OFFSET +i;
+		bullet.addr = *num_entries;
 
-
-
-		memcpy(&entries[*num_entries], &bullet, sizeof(bullet));
+		entries[*num_entries] = bullet;
 		++(*num_entries);
 	}
+
 	i = 0;
 	for(;i< NUM_SCORE_DIGITS; ++i){
 		attr_table_entry_t score;
@@ -61,10 +81,9 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 		score.coord.y = 10;
 		// score starts off 00
 		score.sprite = NUMBER_SPRITE_OFFSET;
-		score.addr = SCORE_SPRITE_ATTR_TABLE_OFFSET;
+		score.addr = *num_entries;
+		entries[*num_entries] = score;
 
-
-		memcpy(&entries[*num_entries], &score, sizeof(score));
 		++(*num_entries);
 	}
 
@@ -75,9 +94,10 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 	round.coord.y = 10;
 	// round starts at 0
 	round.sprite = NUMBER_SPRITE_OFFSET;
-	round.addr = SCORE_SPRITE_ATTR_TABLE_OFFSET + NUM_SCORE_DIGITS;
+	round.addr = *num_entries;
 
-	memcpy(&entries[*num_entries], &round, sizeof(round));
+	entries[*num_entries] = round;
+
 	++(*num_entries);
 	attr_table_entry_t crosshair;
 	// TODO(kristenshaker): change these coords
@@ -86,51 +106,62 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 	// round starts at 0
 	crosshair.sprite = CROSSHAIR_SPRITE_OFFSET;
 	// after round
-	crosshair.addr = SCORE_SPRITE_ATTR_TABLE_OFFSET + NUM_SCORE_DIGITS + 1;
+	crosshair.addr = *num_entries;
 
-	memcpy(&entries[*num_entries], &crosshair, sizeof(crosshair));
+	entries[*num_entries]=crosshair;
 	++(*num_entries);
 
 	return 1;
 }
 
-int write_sprite_table_sprite_ioctl(int fd, sprite_data_t * sprite){
-	if (ioctl(fd, SPRITE_TABLE_WRITE_DATA, sprite)) {
-		perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
-		return 0;
-	}
+
+int build_sprite_table(sprite_data_t* sprites, int *num_actual_sprites){
+
+	*num_actual_sprites = 0;
+	sprite_data_t duck_up;
+	duck_up.addr = DUCK_SPRITE_OFFSET;
+	memcpy(&sprites[*num_actual_sprites].sprite, kDuckUp, sizeof(int) * SPRITE_SIZE);
+	memcpy(&sprites[*num_actual_sprites].addr, &duck_up.addr, sizeof(int));
+	++(*num_actual_sprites);
+
+	sprite_data_t duck_down;
+	duck_down.addr = DUCK_SPRITE_OFFSET + SPRITE_SIZE;
+	memcpy(&sprites[*num_actual_sprites].sprite, kDuckUp, sizeof(int)*SPRITE_SIZE);
+	memcpy(&sprites[*num_actual_sprites].addr, &duck_down.addr, sizeof(int));
+	++(*num_actual_sprites);
+
 	return 1;
 }
 
 int write_sprite_table(int fd){
 
-	sprite_data_t duck_up;
-	duck_up.addr = DUCK_SPRITE_OFFSET;
-	memcpy(duck_up.sprite, kDuckUp, SPRITE_SIZE);
-	write_sprite_table_sprite_ioctl(fd, &duck_up);
+	sprite_data_t sprites[NUM_SPRITES];
+	int num_actual_sprites =0;
+	if(!build_sprite_table(sprites, &num_actual_sprites)){
+		return 0;
+	}
+	int i =0;
+	for(;i<num_actual_sprites; ++i){
+		if (ioctl(fd, SPRITE_TABLE_WRITE_DATA, &sprites[i])) {
+			perror("ioctl(SPRITE_TABLE_WRITE_DATA) failed");
+			return 0;
+		}
 
-	sprite_data_t duck_down;
-	duck_down.addr = DUCK_SPRITE_OFFSET + SPRITE_SIZE;
-	memcpy(duck_down.sprite, kDuckDown, SPRITE_SIZE);
-	write_sprite_table_sprite_ioctl(fd, &duck_down);
-
-	sprite_data_t duck_dead;
-	duck_down.addr = DUCK_SPRITE_OFFSET + 2 * SPRITE_SIZE;
-	memcpy(duck_dead.sprite, kDuckDead, SPRITE_SIZE);
-	write_sprite_table_sprite_ioctl(fd, &duck_dead);
+	}
 }
+
 
 int write_sprite_attr_table(int fd){
 	// number of possible sprites
 	attr_table_entry_t entries[NUM_SPRITES];
 	// number of actual data table entries.
-	int num_sprites_actual = 0;
-	if(!build_sprite_attr_table(entries, num_sprites_actual)){
+	int num_entries_actual = 0;
+	if(!build_sprite_attr_table(entries, &num_entries_actual)){
 
 		return 0;
 	}
 	int i = 0;
-	for(; i < num_sprites_actual; ++i){
+	for(; i < num_entries_actual; ++i){
 		if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &entries[i])) {
 			perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
 			return 0;

@@ -21,6 +21,10 @@
 #define OBJ_Y_COORD_OFFSET 0
 #define OBJ_COLOR_OFFSET 28
 
+#define SPRITE_TABLE_OFFSET(y) ((0x100) + y)
+#define COLOR_OFFSET_TABLE(y) (0x200 +y )
+
+
 /*
  * Information about our device
  */

@@ -29,9 +29,6 @@
 
 #define ATTR_TABLE_OFFSET 0x000 
 #define ATTR_TABLE_WRITE_LOCATION(x,y) (x + ATTR_TABLE_OFFSET + y)
-#define SPRITE_TABLE_OFFSET(x, y) (x+0x100 + y)
-#define COLOR_OFFSET_TABLE(x, y) (x+0x200 +y )
-
 
 
 typedef struct {
@@ -45,17 +42,19 @@ typedef struct {
 // one sprite in the sprite table
 typedef struct {
 	int addr; // address offset from beginning of sprite table.
-	int sprite[SPRITE_SIZE];
+	unsigned int sprite[SPRITE_SIZE];
 } sprite_data_t;
 
 // Writes the sprite attr table to FPGA memory using ioctl calls. Returns 1 if table written succesfully. Returns 0 otherwise.
 int write_sprite_attr_table(int fd);
 
 // populates a attr_table_entry_t array with all of the attr table entries.
-int build_sprite_attr_table(attr_table_entry_t * entries, int num_entries);
+int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries);
 
 // Writes the sprite table to FPGA memory using ioctl calls.
 int write_sprite_table(int fd);
+
+int build_sprite_table(sprite_data_t* sprites, int *num_actual_sprites);
 
 // Takes the duck in the game and pulls the info that is needed for the attr table for it. Writes that info to the attribution table with an ioctl call.
 int update_duck_attr(int fd, duck_t * duck, int num_ducks);

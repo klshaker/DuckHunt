@@ -89,7 +89,6 @@ int main()
 	write_sprite_attr_table(duck_hunt_fd);
 	write_sprite_table(duck_hunt_fd);
 
-
 	printf("initial state: ");
 	play_game();
 
