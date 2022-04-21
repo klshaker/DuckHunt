@@ -16,6 +16,7 @@
 
 #define DRIVER_NAME "ppu"
 
+// How the bits for each attr table entry are laid out.
 #define OBJ_SPRITE_OFFSET 20
 #define OBJ_X_COORD_OFFSET 10
 #define OBJ_Y_COORD_OFFSET 0

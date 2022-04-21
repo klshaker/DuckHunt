@@ -8,6 +8,13 @@
 #define second  0xAAAAAAAA
 #define black 0x000FFFFFF
 
+#define NUM_BULLETS 3
+#define NUM_DUCKS 2
+#define NUM_SCORE_DIGITS 2 
+
+#define BULLET_SPRITE_X_LOC 10
+#define BULLET_SPRITE_Y_LOC 10
+
 // Initialization at static storage duration scope ensures that built in type member 
 // variables are all zero initialized. 
 const sprite_data_t const kSpriteTableData[NUM_SPRITES] = { 
@@ -134,7 +141,7 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 
 int write_sprite_table(int fd){
 
-	int i =0;
+	int i = 0;
 	for(; i < NUM_SPRITES; ++i){
 		if (ioctl(fd, SPRITE_TABLE_WRITE_DATA, &kSpriteTableData[i])) {
 			perror("ioctl(SPRITE_TABLE_WRITE_DATA) failed");
@@ -155,8 +162,8 @@ int write_color_table(int fd){
 }
 
 int write_sprite_attr_table(int fd){
-	// number of possible sprites
-	attr_table_entry_t entries[NUM_SPRITES];
+	// number of possible sprites. Zero initialize array.
+	attr_table_entry_t entries[NUM_SPRITES] = {};
 	// number of actual data table entries.
 	int num_entries_actual = 0;
 	if(!build_sprite_attr_table(entries, &num_entries_actual)){
@@ -177,17 +184,16 @@ int write_sprite_attr_table(int fd){
 attr_table_entry_t convert_duck_to_attr_entry(duck_t* duck){
 	attr_table_entry_t entry;
 	entry.coord = duck->coord;
-	entry.id = duck->id; 
+	entry.id = DUCK_SPRITE_ATTR_TABLE_OFFSET + duck->id; 
 	entry.sprite = DUCK_SPRITE_OFFSET + duck->state; 
 	entry.color_table = 0; 
 	return entry;
 }
 
 int update_duck_attr(int fd, duck_t * ducks, int num_ducks) {
-	int i =0;
+	int i = 0;
 	for(; i < NUM_DUCKS; ++i){
 		attr_table_entry_t duck_attr = convert_duck_to_attr_entry(&ducks[i]);
-
 		if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &duck_attr)) {
 			perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
 			return 0;

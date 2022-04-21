@@ -1,5 +1,5 @@
-/* Converts game data to sprite attribute data.
-   Populates data structures containing sprite attribute table, sprite table, and color tables.
+/* 
+   Handles all sprite related data. 
 */
 
 #ifndef _SPRITES_H
@@ -26,18 +26,7 @@
 #define ROUND_SPRITE_ATTR_TABLE_OFFSET 7
 #define CROSSHAIR_SPRITE_ATTR_TABLE_OFFSET 8
 
-
-//TODO(kristenshaker): do we need these? 
-#define NUM_SPRITES 16 // may add more later
-#define NUM_BULLETS 3
-// assume the duck sprites are the first sprites in the sprite table.
-#define NUM_DUCKS 2
-
-#define BULLET_SPRITE_X_LOC 10
-#define BULLET_SPRITE_Y_LOC 10
-
-#define NUM_SCORE_DIGITS 2 
-
+#define NUM_SPRITES 16 
 
 typedef struct {
 	// location of this attr table on the VGA monitor 
@@ -74,19 +63,19 @@ typedef struct {
 extern const sprite_data_t  const kSpriteTableData[NUM_SPRITES];
 extern const color_data_t  const kColorTableData[NUM_SPRITES];
 
-// Writes the sprite attr table to FPGA memory using ioctl calls. Returns 1 if table written succesfully. Returns 0 otherwise.
+// Writes the sprite attr table to FPGA memory using ioctl calls. 
 int write_sprite_attr_table(int fd);
 
-// populates a attr_table_entry_t array with all of the attr table entries.
+// Populates attr_table_entry_t array with all of the attr table entries.
 int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries);
 
 // Writes the sprite table to FPGA memory using ioctl calls.
 int write_sprite_table(int fd);
 
+// Write the color table to FPGA memory using ioctl calls.
 int write_color_table(int fd);
 
 // Takes the duck in the game and pulls the info that is needed for the attr table for it. Writes that info to the attribution table with an ioctl call.
 int update_duck_attr(int fd, duck_t * duck, int num_ducks);
-
 
 #endif
