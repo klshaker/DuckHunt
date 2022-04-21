@@ -2,23 +2,6 @@
 #include <assert.h>
 #include <stdio.h>
 
-void test_build_sprite_table(){
-	sprite_data_t sprites[NUM_SPRITES];
-	int num_sprites = 0;
-	int success = build_sprite_table(sprites, &num_sprites);
-	assert(success == 1);
-	assert(num_sprites == 2);
-	int i = 0;
-	for(; i < num_sprites; ++i){
-		assert(sprites[i].addr ==  SPRITE_SIZE * i);
-		int j =0;
-		for(; j < SPRITE_SIZE; ++j){
-		assert(sprites[i].sprite[j] == 0xAAAAAAAA);
-		}
-	}
-
-}
-
 void test_build_attr_table(){
 	// value initialize everything (should zero it all out).
 	attr_table_entry_t entries[NUM_SPRITES] = {};
@@ -45,7 +28,7 @@ void test_build_attr_table(){
 
 	int i=0;
 	for(; i < num_entries; ++i){
-		assert(entries[i].addr ==  i);
+		assert(entries[i].id ==  i);
 	}
 
 	assert(entries[0].sprite == DUCK_SPRITE_OFFSET);
@@ -59,9 +42,6 @@ void test_build_attr_table(){
 	assert(entries[8].sprite == CROSSHAIR_SPRITE_OFFSET);
 }
 
-
-
 int main(){
 	test_build_attr_table();
-	test_build_sprite_table();
 }

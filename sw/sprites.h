@@ -7,50 +7,72 @@
 
 #include "game/game.h"
 
+// sizes of each entry in various tables in memory
+#define SPRITE_TABLE_ENTRY_SIZE 16
+#define COLOR_TABLE_ENTRY_SIZE 4
+#define ATTR_TABLE_ENTRY_SIZE 1
+
+// offsets of various classes of sprites in the sprite table. 
+#define DUCK_SPRITE_OFFSET 0
+#define BULLET_SPRITE_OFFSET 2
+#define NUMBER_SPRITE_OFFSET 5
+#define CROSSHAIR_SPRITE_OFFSET 15
+
+// offsets of various classes of entries in the sprite attribution table.
+// the order in which these entries are laid out is an implementation decision.
+#define DUCK_SPRITE_ATTR_TABLE_OFFSET 0
+#define BULLET_SPRITE_ATTR_TABLE_OFFSET 2
+#define SCORE_SPRITE_ATTR_TABLE_OFFSET 5
+#define ROUND_SPRITE_ATTR_TABLE_OFFSET 7
+#define CROSSHAIR_SPRITE_ATTR_TABLE_OFFSET 8
+
+
+//TODO(kristenshaker): do we need these? 
 #define NUM_SPRITES 16 // may add more later
 #define NUM_BULLETS 3
-#define SPRITE_SIZE 16
 // assume the duck sprites are the first sprites in the sprite table.
 #define NUM_DUCKS 2
-#define DUCK_SPRITE_OFFSET 0
-#define DUCK_SPRITE_ATTR_TABLE_OFFSET 0
 
-#define BULLET_SPRITE_OFFSET 48
-#define BULLET_SPRITE_ATTR_TABLE_OFFSET 2
 #define BULLET_SPRITE_X_LOC 10
 #define BULLET_SPRITE_Y_LOC 10
 
-#define NUMBER_SPRITE_OFFSET 80
-#define SCORE_SPRITE_ATTR_TABLE_OFFSET 5
 #define NUM_SCORE_DIGITS 2 
-
-#define CROSSHAIR_SPRITE_OFFSET 240
-
-#define NUM_COLORS_PER_TABLE 4
-
-
-#define ATTR_TABLE_OFFSET 0x000 
-#define ATTR_TABLE_WRITE_LOCATION(x,y) (x + ATTR_TABLE_OFFSET + y)
 
 
 typedef struct {
+	// location of this attr table on the VGA monitor 
 	coord_t coord;
+	// sprite table offset with data for each pixel of the sprite.
 	char sprite;
+	// color table offset with RBG values for whichever sprite this attr table entry represents.
 	char color_table; 
-	// This sprite's address in the sprite attribute table.
-	int addr;
+	// unique id associated with an attr table entry. Offset in the attr table will 
+	// be computed by multiplying id * ATTR_TABLE_SIZE
+	int id;
 } attr_table_entry_t;
 
 // one sprite in the sprite table
 typedef struct {
-	int addr; // address offset from beginning of sprite table.
-	unsigned int sprite[SPRITE_SIZE];
+	// unique id associated with a sprite. Offsets sprite table
+	// will be computed by multiplying id * SPRITE_SIZE
+	int id; 
+	// actual sprite data. Each entry in the array is a 32 bit integer that is compromised of 16 two bit 
+	// pieces of data representing entries in a color table.
+	unsigned int sprite[SPRITE_TABLE_ENTRY_SIZE];
 } sprite_data_t;
 
 typedef struct {
-	int addr;
-	int colors[4];
+	// unique id associated with each color table. Offsets for writing to memory will be computed by 
+	// multiplying id * COLOR_TABLE_SIZE
+	int id;
+	// RGB values.
+	int colors[COLOR_TABLE_ENTRY_SIZE];
 } color_data_t;
+
+// At most we will have the maximum number of sprite allowed and each sprite will have its own color table. 
+// In practice, the same color table will be re-used by many sprites.
+extern const sprite_data_t  const kSpriteTableData[NUM_SPRITES];
+extern const color_data_t  const kColorTableData[NUM_SPRITES];
 
 // Writes the sprite attr table to FPGA memory using ioctl calls. Returns 1 if table written succesfully. Returns 0 otherwise.
 int write_sprite_attr_table(int fd);
@@ -60,8 +82,6 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries);
 
 // Writes the sprite table to FPGA memory using ioctl calls.
 int write_sprite_table(int fd);
-
-int build_sprite_table(sprite_data_t* sprites, int *num_actual_sprites);
 
 int write_color_table(int fd);
 

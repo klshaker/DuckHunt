@@ -21,9 +21,14 @@
 #define OBJ_Y_COORD_OFFSET 0
 #define OBJ_COLOR_OFFSET 28
 
-#define SPRITE_TABLE_OFFSET(y) ((0x100) + y)
-#define COLOR_OFFSET_TABLE(y) (0x200 +y )
+#define ATTR_TABLE_MEMORY_OFFSET 0x00
+#define SPRITE_TABLE_MEMORY_OFFSET 0x100 
+#define COLOR_TABLE_MEMORY_OFFSET 0x200 
 
+// first argument is dev.base, second argument is distance from table offset.
+#define ATTR_TABLE_MEMORY_WRITE(x, y) (x + ATTR_TABLE_MEMORY_OFFSET + y)
+#define SPRITE_TABLE_MEMORY_WRITE(x,y) (x + SPRITE_TABLE_MEMORY_OFFSET + y)
+#define COLOR_TABLE_MEMORY_WRITE(x, y) (x + COLOR_TABLE_MEMORY_OFFSET + y)
 
 /*
  * Information about our device
@@ -45,7 +50,7 @@ static void write_to_sprite_attr_table(attr_table_entry_t *sprite)
 	data = data && (sprite->sprite  << OBJ_SPRITE_OFFSET);
 	data = data && (sprite->color_table   << OBJ_COLOR_OFFSET);
 
-	iowrite32(data, ATTR_TABLE_OFFSET(dev.virtbase , sprite->addr));
+	iowrite32(data, ATTR_TABLE_MEMORY_WRITE(dev.virtbase , sprite->id * ATTR_TABLE_ENTRY_SIZE));
 
 }
 
@@ -53,13 +58,9 @@ static void write_to_color_table(color_data_t *color)
 {
 
 	int i = 0;
-	for(; i < NUM_COLORS_PER_TABLE; ++i){
+	for(; i < COLOR_TABLE_ENTRY_SIZE; ++i){
 		int data = 0xFFFF;
-
-		iowrite32(data, COLOR_TABLE_OFFSET(dev.virtbase , sprite->addr + i));
-
-
-
+		iowrite32(data, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color->id * COLOR_TABLE_ENTRY_SIZE) + i));
 	}	
 
 }
@@ -68,8 +69,8 @@ static void write_to_color_table(color_data_t *color)
 static void write_to_sprite_table(sprite_data_t * sprite)
 {
 	int i = 0;
-	for(; i < SPRITE_SIZE; i ++){
-		iowrite32(sprite->sprite[i], SPRITE_TABLE_OFFSET(dev.virtbase , sprite->addr + i));
+	for(; i < SPRITE_TABLE_ENTRY_SIZE; i ++){
+		iowrite32(sprite->sprite[i], SPRITE_TABLE_MEMORY_WRITE(dev.virtbase , (sprite->id * SPRITE_TABLE_ENTRY_SIZE) + i));
 	}
 }
 
