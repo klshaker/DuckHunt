@@ -128,12 +128,10 @@ static struct miscdevice ppu_misc_device = {
 };
 
 /*
- * Initialization code: get resources (registers) and display
- * a welcome message
+ * Initialization code: get resources (registers).
  */
 static int __init ppu_probe(struct platform_device *pdev)
 {
-	//vga_ball_color_t beige = { 0xf9, 0xe4, 0xb7 };
 	int ret;
 
 	/* Register ourselves as a misc device: creates /dev/vga_ball */
@@ -159,9 +157,6 @@ static int __init ppu_probe(struct platform_device *pdev)
 		ret = -ENOMEM;
 		goto out_release_mem_region;
 	}
-
-	/* Set an initial color */
-	//write_background(&beige);
 
 	return 0;
 
@@ -219,5 +214,5 @@ module_init(ppu_init);
 module_exit(ppu_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Stephen A. Edwards, Columbia University");
+MODULE_AUTHOR("Kristen Shaker");
 MODULE_DESCRIPTION("PPU driver");

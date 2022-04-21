@@ -1,3 +1,9 @@
+/* 
+
+This module is responsible for pulling data from userspace and writing it to FPGA memory using
+iowrite calls.
+
+*/
 #ifndef _PPU_H_
 #define _PPU_H_
 

@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 
 // second entry in the color table for the entire sprite.
+// TODO(kristenshaker): remove these standin values once we have actual data.
 #define second  0xAAAAAAAA
 #define black 0x000FFFFFF
 
@@ -87,7 +88,7 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 		attr_table_entry_t bullet;
 
 		// space for each sprite and 10 pixels between the sprites. Note that the bullets might be small enough to not need the 10 pixels of space.
-		bullet.coord.x = BULLET_SPRITE_X_LOC + i*SPRITE_TABLE_ENTRY_SIZE + i *10;
+		bullet.coord.x = BULLET_SPRITE_X_LOC + i* SPRITE_TABLE_ENTRY_SIZE + i * 10;
 		bullet.coord.y = BULLET_SPRITE_Y_LOC;
 		// all bullets start off shaded.
 		bullet.sprite = BULLET_SPRITE_OFFSET;
@@ -190,7 +191,7 @@ attr_table_entry_t convert_duck_to_attr_entry(duck_t* duck){
 	return entry;
 }
 
-int update_duck_attr(int fd, duck_t * ducks, int num_ducks) {
+int update_duck_attr(int fd, duck_t * ducks) {
 	int i = 0;
 	for(; i < NUM_DUCKS; ++i){
 		attr_table_entry_t duck_attr = convert_duck_to_attr_entry(&ducks[i]);
