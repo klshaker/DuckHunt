@@ -55,14 +55,13 @@ module ppu
 
 	genvar k;
 	generate
-	for(k = 0; k < SPRITE_ATTS; k = k+1) begin
+	for(k = 0; k < SPRITE_ATTS - 1; k = k+1)
 		begin: down_counters
 			down_counter dc(clk, dc_en[k], dc_ld[k], tx, dc_done[k]);
 		end
 		begin: shifters
 			shift sh(clk, sh_en[k], sh_ld[k], sprite, sh_out[k]);
 		end
-	end
 	endgenerate
 	assign sh_en = dc_done;
 
