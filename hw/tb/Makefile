@@ -1,6 +1,6 @@
 .PHONY: default program clean lint
 SRC = ../src
-FILES = memory.sv down_counter.sv shift.sv
+FILES = memory.sv down_counter.sv shift.sv ppu.sv
 SVFILES = $(patsubst %, $(SRC)/%, $(FILES))
 
 default :
@@ -29,6 +29,8 @@ shift : obj_dir/Vshift
 down_counter : obj_dir/Vdown_counter
 	obj_dir/Vdown_counter
 
+ppu : obj_dir/Vppu
+	obj_dir/Vppu
 
 # Create Verilator simulations
 obj_dir/Vdown_counter : $(SRC)/down_counter.sv down_counter.cpp
@@ -45,6 +47,11 @@ obj_dir/Vshift : $(SRC)/shift.sv shift.cpp
 	verilator -trace -Wall -cc $(SRC)/shift.sv -exe shift.cpp \
 		-top-module shift
 	cd obj_dir && make -j -f Vshift.mk
+
+obj_dir/Vppu : $(SRC)/ppu.sv ppu.cpp
+	verilator -trace -Wall -cc $(SRC)/ppu.sv -exe ppu.cpp \
+		-top-module shift
+	cd obj_dir && make -j -f Vppu.mk
 
 clean :
 	rm -rf obj_dir *.vcd

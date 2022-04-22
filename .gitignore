@@ -14,5 +14,6 @@ Module.symvers
 sprites_test
 sprites_test_san
 sprites_san
+hw/tb/obj_dir/*
 
 
