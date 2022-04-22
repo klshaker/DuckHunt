@@ -126,6 +126,10 @@ $(DTS) : $(SOPCINFO) $(BOARD_INFO)
 		--board $(BOARD_INFO) \
 		--clocks
 
+
+lint : 
+	verilator --lint-only -Wall ppu.sv
+
 # preloader
 #
 # Builds the SPL's preloader-mkpimage.bin image file, which should

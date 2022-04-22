@@ -24,7 +24,7 @@ foreach {name value} {
     
     CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
 
-    NUM_PARALLEL_PROCESSORS 4
+    NUM_PARALLEL_PROCESSORS 8
 
 } { set_global_assignment -name $name $value }
 

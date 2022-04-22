@@ -3,7 +3,7 @@ module shift
 	(input logic 		 clk,
 	 input logic 		 en,
 	 input logic 		 ld,
-	 input logic [47:0] 	 data_in,
+	 input logic [31:0] 	 data_in,
 	 output logic [2:0]  	 data_out);
 
 	 logic [2:0] mem[15:0];
@@ -29,38 +29,22 @@ module shift
 			data_out <= mem[15];
 		end
 		if (ld) begin
-			mem[0] 	<= data_in[47:45];
-			mem[1] 	<= data_in[44:42]; 
-			mem[2] 	<= data_in[41:39]; 
-			mem[3] 	<= data_in[38:36]; 
-			mem[4] 	<= data_in[35:33]; 
-			mem[5] 	<= data_in[32:30]; 
-			mem[6] 	<= data_in[29:27]; 
-			mem[7] 	<= data_in[26:24]; 
-			mem[8] 	<= data_in[23:21]; 
-			mem[9] 	<= data_in[20:18]; 
-			mem[10] <= data_in[17:15]; 
-			mem[11] <= data_in[14:12]; 
-			mem[12] <= data_in[11:9]; 
-			mem[13] <= data_in[8:6]; 
-			mem[14] <= data_in[5:3]; 
-			mem[15] <= data_in[2:0]; 
-		//	mem[0] 	<= data_in[63:60];
-		//	mem[1] 	<= data_in[59:56]; 
-		//	mem[2] 	<= data_in[55:52]; 
-		//	mem[3] 	<= data_in[51:48]; 
-		//	mem[4] 	<= data_in[47:44]; 
-		//	mem[5] 	<= data_in[43:40]; 
-		//	mem[6] 	<= data_in[39:36]; 
-		//	mem[7] 	<= data_in[35:32]; 
-		//	mem[8] 	<= data_in[31:28]; 
-		//	mem[9] 	<= data_in[27:24]; 
-		//	mem[10] <= data_in[23:20]; 
-		//	mem[11] <= data_in[19:16]; 
-		//	mem[12] <= data_in[15:12]; 
-		//	mem[13] <= data_in[11:8]; 
-		//	mem[14] <= data_in[7:3]; 
-		//	mem[15] <= data_in[2:0]; 
+			mem[0] 	<= data_in[31:30];
+			mem[1] 	<= data_in[29:28]; 
+			mem[2] 	<= data_in[27:26]; 
+			mem[3] 	<= data_in[25:24]; 
+			mem[4] 	<= data_in[23:22]; 
+			mem[5] 	<= data_in[21:20]; 
+			mem[6] 	<= data_in[19:18]; 
+			mem[7] 	<= data_in[17:16]; 
+			mem[8] 	<= data_in[15:14]; 
+			mem[9] 	<= data_in[13:12]; 
+			mem[10] <= data_in[11:10]; 
+			mem[11] <= data_in[9:8]; 
+			mem[12] <= data_in[7:6]; 
+			mem[13] <= data_in[5:4]; 
+			mem[14] <= data_in[3:2]; 
+			mem[15] <= data_in[1:0]; 
 		end
 	end
 	//assign data_out = mem[15];
