@@ -4,13 +4,13 @@ module shift
 	 input logic 		 en,
 	 input logic 		 ld,
 	 input logic [31:0] 	 data_in,
-	 output logic [2:0]  	 data_out);
+	 output logic [1:0]  	 data_out);
 
-	 logic [2:0] mem[15:0];
+	 logic [1:0] mem[15:0];
 	 
 	always_ff @(posedge clk) begin
 		if (en) begin
-			mem[0] 	<= 3'b0;
+			mem[0] 	<= 2'b0;
 			mem[1] 	<= mem[0];
 			mem[2] 	<= mem[1];
 			mem[3] 	<= mem[2];
