@@ -18,29 +18,6 @@
 
 int duck_hunt_fd;
 
-/* Read and print the game state */
-/*void print_background_color() {
-  all_game_data_t game_data;
-
-  if (ioctl(vga_ball_fd, VGA_BALL_READ_BACKGROUND, &game_data)) {
-  perror("ioctl(VGA_BALL_READ_BACKGROUND) failed");
-  return;
-  }
-  printf("%02x %02x %02x\n",
-  vla.background.red, vla.background.green, vla.background.blue);
-  }*/
-
-/* Set the background color */
-/*void update_game_data(const all_game_data_t *g)
-{
-	all_game_data_t game = *g;
-	// does this write to the file and copy_from user accesses that same file?
-	if (ioctl(duck_hunt_fd, DUCK_HUNT_WRITE_GAME_DATA, &game)) {
-		perror("ioctl(DUCK_HUNT_WRITE_GAME_DATA) failed");
-		return;
-	}
-}*/
-
 void play_game(){
 
 	while(1){
@@ -93,12 +70,10 @@ int main()
 		return -1;
 	}
 
-        printf("writing tables");
 	write_sprite_table(duck_hunt_fd);
 	write_color_table(duck_hunt_fd);
 	write_sprite_attr_table(duck_hunt_fd);
 
-	printf("initial state: ");
 	play_game();
 
 	printf("VGA BALL Userspace program terminating\n");

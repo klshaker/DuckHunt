@@ -37,7 +37,7 @@
 struct ppu_dev {
 	struct resource res; /* Resource: our registers */
 	void __iomem *virtbase; /* Where registers can be accessed in memory */
-	all_game_data_t game;
+	attr_table_entry_t entries[NUM_SPRITES];
 } dev;
 
 // Write to the attribution table sprite related information. Addr will vary based on which sprite we are updating. 
@@ -118,7 +118,6 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 				return -EACCES;
 			write_to_color_table(color);
 			break;
-
 		default:
 			return -EINVAL;
 	}

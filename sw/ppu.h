@@ -16,4 +16,5 @@ iowrite calls.
 #define SPRITE_TABLE_WRITE_DATA  _IOW(PPU_MAGIC, 2, int *)
 #define COLOR_TABLE_WRITE_DATA  _IOW(PPU_MAGIC, 3, int *)
 
+
 #endif
