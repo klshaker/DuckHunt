@@ -37,7 +37,6 @@
 struct ppu_dev {
 	struct resource res; /* Resource: our registers */
 	void __iomem *virtbase; /* Where registers can be accessed in memory */
-	attr_table_entry_t entries[NUM_SPRITES];
 } dev;
 
 // Write to the attribution table sprite related information. Addr will vary based on which sprite we are updating. 
