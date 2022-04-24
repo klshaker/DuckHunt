@@ -49,8 +49,8 @@ obj_dir/Vshift : $(SRC)/shift.sv shift.cpp
 	cd obj_dir && make -j -f Vshift.mk
 
 obj_dir/Vppu : $(SRC)/ppu.sv ppu.cpp
-	verilator -trace -Wall -cc -I $(SRC)/ppu.sv -exe ppu.cpp \
-		-top-module shift
+	verilator -trace -Wall -cc $(SRC)/ppu.sv -y $(SRC) -exe ppu.cpp \
+		-top-module ppu 
 	cd obj_dir && make -j -f Vppu.mk
 
 clean :

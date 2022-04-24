@@ -11,9 +11,9 @@ else
         PWD := $(shell pwd)
 
 EXTRA_CFLAGS = -I$(src)/game
-default: module hello 
+default: module duck_hunt 
 
-hello: game/game.o sprites.o
+duck_hunt: game/game.o sprites.o
 
 module: 
 	${MAKE} -C ${KERNEL_SOURCE} ${EXTRA_CFLAGS} SUBDIRS=${PWD}  modules

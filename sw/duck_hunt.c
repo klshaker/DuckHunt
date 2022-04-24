@@ -68,8 +68,8 @@ void play_game(){
 			// poll wii controller.
 			// if trigger pressed
 
-			move_ducks(ducks, 2);
-			update_duck_attr(duck_hunt_fd, ducks, 2);
+			move_ducks(ducks, NUM_DUCKS);
+			update_duck_attr(duck_hunt_fd, ducks);
 			//update_game_data(&game_data);
 		}
 
