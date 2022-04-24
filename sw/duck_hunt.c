@@ -44,24 +44,30 @@ int duck_hunt_fd;
 void play_game(){
 
 	while(1){
+
 		game_config_t config;
 		config.bullets = 3;
 		config.score = 0;
 		config.round = 0;
 
-		duck_t ducks[2];
+		duck_t ducks[NUM_DUCKS];
 		ducks[0].coord.x = 0;
+		ducks[0].x_direction = east;
 		ducks[0].coord.y = 200;
+		ducks[0].id = 0;
 		ducks[0].value = 5;
 
-		ducks[0].coord.x = 0;
-		ducks[0].coord.y = 400;
-		ducks[0].value = 10;
+		ducks[1].coord.x = 0;
+		ducks[1].coord.y = 400;
+		ducks[1].x_direction = west;
+		ducks[1].value = 10;
+		ducks[1].id = 1;
+		
 		coord_t cross_hair = { 0, 0};
 		all_game_data_t game_data;
 
 		game_data.game_conf = config;
-		int num_ducks_seen =0;
+		int num_ducks_seen = 0;
 
 		while(!is_game_over(&game_data.game_conf, num_ducks_seen)){
 
@@ -78,7 +84,7 @@ void play_game(){
 
 int main()
 {
-	static const char filename[] = "/dev/duck_hunt";
+	static const char filename[] = "/dev/ppu";
 
 	printf("Duck Hunt userspace program started\n");
 
@@ -86,9 +92,11 @@ int main()
 		fprintf(stderr, "could not open %s\n", filename);
 		return -1;
 	}
-	write_sprite_attr_table(duck_hunt_fd);
+
+        printf("writing tables");
 	write_sprite_table(duck_hunt_fd);
 	write_color_table(duck_hunt_fd);
+	write_sprite_attr_table(duck_hunt_fd);
 
 	printf("initial state: ");
 	play_game();

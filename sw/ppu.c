@@ -55,7 +55,7 @@ static void write_to_sprite_attr_table(attr_table_entry_t *sprite)
 
 }
 
-static void write_to_color_table(color_data_t *color)
+static void write_to_color_table(int *color)
 {
 
 	// All color tables take up COLOR_TABLE_ENTRY_SIZE 'rows' in the 32 bit FPGA memory. Each call to this function represents one color 
@@ -74,12 +74,14 @@ static void write_to_color_table(color_data_t *color)
 // Called at program startup to initialize all of the sprites. This data will not change throughout the lifetime of the program.
 static void write_to_sprite_table(int * sprite)
 {
+
+	static int sprites_written = 0;
+	printk("writing sprite to memory\n");
 	// All sprites take up SPRITE_TABLE_ENTRY_SIZE 'rows' in the 32 bit FPGA memory. We have to keep track of how many sprites
 	// have so far been written, so we can ensure each sprite comes after the previous one.
-	static int sprites_written = 0;
 	int i = 0;
 	for(; i < SPRITE_TABLE_ENTRY_SIZE; i ++){
-		iowrite32(sprite->sprite[i], SPRITE_TABLE_MEMORY_WRITE(dev.virtbase , (sprites_written * SPRITE_TABLE_ENTRY_SIZE) + i));
+		iowrite32(sprite[i], SPRITE_TABLE_MEMORY_WRITE(dev.virtbase , (sprites_written * SPRITE_TABLE_ENTRY_SIZE) + i));
 	}
 
 	// This function will be called exactly once per sprite.
@@ -108,13 +110,13 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 		case SPRITE_TABLE_WRITE_DATA:
 			if (copy_from_user(&sprite, (int*) arg, sizeof(int)))
 				return -EACCES;
-			write_to_sprite_table(&sprite);
+			write_to_sprite_table(sprite);
 			break;
 		case COLOR_TABLE_WRITE_DATA:
-			if (copy_from_user(&color, (color_data_t*) arg,
-						sizeof(color_data_t)))
+			if (copy_from_user(&color, (int*) arg,
+						sizeof(int)))
 				return -EACCES;
-			write_to_color_table(&color);
+			write_to_color_table(color);
 			break;
 
 		default:

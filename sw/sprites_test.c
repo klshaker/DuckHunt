@@ -25,7 +25,6 @@ void test_build_attr_table(){
 	 */
 
 	// test that addresses are incremental. Currently we have 9 entries. Each should come after the other in the attr table. 
-
 	int i=0;
 	for(; i < num_entries; ++i){
 		assert(entries[i].id ==  i);

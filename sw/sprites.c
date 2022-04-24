@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "ppu.h"
 #include <sys/ioctl.h>
+#include <stdio.h>
 
 // TODO(kristenshaker): remove these standin values once we have actual data.
 #define second  0xAAAAAAAA
@@ -167,6 +168,8 @@ attr_table_entry_t convert_duck_to_attr_entry(duck_t* duck){
 }
 
 int update_duck_attr(int fd, duck_t * ducks) {
+	
+printf("Updating duck");
     int i = 0;
     for(; i < NUM_DUCKS; ++i){
 	attr_table_entry_t duck_attr = convert_duck_to_attr_entry(&ducks[i]);
