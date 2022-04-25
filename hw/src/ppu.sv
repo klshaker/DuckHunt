@@ -18,7 +18,7 @@ module ppu
 	input logic [31:0]  	writedata,
 	input logic 	   	write,
 	input 			chipselect,
-	input logic [11:0]  	address,
+	input logic [15:0]  	address,
 
 	output logic [6:0]	HEX0, HEX1, HEX2, HEX3, HEX4, HEX5,
 	output logic [7:0] 	VGA_R, VGA_G, VGA_B,
@@ -34,7 +34,7 @@ module ppu
 	logic [SPRITE_ATTS-1:0]	sh_en, sh_ld;
 
 	logic [31:0]		w_data;
-	logic [11:0]		w_address;
+	logic [15:0]		w_address;
 	logic [7:0]		m_address;
        	logic [3:0]		c_address;
 	logic [31:0]		color_out;
@@ -69,9 +69,14 @@ module ppu
 
 
 	always_ff @(posedge clk) begin
-		mem_write <= 0;
+		mem_write <= 3'b0;
 		if (chipselect && write) begin
-			mem_write[address[11:10]] <= 1;
+			case(address[15:8])
+				8'd0: mem_write[0] <= 1;
+				8'd1: mem_write[1] <= 1;
+				8'd2: mem_write[2] <= 1;
+				default: mem_write <= 3'b0;
+			endcase
 			w_address <= address;
 			w_data <= writedata;
 
