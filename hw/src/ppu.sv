@@ -8,6 +8,7 @@
 `include "down_counter.sv"
 `include "shift.sv"
 `include "memory.sv"
+`include "hex7seg.sv"
 
 module ppu
 	#(parameter
@@ -19,39 +20,52 @@ module ppu
 	input 			chipselect,
 	input logic [11:0]  	address,
 
+	output logic [6:0]	HEX0, HEX1, HEX2, HEX3, HEX4, HEX5,
 	output logic [7:0] 	VGA_R, VGA_G, VGA_B,
 	output logic 		VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_n,
 	output logic 	   	VGA_SYNC_n);
 
 
-	logic [2:0]	mem_write;
-	logic [10:0]    hcount;
-	logic [9:0]     vcount;
-	logic [31:0]	sprite_attr, sprite;
-	logic [SPRITE_ATTS-1:0] 	dc_en, dc_ld, dc_done;
-	logic [SPRITE_ATTS-1:0] 	sh_en, sh_ld;
-	logic [7:0] 	m_address;
-       	logic [3:0]	c_address;
-	logic [31:0] 	color_out;
-	//logic [3:0] 	sh_out [2:0];
+	logic [2:0]		mem_write;
+	logic [10:0]		hcount;
+	logic [9:0]		vcount;
+	logic [31:0]		sprite_attr, sprite;
+	logic [SPRITE_ATTS-1:0] dc_en, dc_ld, dc_done;
+	logic [SPRITE_ATTS-1:0]	sh_en, sh_ld;
 
-	logic [7:0] 	background_r, background_g, background_b;
+	logic [31:0]		w_data;
+	logic [11:0]		w_address;
+	logic [7:0]		m_address;
+       	logic [3:0]		c_address;
+	logic [31:0]		color_out;
 
-	logic [1:0] sh_out [SPRITE_ATTS - 1: 0];
-	logic [3:0] color [SPRITE_ATTS - 1: 0];
-	logic [3:0]	scount;
-	logic [9:0]	tx;// ty;
-	logic [7:0]	taddr;
-	logic [3:0]	tcolor;
-	assign m_address = write ? address[7:0]: taddr;
-	assign c_address = write ? address[3:0]: tcolor;
+	logic [7:0]		background_r, background_g, background_b;
+
+	logic [1:0]		sh_out [SPRITE_ATTS - 1: 0];
+	logic [3:0]		color [SPRITE_ATTS - 1: 0];
+	logic [3:0]		scount;
+	logic [9:0]		tx;// ty;
+	logic [7:0]		taddr;
+	logic [3:0]		tcolor;
+
+
+
+	assign m_address = write ? w_address[7:0]: taddr;
+	assign c_address = write ? w_address[3:0]: tcolor;
 
 	vga_counters 		counters(.clk50(clk), .*);
-	memory #(32,  16, 4) 	sprite_attr_table(clk, mem_write[0], m_address[3:0], writedata, sprite_attr);
-	memory #(32, 256, 8)  	sprite_table(clk, mem_write[1], m_address[7:0], writedata, sprite);
-	memory #(32,  16, 4)  	color_table(clk, mem_write[2], c_address[3:0], writedata, color_out);
+	memory #(32,  16, 4) 	sprite_attr_table(clk, mem_write[0], m_address[3:0], w_data, sprite_attr);
+	memory #(32, 256, 8)  	sprite_table(clk, mem_write[1], m_address[7:0], w_data, sprite);
+	memory #(32,  16, 4)  	color_table(clk, mem_write[2], c_address[3:0], w_data, color_out);
 
+	hex7seg h0(sprite_attr[3:0],	HEX0);
+	hex7seg h1(sprite_attr[7:4],	HEX1);
 
+	hex7seg h2(sprite_attr[13:10],	HEX2);
+	hex7seg h3(sprite_attr[17:14],	HEX3);
+
+	hex7seg h4(scount[3:0],		HEX4);
+	hex7seg h5(state[3:0],		HEX5);
 
 	genvar k;
 	generate
@@ -70,6 +84,8 @@ module ppu
 		mem_write <= 0;
 		if (chipselect && write) begin
 			mem_write[address[11:10]] <= 1;
+			w_address <= address;
+			w_data <= writedata;
 
 		end
 	end
@@ -87,11 +103,11 @@ module ppu
 				tcolor	<= sprite_attr[31:28];
 				if (scount == 15) state <= IDLE;
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
-					state 	<= SET;
-					color[scount] <= sprite_attr[31:28];
-					taddr	<= sprite_attr[27:20];
-					dc_ld[scount] <= 1'b1;
-					sh_ld[scount] <= 1'b1;
+					state		<= SET;
+					color[scount]	<= sprite_attr[31:28];
+					taddr		<= sprite_attr[27:20];
+					dc_ld[scount]	<= 1'b1;
+					sh_ld[scount]	<= 1'b1;
 				end else taddr 	<= {4'b0, scount + 4'b1};
 
 			end
@@ -130,8 +146,8 @@ module ppu
 	always_comb begin
 		if (VGA_BLANK_n )
 			{VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0};
-		if (hcount[10:6] == 5'd3 && vcount[9:5] == 5'd3)
-			{VGA_R, VGA_G, VGA_B} = {8'hff, 8'hff, 8'hff};
+		//if (hcount[10:6] == 5'd3 && vcount[9:5] == 5'd3)
+			//{VGA_R, VGA_G, VGA_B} = {8'hff, 8'hff, 8'hff};
 		else
 			{VGA_R, VGA_G, VGA_B} = {background_r, background_g, background_b};
 	end
