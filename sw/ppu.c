@@ -54,24 +54,43 @@ static void write_to_sprite_attr_table(attr_table_entry_t *sprite)
 
 }
 
-static void write_to_color_table(int *color)
+static void write_to_color_table(color_table_entry_t *color_palette)
 {
-
 	// All color tables take up COLOR_TABLE_ENTRY_SIZE 'rows' in the 32 bit FPGA memory. Each call to this function represents one color 
 	// table being written.
 	static int color_table_written = 0;
-	int i = 0;
-	for(; i < COLOR_TABLE_ENTRY_SIZE; ++i){
-		int data = 0xFFFF;
-		iowrite32(data, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_table_written * COLOR_TABLE_ENTRY_SIZE) + i));
-	}	
+    int color0 = 0xFFFF;
+    int color1 = 0xFFFF;
+    int color2 = 0xFFFF;
+    int color3 = 0xFFFF;
+
+    color0 = color0 && (color_palette->color0.r << RED_OFFSET);
+    color0 = color0 && (color_palette->color0.b << BLUE_OFFSET);
+    color0 = color0 && (color_palette->color0.g << GREEN_OFFSET);
+
+    color1 = color1 && (color_palette->color1.r << RED_OFFSET);
+    color1 = color1 && (color_palette->color1.b << BLUE_OFFSET);
+    color1 = color1 && (color_palette->color1.g << GREEN_OFFSET);
+
+    color2 = color2 && (color_palette->color2.r << RED_OFFSET);
+    color2 = color2 && (color_palette->color2.b << BLUE_OFFSET);
+    color2 = color2 && (color_palette->color2.g << GREEN_OFFSET);
+
+    color3 = color3 && (color_palette->color3.r << RED_OFFSET);
+    color3 = color3 && (color_palette->color3.b << BLUE_OFFSET);
+    color3 = color3 && (color_palette->color3.g << GREEN_OFFSET);
+
+    iowrite32(color0, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_table_written * COLOR_TABLE_ENTRY_SIZE) + 0));
+    iowrite32(color1, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_table_written * COLOR_TABLE_ENTRY_SIZE) + 1));
+    iowrite32(color2, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_table_written * COLOR_TABLE_ENTRY_SIZE) + 2));
+    iowrite32(color3, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_table_written * COLOR_TABLE_ENTRY_SIZE) + 3));
+
 	// The next color table will start at COLOR_TABLE_ENTRY_SIZE away from this one.
 	++color_table_written;
-
 }
 
 // Called at program startup to initialize all of the sprites. This data will not change throughout the lifetime of the program.
-static void write_to_sprite_table(int * sprite)
+static void write_to_sprite_table(sprite_table_entry_t * sprite)
 {
 
 	static int sprites_written = 0;
@@ -80,7 +99,7 @@ static void write_to_sprite_table(int * sprite)
 	// have so far been written, so we can ensure each sprite comes after the previous one.
 	int i = 0;
 	for(; i < SPRITE_TABLE_ENTRY_SIZE; i ++){
-		iowrite32(sprite[i], SPRITE_TABLE_MEMORY_WRITE(dev.virtbase , (sprites_written * SPRITE_TABLE_ENTRY_SIZE) + i));
+		iowrite32(sprite->line[i], SPRITE_TABLE_MEMORY_WRITE(dev.virtbase , (sprites_written * SPRITE_TABLE_ENTRY_SIZE) + i));
 	}
 
 	// This function will be called exactly once per sprite.
@@ -94,9 +113,11 @@ static void write_to_sprite_table(int * sprite)
  */
 static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
-	attr_table_entry_t attr_table_entry;
-	int sprite[SPRITE_TABLE_ENTRY_SIZE];
-	int color[COLOR_TABLE_ENTRY_SIZE];
+	attr_table_entry_t      attr_table_entry;
+    sprite_table_entry_t    sprite;
+    color_table_entry_t     color_palette;
+	//int sprite[SPRITE_TABLE_ENTRY_SIZE];
+	//int color[COLOR_TABLE_ENTRY_SIZE];
 
 	switch (cmd) {
 		case ATTR_TABLE_WRITE_DATA:  
@@ -107,15 +128,15 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 			break;
 
 		case SPRITE_TABLE_WRITE_DATA:
-			if (copy_from_user(&sprite, (int*) arg, sizeof(int)))
+			if (copy_from_user(&sprite, (int*) arg, sizeof(sprite_table_entry_t)))
 				return -EACCES;
-			write_to_sprite_table(sprite);
+			write_to_sprite_table(&sprite);
 			break;
 		case COLOR_TABLE_WRITE_DATA:
-			if (copy_from_user(&color, (int*) arg,
-						sizeof(int)))
+			if (copy_from_user(&color_palette, (int*) arg,
+						sizeof(color_table_entry_t)))
 				return -EACCES;
-			write_to_color_table(color);
+			write_to_color_table(&color_palette);
 			break;
 		default:
 			return -EINVAL;

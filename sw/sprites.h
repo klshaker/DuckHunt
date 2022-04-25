@@ -5,7 +5,7 @@
 #ifndef _SPRITES_H
 #define _SPRITES_H
 
-#include "game/game.h"
+//#include "game/game.h"
 
 // sizes of each entry in various tables in memory
 #define SPRITE_TABLE_ENTRY_SIZE 16
@@ -32,7 +32,16 @@
 #define NUM_DUCKS 2
 #define NUM_SCORE_DIGITS 2 
 
+#define RED_OFFSET 0
+#define BLUE_OFFSET 8
+#define GREEN_OFFSET 16
+
+
 // An entry in the sprite attribution table.
+typedef struct {
+	unsigned int x,y;
+} coord_t;
+
 typedef struct {
 	// Location of this attr table entry on the VGA monitor.
 	coord_t coord;
@@ -44,6 +53,18 @@ typedef struct {
 	// be computed by multiplying id * ATTR_TABLE_ENTRY_SIZE.
 	int id;
 } attr_table_entry_t;
+
+typedef struct {
+    int line[16];
+} sprite_table_entry_t;
+
+typedef struct {
+    int r, g, b;
+} color_t;
+
+typedef struct {
+    color_t color0, color1, color2, color3;
+} color_table_entry_t;
 
 // Populates attr_table_entry_t array with all of the attr table entries. Because of the number of entries in this table and how much data is stored in each entry, it is more readible to populate the entries programtically than by initializing a global array.
 int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries);
@@ -58,6 +79,6 @@ int write_sprite_table(int fd);
 int write_color_table(int fd);
 
 // Takes the data structure used to represent a duck in the game (duck_t) and pulls the info that is needed for the attr table for it. Writes that info to the attribution table with an ioctl call.
-int update_duck_attr(int fd, duck_t * ducks);
+//int update_duck_attr(int fd, duck_t * ducks);
 
 #endif
