@@ -58,24 +58,12 @@ module ppu
 	memory #(32, 256, 8)  	sprite_table(clk, mem_write[1], m_address[7:0], w_data, sprite);
 	memory #(32,  16, 4)  	color_table(clk, mem_write[2], c_address[3:0], w_data, color_out);
 
-	hex7seg h0(sprite_attr[3:0],	HEX0);
-	hex7seg h1(sprite_attr[7:4],	HEX1);
-
-	hex7seg h2(sprite_attr[13:10],	HEX2);
-	hex7seg h3(sprite_attr[17:14],	HEX3);
-
-	hex7seg h4(scount[3:0],		HEX4);
-	hex7seg h5(state[3:0],		HEX5);
-
 	genvar k;
 	generate
-	for(k = 0; k < SPRITE_ATTS - 1; k = k+1)
-		begin: down_counters
-			down_counter dc(clk, dc_en[k], dc_ld[k], tx, dc_done[k]);
-		end
-		begin: shifters
-			shift sh(clk, sh_en[k], sh_ld[k], sprite, sh_out[k]);
-		end
+	for(k = 0; k < SPRITE_ATTS - 1; k = k+1) begin : pixelgen
+		down_counter dc(clk, dc_en[k], dc_ld[k], tx, dc_done[k]);
+		shift sh(clk, sh_en[k], sh_ld[k], sprite, sh_out[k]);
+	end
 	endgenerate
 	assign sh_en = dc_done;
 
@@ -152,6 +140,15 @@ module ppu
 			{VGA_R, VGA_G, VGA_B} = {background_r, background_g, background_b};
 	end
 
+
+	hex7seg h0(sprite_attr[3:0],	HEX0);
+	hex7seg h1(sprite_attr[7:4],	HEX1);
+
+	hex7seg h2(sprite_attr[13:10],	HEX2);
+	hex7seg h3(sprite_attr[17:14],	HEX3);
+
+	hex7seg h4(scount[3:0],		HEX4);
+	hex7seg h5(state[3:0],		HEX5);
 
 endmodule
 
