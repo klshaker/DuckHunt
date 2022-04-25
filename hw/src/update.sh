@@ -1,6 +1,13 @@
 #!/bin/bash
+
 CL='\033[0;35m'
 NC='\033[0m' # No Color
+
+if ! command -v dtc &> /dev/null
+then
+	echo "dtc not found.  Did you run embedded_command_shell.sh?" 
+	exit
+fi
 
 echo -e "${NC}"
 echo -e "${CL}"
@@ -26,7 +33,6 @@ echo -e "==========================="
 echo -e "Compiling rbf and dtb..."
 echo -e "===========================${NC}"
 make rbf
-/bin/bash embedded_command_shell.sh
 make dtb
 echo -e "${NC}"
 echo -e "${CL}"

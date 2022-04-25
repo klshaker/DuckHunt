@@ -30,13 +30,16 @@ module ppu
 	logic [10:0]		hcount;
 	logic [9:0]		vcount;
 	logic [31:0]		sprite_attr, sprite;
+
 	logic [SPRITE_ATTS-1:0] dc_en, dc_ld, dc_done;
 	logic [SPRITE_ATTS-1:0]	sh_en, sh_ld;
 
 	logic [31:0]		w_data;
-	logic [15:0]		w_address;
-	logic [7:0]		m_address;
-       	logic [3:0]		c_address;
+	logic [15:0]		w_addr;
+
+	logic [7:0]		s_addr;
+       	logic [3:0]		a_addr;
+       	logic [3:0]		c_addr;
 	logic [31:0]		color_out;
 
 	logic [7:0]		background_r, background_g, background_b;
@@ -50,17 +53,18 @@ module ppu
 
 
 
-	assign m_address = write ? w_address[7:0]: taddr;
-	assign c_address = write ? w_address[3:0]: tcolor;
+	assign s_addr = mem_write[0] ? w_addr[7:0]: taddr;
+	assign c_addr = mem_write[1] ? w_addr[3:0]: tcolor;
+	assign a_addr = mem_write[2] ? w_addr[3:0]: tcolor;
 
 	vga_counters 		counters(.clk50(clk), .*);
-	memory #(32,  16, 4) 	sprite_attr_table(clk, mem_write[0], m_address[3:0], w_data, sprite_attr);
-	memory #(32, 256, 8)  	sprite_table(clk, mem_write[1], m_address[7:0], w_data, sprite);
-	memory #(32,  16, 4)  	color_table(clk, mem_write[2], c_address[3:0], w_data, color_out);
+	memory #(32,  16, 4) 	attr_table  (clk, mem_write[0], a_addr[3:0], w_data, sprite_attr);
+	memory #(32, 256, 8)  	sprite_table(clk, mem_write[1], s_addr[7:0], w_data, sprite);
+	memory #(32,  16, 4)  	color_table (clk, mem_write[2], c_addr[3:0], w_data, color_out);
 
 	genvar k;
 	generate
-	for(k = 0; k < SPRITE_ATTS - 1; k = k+1) begin : pixelgen
+	for(k = 0; k <= SPRITE_ATTS - 1; k = k+1) begin : pixelgen
 		down_counter dc(clk, dc_en[k], dc_ld[k], tx, dc_done[k]);
 		shift sh(clk, sh_en[k], sh_ld[k], sprite, sh_out[k]);
 	end
@@ -71,13 +75,13 @@ module ppu
 	always_ff @(posedge clk) begin
 		mem_write <= 3'b0;
 		if (chipselect && write) begin
-			case(address[15:8])
-				8'd0: mem_write[0] <= 1;
-				8'd1: mem_write[1] <= 1;
-				8'd2: mem_write[2] <= 1;
-				default: mem_write <= 3'b0;
+			case(address[9:8])
+				2'b00: mem_write[0] <= 1'b1;
+				2'b01: mem_write[1] <= 1'b1;
+				2'b10: mem_write[2] <= 1'b1;
+				default: mem_write  <= 3'b0;
 			endcase
-			w_address <= address;
+			w_addr <= address;
 			w_data <= writedata;
 
 		end
@@ -87,14 +91,14 @@ module ppu
 			
 	enum logic [3:0] {CHECK, SET, IDLE, OUTPUT} state;
 	always_ff @(posedge clk) begin
-		scount <= 4'b0; 
 		dc_en <= 16'b0; dc_ld <= 16'b0; sh_ld <= 16'b0;
 		case (state)
 			CHECK: begin
 				//ty	<= sprite_attr[9:0];
 				tx	<= sprite_attr[19:10];
 				tcolor	<= sprite_attr[31:28];
-				if (scount == 15) state <= IDLE;
+
+				if (scount == 15 || hcount == 11'd1277) state <= IDLE;
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
 					state		<= SET;
 					color[scount]	<= sprite_attr[31:28];
@@ -110,14 +114,18 @@ module ppu
 				state  <= CHECK;
 			end
 			IDLE: begin
-				if (hcount == 1278) begin
+				if (hcount == 11'd1278) begin
 					state <= OUTPUT;
 					dc_en <= {16{1'b1}};
 				end
 			end
 			OUTPUT: begin
-				if (hcount == 1599) state <= CHECK;
-				for (int j = 0; j < SPRITE_ATTS; j++) begin
+				if (hcount == 11'd1599) begin 
+					state <= CHECK;
+					scount <= 4'b0; 
+				end
+				tcolor <= 4'b0;
+				for (int j = 0; j < scount; j++) begin
 				
 					if (sh_out[j] != 2'b0) begin
 						tcolor <= color[j] + {2'b0, sh_out[j]};
@@ -128,7 +136,7 @@ module ppu
 				background_g <= color_out[15:8];
 				background_b <= color_out[23:16];
 			end
-			default: state <= state;
+			default: state <= CHECK;
 
 		endcase //case
 	end //always_ff
@@ -146,11 +154,11 @@ module ppu
 	end
 
 
-	hex7seg h0(sprite_attr[3:0],	HEX0);
-	hex7seg h1(sprite_attr[7:4],	HEX1);
+	hex7seg h0(address[3:0],	HEX0);
+	hex7seg h1(address[7:4],	HEX1);
 
-	hex7seg h2(sprite_attr[13:10],	HEX2);
-	hex7seg h3(sprite_attr[17:14],	HEX3);
+	hex7seg h2(address[11:8],	HEX2);
+	hex7seg h3(address[15:12],	HEX3);
 
 	hex7seg h4(scount[3:0],		HEX4);
 	hex7seg h5(state[3:0],		HEX5);
