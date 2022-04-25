@@ -72,10 +72,12 @@ int main()
         .color0 = {.r = 0,    .g = 0,   .b = 0  },
         .color1 = {.r = 0,    .g = 100, .b = 100},
         .color2 = {.r = 100,  .g = 100, .b = 0  },
-        .color3 = {.r = 100,  .g = 0,   .b = 100}
+        .color3 = {.r = 100,  .g = 0,   .b = 100},
+        .id = 0
     };
 
     sprite_table_entry_t sprite;
+    sprite.id       = 0x0;
     sprite.line[0]  = 0x55555555;
     sprite.line[1]  = 0x55555555;
     sprite.line[2]  = 0x55555555;
@@ -96,6 +98,15 @@ int main()
     insert_sprite_att(&attr);
     insert_sprite(&sprite);
     insert_color(&color_palette);
+
+
+    //for (int i = 0; i < 1280; i++) {
+    //    for (int j = 0; j < 480; j++) {
+    //        attr.coord.x = i;
+    //        attr.coord.y = j;
+    //        insert_sprite_att(&attr);
+    //    }
+    //}
 
 
 

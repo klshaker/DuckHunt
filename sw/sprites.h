@@ -55,6 +55,7 @@ typedef struct {
 } attr_table_entry_t;
 
 typedef struct {
+    int id;
     int line[16];
 } sprite_table_entry_t;
 
@@ -63,6 +64,7 @@ typedef struct {
 } color_t;
 
 typedef struct {
+    int id;
     color_t color0, color1, color2, color3;
 } color_table_entry_t;
 
