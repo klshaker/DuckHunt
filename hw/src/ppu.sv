@@ -10,6 +10,9 @@
 `include "memory.sv"
 `include "hex7seg.sv"
 
+/* verilator lint_off DECLFILENAME */
+/* verilator lint_off WIDTH */
+/* verilator lint_off UNUSED */
 module ppu
 	#(parameter
 	SPRITE_ATTS = 16)
@@ -53,9 +56,9 @@ module ppu
 
 
 
-	assign s_addr = mem_write[0] ? w_addr[7:0]: taddr;
-	assign c_addr = mem_write[1] ? w_addr[3:0]: tcolor;
-	assign a_addr = mem_write[2] ? w_addr[3:0]: tcolor;
+	assign a_addr = mem_write[0] ? w_addr[3:0]: tcolor;
+	assign s_addr = mem_write[1] ? w_addr[7:0]: taddr;
+	assign c_addr = mem_write[2] ? w_addr[3:0]: tcolor;
 
 	vga_counters 		counters(.clk50(clk), .*);
 	memory #(32,  16, 4) 	attr_table  (clk, mem_write[0], a_addr[3:0], w_data, sprite_attr);

@@ -43,12 +43,12 @@ struct ppu_dev {
 static void write_to_sprite_attr_table(attr_table_entry_t *sprite)
 {
 
-	int data = 0xFFFF;
+	int data = 0x0;
 
-	data = data && (sprite->coord.x << OBJ_X_COORD_OFFSET);
-	data = data && (sprite->coord.y << OBJ_Y_COORD_OFFSET);
-	data = data && (sprite->sprite  << OBJ_SPRITE_OFFSET);
-	data = data && (sprite->color_table   << OBJ_COLOR_OFFSET);
+	data = data | (sprite->coord.x << OBJ_X_COORD_OFFSET);
+	data = data | (sprite->coord.y << OBJ_Y_COORD_OFFSET);
+	data = data | (sprite->sprite  << OBJ_SPRITE_OFFSET);
+	data = data | (sprite->color_table   << OBJ_COLOR_OFFSET);
 
     pr_info("Writing attr:(%x %x %x %x) %x to %x\n", sprite->color_table, sprite->sprite, sprite->coord.x,
     sprite->coord.y, data, ATTR_TABLE_MEMORY_WRITE(dev.virtbase , sprite->id * ATTR_TABLE_ENTRY_SIZE));
