@@ -102,21 +102,24 @@ module ppu
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
 					tx	<= sprite_attr[19:10];
 					tcolor	<= sprite_attr[31:28];
-					taddr	<= sprite_attr[27:20];
+					taddr	<= sprite_attr[27:20] + (vcount - sprite_attr[9:0]);
 
 					color[scount]	<= sprite_attr[31:28];
 					dc_ld[scount]	<= 1'b1;
 					sh_ld[scount]	<= 1'b1;
 
 					state		<= SET;
-				end else taddr 	<= {4'b0, scount + 4'b1};
+				end else begin
+					taddr 	<= {4'b0, scount + 4'b1};
+					scount 	<= scount + 1'b1;
+				end
 
 			end
 			SET: begin
 				if (scount == 15 || hcount == 11'd1598) state <= IDLE;
 				else state  <= CHECK;
 				taddr <= {4'b0, scount + 4'b1};
-				scount <= scount +1;
+				scount <= scount +1'b1;
 			end
 			IDLE: begin
 				if (hcount == 11'd1599) begin
@@ -152,11 +155,11 @@ module ppu
 	//Write background color to VGA
 	always_comb begin
 		if (VGA_BLANK_n )
-			{VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0};
+			{VGA_R, VGA_G, VGA_B} = {background_r, background_g, background_b};
 		//if (hcount[10:6] == 5'd3 && vcount[9:5] == 5'd3)
 			//{VGA_R, VGA_G, VGA_B} = {8'hff, 8'hff, 8'hff};
 		else
-			{VGA_R, VGA_G, VGA_B} = {background_r, background_g, background_b};
+			{VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0};
 	end
 
 
