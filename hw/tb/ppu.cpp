@@ -61,8 +61,8 @@ int main(int argc, const char ** argv, const char ** env) {
 	//Attr Table Entry
 	attr_table_entry_t attr = {
 		.coord = {
-			.x = 250,
-			.y = 50,
+			.x = 50,
+			.y = 1,
 		},
 		.sprite         = 0x0,
 		.color_table    = 0x0,

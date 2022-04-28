@@ -152,11 +152,11 @@ module ppu
 	//Write background color to VGA
 	always_comb begin
 		if (VGA_BLANK_n )
-			{VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0};
+			{VGA_R, VGA_G, VGA_B} = {background_r, background_g, background_b};
 		//if (hcount[10:6] == 5'd3 && vcount[9:5] == 5'd3)
 			//{VGA_R, VGA_G, VGA_B} = {8'hff, 8'hff, 8'hff};
 		else
-			{VGA_R, VGA_G, VGA_B} = {background_r, background_g, background_b};
+			{VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0};
 	end
 
 
