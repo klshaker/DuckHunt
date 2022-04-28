@@ -49,7 +49,7 @@ module ppu
 
 	logic [1:0]		sh_out [SPRITE_ATTS - 1: 0];
 	logic [3:0]		color [SPRITE_ATTS - 1: 0];
-	logic [3:0]		scount;
+	logic [3:0]		acount, pg;
 	logic [9:0]		tx;// ty;
 	logic [7:0]		taddr;
 	logic [3:0]		tcolor;
@@ -98,28 +98,29 @@ module ppu
 		case (state)
 			CHECK: begin
 				//ty	<= sprite_attr[9:0];
-				if (scount == 15 || hcount == 11'd1598) state <= IDLE;
+				if (acount == 15 || hcount == 11'd1598) state <= IDLE;
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
 					tx	<= sprite_attr[19:10];
 					tcolor	<= sprite_attr[31:28];
 					taddr	<= sprite_attr[27:20] + (vcount - sprite_attr[9:0]);
 
-					color[scount]	<= sprite_attr[31:28];
-					dc_ld[scount]	<= 1'b1;
-					sh_ld[scount]	<= 1'b1;
+					color[pg]	<= sprite_attr[31:28];
+					dc_ld[pg]	<= 1'b1;
+					sh_ld[pg]	<= 1'b1;
 
 					state		<= SET;
 				end else begin
-					taddr 	<= {4'b0, scount + 4'b1};
-					scount 	<= scount + 1'b1;
+					taddr 	<= {4'b0, acount + 4'b1};
+					acount 	<= acount + 1'b1;
 				end
 
 			end
 			SET: begin
-				if (scount == 15 || hcount == 11'd1598) state <= IDLE;
+				if (acount == 15 || hcount == 11'd1598) state <= IDLE;
 				else state  <= CHECK;
-				taddr <= {4'b0, scount + 4'b1};
-				scount <= scount +1'b1;
+				taddr <= {4'b0, acount + 4'b1};
+				acount <= acount +1'b1;
+				pg	<= pg + 1'b1;
 			end
 			IDLE: begin
 				if (hcount == 11'd1599) begin
@@ -130,11 +131,12 @@ module ppu
 			OUTPUT: begin
 				dc_en <= {16{1'b1}};
 				if (hcount == 11'd1279) begin 
-					state <= CHECK;
-					scount <= 4'b0; 
+					state	<= CHECK;
+					acount	<= 4'b0; 
+					pg	<= 4'b0; 
 				end
 				tcolor <= 4'b0;
-				for (int j = 0; j < scount; j++) begin
+				for (int j = 0; j < acount; j++) begin
 				
 					if (sh_out[j] != 2'b0) begin
 						tcolor <= color[j] + {2'b0, sh_out[j]};
@@ -156,8 +158,6 @@ module ppu
 	always_comb begin
 		if (VGA_BLANK_n )
 			{VGA_R, VGA_G, VGA_B} = {background_r, background_g, background_b};
-		//if (hcount[10:6] == 5'd3 && vcount[9:5] == 5'd3)
-			//{VGA_R, VGA_G, VGA_B} = {8'hff, 8'hff, 8'hff};
 		else
 			{VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0};
 	end
@@ -169,7 +169,7 @@ module ppu
 	hex7seg h2(address[11:8],	HEX2);
 	hex7seg h3(address[15:12],	HEX3);
 
-	hex7seg h4(scount[3:0],		HEX4);
+	hex7seg h4(acount[3:0],		HEX4);
 	hex7seg h5(state[3:0],		HEX5);
 
 endmodule
