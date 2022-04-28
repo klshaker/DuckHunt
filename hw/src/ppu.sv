@@ -102,21 +102,24 @@ module ppu
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
 					tx	<= sprite_attr[19:10];
 					tcolor	<= sprite_attr[31:28];
-					taddr	<= sprite_attr[27:20] + (sprite_attr[9:0] - vcount);
+					taddr	<= sprite_attr[27:20] + (vcount - sprite_attr[9:0]);
 
 					color[scount]	<= sprite_attr[31:28];
 					dc_ld[scount]	<= 1'b1;
 					sh_ld[scount]	<= 1'b1;
 
 					state		<= SET;
-				end else taddr 	<= {4'b0, scount + 4'b1};
+				end else begin
+					taddr 	<= {4'b0, scount + 4'b1};
+					scount 	<= scount + 1'b1;
+				end
 
 			end
 			SET: begin
 				if (scount == 15 || hcount == 11'd1598) state <= IDLE;
 				else state  <= CHECK;
 				taddr <= {4'b0, scount + 4'b1};
-				scount <= scount +1;
+				scount <= scount +1'b1;
 			end
 			IDLE: begin
 				if (hcount == 11'd1599) begin

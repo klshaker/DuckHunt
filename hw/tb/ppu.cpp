@@ -97,7 +97,7 @@ int main(int argc, const char ** argv, const char ** env) {
 	// Write all of the sprites. Will take NUM_SPRITES clock cycles.
 	for(int i = 0; i < 16; i++) {
 		attr.coord.y = attr.coord.y + (17 * i);
-		attr.coord.x++;
+		attr.coord.x+= 20;
 
 		//CLOCK HIGH
 		dut->clk = 1;
