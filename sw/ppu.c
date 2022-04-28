@@ -23,8 +23,8 @@
 #define OBJ_COLOR_OFFSET 28
 
 #define ATTR_TABLE_MEMORY_OFFSET 0x000
-#define SPRITE_TABLE_MEMORY_OFFSET 0x500 
-#define COLOR_TABLE_MEMORY_OFFSET 0xA00 
+#define SPRITE_TABLE_MEMORY_OFFSET 0x100
+#define COLOR_TABLE_MEMORY_OFFSET 0x200
 
 // first argument is dev.base, second argument is distance from table offset.
 #define ATTR_TABLE_MEMORY_WRITE(x, y)  (x + ATTR_TABLE_MEMORY_OFFSET + y)
@@ -39,7 +39,7 @@ struct ppu_dev {
 	void __iomem *virtbase; /* Where registers can be accessed in memory */
 } dev;
 
-// Write to the attribution table sprite related information. Addr will vary based on which sprite we are updating. 
+// Write to the attribution table sprite related information. Addr will vary based on which sprite we are updating.
 static void write_to_sprite_attr_table(attr_table_entry_t *sprite)
 {
 
@@ -58,44 +58,22 @@ static void write_to_sprite_attr_table(attr_table_entry_t *sprite)
 
 static void write_to_color_table(color_table_entry_t *color_palette)
 {
-	// All color tables take up COLOR_TABLE_ENTRY_SIZE 'rows' in the 32 bit FPGA memory. Each call to this function represents one color 
+	// All color tables take up COLOR_TABLE_ENTRY_SIZE 'rows' in the 32 bit FPGA memory. Each call to this function represents one color
 	// table being written.
-	int color0 = 0x00000000;
-	int color1 = 0x00000000;
-	int color2 = 0x00000000;
-	int color3 = 0x00000000;
+	int color;
 
-	color0 = color0 | (color_palette->color0.r << RED_OFFSET);
-	color0 = color0 | (color_palette->color0.b << BLUE_OFFSET);
-	color0 = color0 | (color_palette->color0.g << GREEN_OFFSET);
+	for (int i = 0; i < 4; i ++) {
+		color = 0x0;
+		color = color | (color_palette->color[i].r << RED_OFFSET);
+		color = color | (color_palette->color[i].b << BLUE_OFFSET);
+		color = color | (color_palette->color[i].g << GREEN_OFFSET);
 
-	color1 = color1 | (color_palette->color1.r << RED_OFFSET);
-	color1 = color1 | (color_palette->color1.b << BLUE_OFFSET);
-	color1 = color1 | (color_palette->color1.g << GREEN_OFFSET);
+		pr_info("Writing color0 to: %x\n", COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id *
+						COLOR_TABLE_ENTRY_SIZE) + 0));
 
-	color2 = color2 | (color_palette->color2.r << RED_OFFSET);
-	color2 = color2 | (color_palette->color2.b << BLUE_OFFSET);
-	color2 = color2 | (color_palette->color2.g << GREEN_OFFSET);
+		iowrite32(color, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id * COLOR_TABLE_ENTRY_SIZE) + 0));
 
-	color3 = color3 | (color_palette->color3.r << RED_OFFSET);
-	color3 = color3 | (color_palette->color3.b << BLUE_OFFSET);
-	color3 = color3 | (color_palette->color3.g << GREEN_OFFSET);
-
-	pr_info("Writing color0 to: %x\n", COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id *
-					COLOR_TABLE_ENTRY_SIZE) + 0));
-	iowrite32(color0, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id * COLOR_TABLE_ENTRY_SIZE) + 0));
-
-	pr_info("Writing color1 to: %x\n", COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id *
-					COLOR_TABLE_ENTRY_SIZE) + 1));
-	iowrite32(color1, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id * COLOR_TABLE_ENTRY_SIZE) + 1));
-
-	pr_info("Writing color2 to: %x\n", COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id *
-					COLOR_TABLE_ENTRY_SIZE) + 2));
-	iowrite32(color2, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id * COLOR_TABLE_ENTRY_SIZE) + 2));
-
-	pr_info("Writing color3 to: %x\n", COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id *
-					COLOR_TABLE_ENTRY_SIZE) + 3));
-	iowrite32(color3, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id * COLOR_TABLE_ENTRY_SIZE) + 3));
+	}
 }
 
 // Called at program startup to initialize all of the sprites. This data will not change throughout the lifetime of the program.
@@ -125,7 +103,7 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	//int color[COLOR_TABLE_ENTRY_SIZE];
 
 	switch (cmd) {
-		case ATTR_TABLE_WRITE_DATA:  
+		case ATTR_TABLE_WRITE_DATA:
 			if (copy_from_user(&attr_table_entry, (attr_table_entry_t *) arg,
 						sizeof(attr_table_entry_t)))
 				return -EACCES;
