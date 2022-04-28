@@ -56,7 +56,7 @@ module ppu
 
 
 
-	assign a_addr = mem_write[0] ? w_addr[3:0]: tcolor;
+	assign a_addr = mem_write[0] ? w_addr[3:0]: taddr[3:0];
 	assign s_addr = mem_write[1] ? w_addr[7:0]: taddr;
 	assign c_addr = mem_write[2] ? w_addr[3:0]: tcolor;
 
@@ -98,32 +98,35 @@ module ppu
 		case (state)
 			CHECK: begin
 				//ty	<= sprite_attr[9:0];
-				tx	<= sprite_attr[19:10];
-				tcolor	<= sprite_attr[31:28];
-
-				if (scount == 15 || hcount == 11'd1277) state <= IDLE;
+				if (scount == 15 || hcount == 11'd1598) state <= IDLE;
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
-					state		<= SET;
+					tx	<= sprite_attr[19:10];
+					tcolor	<= sprite_attr[31:28];
+					taddr	<= sprite_attr[27:20];
+
 					color[scount]	<= sprite_attr[31:28];
-					taddr		<= sprite_attr[27:20];
 					dc_ld[scount]	<= 1'b1;
 					sh_ld[scount]	<= 1'b1;
+
+					state		<= SET;
 				end else taddr 	<= {4'b0, scount + 4'b1};
 
 			end
 			SET: begin
-				scount <= scount +1;
+				if (scount == 15 || hcount == 11'd1598) state <= IDLE;
+				else state  <= CHECK;
 				taddr <= {4'b0, scount + 4'b1};
-				state  <= CHECK;
+				scount <= scount +1;
 			end
 			IDLE: begin
-				if (hcount == 11'd1278) begin
+				if (hcount == 11'd1599) begin
 					state <= OUTPUT;
 					dc_en <= {16{1'b1}};
 				end
 			end
 			OUTPUT: begin
-				if (hcount == 11'd1599) begin 
+				dc_en <= {16{1'b1}};
+				if (hcount == 11'd1279) begin 
 					state <= CHECK;
 					scount <= 4'b0; 
 				end

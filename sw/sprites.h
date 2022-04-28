@@ -55,8 +55,8 @@ typedef struct {
 } attr_table_entry_t;
 
 typedef struct {
-    int id;
-    int line[16];
+    uint32_t id;
+    uint32_t line[16];
 } sprite_table_entry_t;
 
 typedef struct {
@@ -65,7 +65,7 @@ typedef struct {
 
 typedef struct {
     int id;
-    color_t color0, color1, color2, color3;
+    color_t color[4]; //, color1, color2, color3;
 } color_table_entry_t;
 
 // Populates attr_table_entry_t array with all of the attr table entries. Because of the number of entries in this table and how much data is stored in each entry, it is more readible to populate the entries programtically than by initializing a global array.
