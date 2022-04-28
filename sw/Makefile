@@ -15,12 +15,15 @@ default: module duck_hunt
 
 duck_hunt: game/game.o sprites.o
 
+driver_test: sprites.h ppu.h driver_test.o
+	gcc -g driver_test.c -o driver_test
+
 module: 
 	${MAKE} -C ${KERNEL_SOURCE} ${EXTRA_CFLAGS} SUBDIRS=${PWD}  modules
 
 clean:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
-	${RM} hello
+	${RM} *.ko sprites_test duck_hunt driver_test *.o
 
 sprites.o: sprites.h sprites.c
 	gcc -c sprites.c -g

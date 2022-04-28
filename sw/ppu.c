@@ -22,12 +22,12 @@
 #define OBJ_Y_COORD_OFFSET 0
 #define OBJ_COLOR_OFFSET 28
 
-#define ATTR_TABLE_MEMORY_OFFSET 0x00
-#define SPRITE_TABLE_MEMORY_OFFSET 0x100 
-#define COLOR_TABLE_MEMORY_OFFSET 0x200 
+#define ATTR_TABLE_MEMORY_OFFSET 0x000
+#define SPRITE_TABLE_MEMORY_OFFSET 0x100
+#define COLOR_TABLE_MEMORY_OFFSET 0x200
 
 // first argument is dev.base, second argument is distance from table offset.
-#define ATTR_TABLE_MEMORY_WRITE(x, y) (x + ATTR_TABLE_MEMORY_OFFSET + y)
+#define ATTR_TABLE_MEMORY_WRITE(x, y)  (x + ATTR_TABLE_MEMORY_OFFSET + y)
 #define SPRITE_TABLE_MEMORY_WRITE(x,y) (x + SPRITE_TABLE_MEMORY_OFFSET + y)
 #define COLOR_TABLE_MEMORY_WRITE(x, y) (x + COLOR_TABLE_MEMORY_OFFSET + y)
 
@@ -39,52 +39,55 @@ struct ppu_dev {
 	void __iomem *virtbase; /* Where registers can be accessed in memory */
 } dev;
 
-// Write to the attribution table sprite related information. Addr will vary based on which sprite we are updating. 
+// Write to the attribution table sprite related information. Addr will vary based on which sprite we are updating.
 static void write_to_sprite_attr_table(attr_table_entry_t *sprite)
 {
 
-	int data = 0xFFFF;
+	int data = 0x0;
 
-	data = data && (sprite->coord.x << OBJ_X_COORD_OFFSET);
-	data = data && (sprite->coord.y << OBJ_Y_COORD_OFFSET);
-	data = data && (sprite->sprite  << OBJ_SPRITE_OFFSET);
-	data = data && (sprite->color_table   << OBJ_COLOR_OFFSET);
+	data = data | (sprite->coord.x << OBJ_X_COORD_OFFSET);
+	data = data | (sprite->coord.y << OBJ_Y_COORD_OFFSET);
+	data = data | (sprite->sprite  << OBJ_SPRITE_OFFSET);
+	data = data | (sprite->color_table   << OBJ_COLOR_OFFSET);
 
+	pr_info("Writing attr:(%x %x %x %x) %x to %x\n", sprite->color_table, sprite->sprite, sprite->coord.x,
+			sprite->coord.y, data, ATTR_TABLE_MEMORY_WRITE(dev.virtbase , sprite->id * ATTR_TABLE_ENTRY_SIZE));
 	iowrite32(data, ATTR_TABLE_MEMORY_WRITE(dev.virtbase , sprite->id * ATTR_TABLE_ENTRY_SIZE));
 
 }
 
-static void write_to_color_table(int *color)
+static void write_to_color_table(color_table_entry_t *color_palette)
 {
-
-	// All color tables take up COLOR_TABLE_ENTRY_SIZE 'rows' in the 32 bit FPGA memory. Each call to this function represents one color 
+	// All color tables take up COLOR_TABLE_ENTRY_SIZE 'rows' in the 32 bit FPGA memory. Each call to this function represents one color
 	// table being written.
-	static int color_table_written = 0;
-	int i = 0;
-	for(; i < COLOR_TABLE_ENTRY_SIZE; ++i){
-		int data = 0xFFFF;
-		iowrite32(data, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_table_written * COLOR_TABLE_ENTRY_SIZE) + i));
-	}	
-	// The next color table will start at COLOR_TABLE_ENTRY_SIZE away from this one.
-	++color_table_written;
+	int color;
 
+    int i;
+	for (i = 0; i < 4; i ++) {
+		color = 0x0;
+		color = color | (color_palette->color[i].r << RED_OFFSET);
+		color = color | (color_palette->color[i].b << BLUE_OFFSET);
+		color = color | (color_palette->color[i].g << GREEN_OFFSET);
+
+		pr_info("Writing color0 to: %x\n", COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id *
+						COLOR_TABLE_ENTRY_SIZE) + 0));
+
+		iowrite32(color, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id * COLOR_TABLE_ENTRY_SIZE) + 0));
+
+	}
 }
 
 // Called at program startup to initialize all of the sprites. This data will not change throughout the lifetime of the program.
-static void write_to_sprite_table(int * sprite)
+static void write_to_sprite_table(sprite_table_entry_t * sprite)
 {
-
-	static int sprites_written = 0;
-	printk("writing sprite to memory\n");
-	// All sprites take up SPRITE_TABLE_ENTRY_SIZE 'rows' in the 32 bit FPGA memory. We have to keep track of how many sprites
-	// have so far been written, so we can ensure each sprite comes after the previous one.
 	int i = 0;
 	for(; i < SPRITE_TABLE_ENTRY_SIZE; i ++){
-		iowrite32(sprite[i], SPRITE_TABLE_MEMORY_WRITE(dev.virtbase , (sprites_written * SPRITE_TABLE_ENTRY_SIZE) + i));
+		pr_info("Writing sprite line(%d): %x to %x\n", i, sprite->line[i], SPRITE_TABLE_MEMORY_WRITE(dev.virtbase ,
+					(sprite->id * SPRITE_TABLE_ENTRY_SIZE) + i));
+		iowrite32(sprite->line[i], SPRITE_TABLE_MEMORY_WRITE(dev.virtbase , (sprite->id * SPRITE_TABLE_ENTRY_SIZE) + i));
 	}
 
 	// This function will be called exactly once per sprite.
-	++sprites_written;
 }
 
 /*
@@ -94,12 +97,14 @@ static void write_to_sprite_table(int * sprite)
  */
 static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 {
-	attr_table_entry_t attr_table_entry;
-	int sprite[SPRITE_TABLE_ENTRY_SIZE];
-	int color[COLOR_TABLE_ENTRY_SIZE];
+	attr_table_entry_t      attr_table_entry;
+	sprite_table_entry_t    sprite;
+	color_table_entry_t     color_palette;
+	//int sprite[SPRITE_TABLE_ENTRY_SIZE];
+	//int color[COLOR_TABLE_ENTRY_SIZE];
 
 	switch (cmd) {
-		case ATTR_TABLE_WRITE_DATA:  
+		case ATTR_TABLE_WRITE_DATA:
 			if (copy_from_user(&attr_table_entry, (attr_table_entry_t *) arg,
 						sizeof(attr_table_entry_t)))
 				return -EACCES;
@@ -107,15 +112,15 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 			break;
 
 		case SPRITE_TABLE_WRITE_DATA:
-			if (copy_from_user(&sprite, (int*) arg, sizeof(int)))
+			if (copy_from_user(&sprite, (int*) arg, sizeof(sprite_table_entry_t)))
 				return -EACCES;
-			write_to_sprite_table(sprite);
+			write_to_sprite_table(&sprite);
 			break;
 		case COLOR_TABLE_WRITE_DATA:
-			if (copy_from_user(&color, (int*) arg,
-						sizeof(int)))
+			if (copy_from_user(&color_palette, (int*) arg,
+						sizeof(color_table_entry_t)))
 				return -EACCES;
-			write_to_color_table(color);
+			write_to_color_table(&color_palette);
 			break;
 		default:
 			return -EINVAL;

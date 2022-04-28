@@ -8,7 +8,11 @@
 `include "down_counter.sv"
 `include "shift.sv"
 `include "memory.sv"
+`include "hex7seg.sv"
 
+/* verilator lint_off DECLFILENAME */
+/* verilator lint_off WIDTH */
+/* verilator lint_off UNUSED */
 module ppu
 	#(parameter
 	SPRITE_ATTS = 16)
@@ -17,59 +21,71 @@ module ppu
 	input logic [31:0]  	writedata,
 	input logic 	   	write,
 	input 			chipselect,
-	input logic [11:0]  	address,
+	input logic [15:0]  	address,
 
+	output logic [6:0]	HEX0, HEX1, HEX2, HEX3, HEX4, HEX5,
 	output logic [7:0] 	VGA_R, VGA_G, VGA_B,
 	output logic 		VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_n,
 	output logic 	   	VGA_SYNC_n);
 
 
-	logic [2:0]	mem_write;
-	logic [10:0]    hcount;
-	logic [9:0]     vcount;
-	logic [31:0]	sprite_attr, sprite;
-	logic [SPRITE_ATTS-1:0] 	dc_en, dc_ld, dc_done;
-	logic [SPRITE_ATTS-1:0] 	sh_en, sh_ld;
-	logic [7:0] 	m_address;
-       	logic [3:0]	c_address;
-	logic [31:0] 	color_out;
-	//logic [3:0] 	sh_out [2:0];
+	logic [2:0]		mem_write;
+	logic [10:0]		hcount;
+	logic [9:0]		vcount;
+	logic [31:0]		sprite_attr, sprite;
 
-	logic [7:0] 	background_r, background_g, background_b;
+	logic [SPRITE_ATTS-1:0] dc_en, dc_ld, dc_done;
+	logic [SPRITE_ATTS-1:0]	sh_en, sh_ld;
 
-	logic [1:0] sh_out [SPRITE_ATTS - 1: 0];
-	logic [3:0] color [SPRITE_ATTS - 1: 0];
-	logic [3:0]	scount;
-	logic [9:0]	tx;// ty;
-	logic [7:0]	taddr;
-	logic [3:0]	tcolor;
-	assign m_address = write ? address[7:0]: taddr;
-	assign c_address = write ? address[3:0]: tcolor;
+	logic [31:0]		w_data;
+	logic [15:0]		w_addr;
+
+	logic [7:0]		s_addr;
+       	logic [3:0]		a_addr;
+       	logic [3:0]		c_addr;
+	logic [31:0]		color_out;
+
+	logic [7:0]		background_r, background_g, background_b;
+
+	logic [1:0]		sh_out [SPRITE_ATTS - 1: 0];
+	logic [3:0]		color [SPRITE_ATTS - 1: 0];
+	logic [3:0]		scount;
+	logic [9:0]		tx;// ty;
+	logic [7:0]		taddr;
+	logic [3:0]		tcolor;
+
+
+
+	assign a_addr = mem_write[0] ? w_addr[3:0]: taddr[3:0];
+	assign s_addr = mem_write[1] ? w_addr[7:0]: taddr;
+	assign c_addr = mem_write[2] ? w_addr[3:0]: tcolor;
 
 	vga_counters 		counters(.clk50(clk), .*);
-	memory #(32,  16, 4) 	sprite_attr_table(clk, mem_write[0], m_address[3:0], writedata, sprite_attr);
-	memory #(32, 256, 8)  	sprite_table(clk, mem_write[1], m_address[7:0], writedata, sprite);
-	memory #(32,  16, 4)  	color_table(clk, mem_write[2], c_address[3:0], writedata, color_out);
-
-
+	memory #(32,  16, 4) 	attr_table  (clk, mem_write[0], a_addr[3:0], w_data, sprite_attr);
+	memory #(32, 256, 8)  	sprite_table(clk, mem_write[1], s_addr[7:0], w_data, sprite);
+	memory #(32,  16, 4)  	color_table (clk, mem_write[2], c_addr[3:0], w_data, color_out);
 
 	genvar k;
 	generate
-	for(k = 0; k < SPRITE_ATTS - 1; k = k+1)
-		begin: down_counters
-			down_counter dc(clk, dc_en[k], dc_ld[k], tx, dc_done[k]);
-		end
-		begin: shifters
-			shift sh(clk, sh_en[k], sh_ld[k], sprite, sh_out[k]);
-		end
+	for(k = 0; k <= SPRITE_ATTS - 1; k = k+1) begin : pixelgen
+		down_counter dc(clk, dc_en[k], dc_ld[k], tx, dc_done[k]);
+		shift sh(clk, sh_en[k], sh_ld[k], sprite, sh_out[k]);
+	end
 	endgenerate
 	assign sh_en = dc_done;
 
 
 	always_ff @(posedge clk) begin
-		mem_write <= 0;
+		mem_write <= 3'b0;
 		if (chipselect && write) begin
-			mem_write[address[11:10]] <= 1;
+			case(address[9:8])
+				2'b00: mem_write[0] <= 1'b1;
+				2'b01: mem_write[1] <= 1'b1;
+				2'b10: mem_write[2] <= 1'b1;
+				default: mem_write  <= 3'b0;
+			endcase
+			w_addr <= address;
+			w_data <= writedata;
 
 		end
 	end
@@ -78,37 +94,44 @@ module ppu
 			
 	enum logic [3:0] {CHECK, SET, IDLE, OUTPUT} state;
 	always_ff @(posedge clk) begin
-		scount <= 4'b0; 
 		dc_en <= 16'b0; dc_ld <= 16'b0; sh_ld <= 16'b0;
 		case (state)
 			CHECK: begin
 				//ty	<= sprite_attr[9:0];
-				tx	<= sprite_attr[19:10];
-				tcolor	<= sprite_attr[31:28];
-				if (scount == 15) state <= IDLE;
+				if (scount == 15 || hcount == 11'd1598) state <= IDLE;
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
-					state 	<= SET;
-					color[scount] <= sprite_attr[31:28];
+					tx	<= sprite_attr[19:10];
+					tcolor	<= sprite_attr[31:28];
 					taddr	<= sprite_attr[27:20];
-					dc_ld[scount] <= 1'b1;
-					sh_ld[scount] <= 1'b1;
+
+					color[scount]	<= sprite_attr[31:28];
+					dc_ld[scount]	<= 1'b1;
+					sh_ld[scount]	<= 1'b1;
+
+					state		<= SET;
 				end else taddr 	<= {4'b0, scount + 4'b1};
 
 			end
 			SET: begin
-				scount <= scount +1;
+				if (scount == 15 || hcount == 11'd1598) state <= IDLE;
+				else state  <= CHECK;
 				taddr <= {4'b0, scount + 4'b1};
-				state  <= CHECK;
+				scount <= scount +1;
 			end
 			IDLE: begin
-				if (hcount == 1278) begin
+				if (hcount == 11'd1599) begin
 					state <= OUTPUT;
 					dc_en <= {16{1'b1}};
 				end
 			end
 			OUTPUT: begin
-				if (hcount == 1599) state <= CHECK;
-				for (int j = 0; j < SPRITE_ATTS; j++) begin
+				dc_en <= {16{1'b1}};
+				if (hcount == 11'd1279) begin 
+					state <= CHECK;
+					scount <= 4'b0; 
+				end
+				tcolor <= 4'b0;
+				for (int j = 0; j < scount; j++) begin
 				
 					if (sh_out[j] != 2'b0) begin
 						tcolor <= color[j] + {2'b0, sh_out[j]};
@@ -119,7 +142,7 @@ module ppu
 				background_g <= color_out[15:8];
 				background_b <= color_out[23:16];
 			end
-			default: state <= state;
+			default: state <= CHECK;
 
 		endcase //case
 	end //always_ff
@@ -130,12 +153,21 @@ module ppu
 	always_comb begin
 		if (VGA_BLANK_n )
 			{VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0};
-		if (hcount[10:6] == 5'd3 && vcount[9:5] == 5'd3)
-			{VGA_R, VGA_G, VGA_B} = {8'hff, 8'hff, 8'hff};
+		//if (hcount[10:6] == 5'd3 && vcount[9:5] == 5'd3)
+			//{VGA_R, VGA_G, VGA_B} = {8'hff, 8'hff, 8'hff};
 		else
 			{VGA_R, VGA_G, VGA_B} = {background_r, background_g, background_b};
 	end
 
+
+	hex7seg h0(address[3:0],	HEX0);
+	hex7seg h1(address[7:4],	HEX1);
+
+	hex7seg h2(address[11:8],	HEX2);
+	hex7seg h3(address[15:12],	HEX3);
+
+	hex7seg h4(scount[3:0],		HEX4);
+	hex7seg h5(state[3:0],		HEX5);
 
 endmodule
 
