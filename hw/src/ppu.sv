@@ -102,7 +102,7 @@ module ppu
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
 					tx	<= sprite_attr[19:10];
 					tcolor	<= sprite_attr[31:28];
-					taddr	<= sprite_attr[27:20];
+					taddr	<= sprite_attr[27:20] + (sprite_attr[9:0] - vcount);
 
 					color[scount]	<= sprite_attr[31:28];
 					dc_ld[scount]	<= 1'b1;
