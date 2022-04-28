@@ -7,6 +7,11 @@
 
 //#include "game/game.h"
 
+#ifndef __KERNEL__
+#include <stdint.h>
+#else
+#include <linux/types.h> 
+#endif
 // sizes of each entry in various tables in memory
 #define SPRITE_TABLE_ENTRY_SIZE 16
 #define COLOR_TABLE_ENTRY_SIZE 4

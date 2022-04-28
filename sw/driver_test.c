@@ -16,6 +16,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdint.h>
 
 int driver_fd;
 
@@ -68,45 +69,53 @@ int main()
         .id             = 0x0
     };
 
-    color_table_entry_t color_palette = {
-        .color0 = {.r = 0,    .g = 0,   .b = 0  },
-        .color1 = {.r = 0,    .g = 100, .b = 100},
-        .color2 = {.r = 100,  .g = 100, .b = 0  },
-        .color3 = {.r = 100,  .g = 0,   .b = 100},
-        .id = 0
-    };
+	sprite_table_entry_t sprite = {
+		.id  = 0x0,
+		.line = {
+			0x55555555, 0x55555555, 0x55555555, 0x55555555,
+			0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
+			0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+			0x55555555, 0x55555555, 0x55555555, 0x55555555,
+		},
+	 };
 
-    sprite_table_entry_t sprite;
-    sprite.id       = 0x0;
-    sprite.line[0]  = 0x55555555;
-    sprite.line[1]  = 0x55555555;
-    sprite.line[2]  = 0x55555555;
-    sprite.line[3]  = 0x55555555;
-    sprite.line[4]  = 0xAAAAAAAA;
-    sprite.line[5]  = 0xAAAAAAAA;
-    sprite.line[6]  = 0xAAAAAAAA;
-    sprite.line[7]  = 0xAAAAAAAA;
-    sprite.line[8]  = 0xFFFFFFFF;
-    sprite.line[9]  = 0xFFFFFFFF;
-    sprite.line[10] = 0xFFFFFFFF;
-    sprite.line[11] = 0xFFFFFFFF;
-    sprite.line[12] = 0x55555555;
-    sprite.line[13] = 0x55555555;
-    sprite.line[14] = 0x55555555;
-    sprite.line[15] = 0x55555555;
+	//Color Table Entry:
+	color_table_entry_t color_palette = {
+		.id = 0x0,
+		.color = {
+			[0] = {.r = 0,    .g = 0,   .b = 0  },
+			[1] = {.r = 0,    .g = 100, .b = 100},
+			[2] = {.r = 100,  .g = 100, .b = 0  },
+			[3] = {.r = 100,  .g = 0,   .b = 100},
+		},
+	};
 
     insert_sprite_att(&attr);
     insert_sprite(&sprite);
     insert_color(&color_palette);
 
+    for (int i = 0; i < 250; i ++)
+    {
+        sprite.id++;
+        insert_sprite(&sprite);
+    }
+    for (int i = 0; i < 16; i++)
+    {
+        color_palette.id++;
+        insert_color(&color_palette);
+    }
 
-    //for (int i = 0; i < 1280; i++) {
-    //    for (int j = 0; j < 480; j++) {
-    //        attr.coord.x = i;
-    //        attr.coord.y = j;
-    //        insert_sprite_att(&attr);
-    //    }
-    //}
+//    for (int a = 0; a < 15; a ++) {
+//
+//        for (int i = 0; i < 1280; i += 10) {
+//            for (int j = 0; j < 480; j += 10) {
+//                attr.coord.x = i;
+//                attr.coord.y = j;
+//                attr.id      = a;
+//                insert_sprite_att(&attr);
+//            }
+//        }
+//    }
 
 
 

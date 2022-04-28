@@ -62,7 +62,8 @@ static void write_to_color_table(color_table_entry_t *color_palette)
 	// table being written.
 	int color;
 
-	for (int i = 0; i < 4; i ++) {
+    int i;
+	for (i = 0; i < 4; i ++) {
 		color = 0x0;
 		color = color | (color_palette->color[i].r << RED_OFFSET);
 		color = color | (color_palette->color[i].b << BLUE_OFFSET);
