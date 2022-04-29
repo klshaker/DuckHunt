@@ -22,28 +22,28 @@ int driver_fd;
 
 void insert_sprite_att(attr_table_entry_t *att)
 {
-    if (ioctl(driver_fd, ATTR_TABLE_WRITE_DATA, att)) {
-        perror("Failed to write attr");
-        return;
-    }
+	if (ioctl(driver_fd, ATTR_TABLE_WRITE_DATA, att)) {
+		perror("Failed to write attr");
+		return;
+	}
 
 }
 
 void insert_sprite(sprite_table_entry_t *sprite)
 {
-    if (ioctl(driver_fd, SPRITE_TABLE_WRITE_DATA, sprite)) {
-        perror("Failed to write sprite");
-        return;
-    }
+	if (ioctl(driver_fd, SPRITE_TABLE_WRITE_DATA, sprite)) {
+		perror("Failed to write sprite");
+		return;
+	}
 
 }
 
 void insert_color(color_table_entry_t *color_palette)
 {
-    if (ioctl(driver_fd, COLOR_TABLE_WRITE_DATA, color_palette)) {
-        perror("Failed to write color_palette");
-        return;
-    }
+	if (ioctl(driver_fd, COLOR_TABLE_WRITE_DATA, color_palette)) {
+		perror("Failed to write color_palette");
+		return;
+	}
 
 }
 
@@ -59,16 +59,6 @@ int main()
 		return -1;
 	}
 
-    attr_table_entry_t attr = {
-        .coord = {
-            .x = 250,
-            .y = 400
-        },
-        .sprite         = 0x0,
-        .color_table    = 0x0,
-        .id             = 0x0
-    };
-
 	sprite_table_entry_t sprite = {
 		.id  = 0x0,
 		.line = {
@@ -77,48 +67,71 @@ int main()
 			0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
 			0x55555555, 0x55555555, 0x55555555, 0x55555555,
 		},
-	 };
+	};
 
 	//Color Table Entry:
 	color_table_entry_t color_palette = {
 		.id = 0x0,
 		.color = {
-			[0] = {.r = 0,    .g = 0,   .b = 0  },
-			[1] = {.r = 0,    .g = 100, .b = 100},
-			[2] = {.r = 100,  .g = 100, .b = 0  },
-			[3] = {.r = 100,  .g = 0,   .b = 100},
+			[0] = {.r = 255,    .g = 0,   .b = 0  },
+			[1] = {.r = 255,    .g = 0, .b = 0},
+			[2] = {.r = 255,  .g = 0, .b = 0  },
+			[3] = {.r = 255,  .g = 0,   .b = 0},
 		},
 	};
 
-    insert_sprite_att(&attr);
-    insert_sprite(&sprite);
-    insert_color(&color_palette);
+	// Clear out the attribute table.
+	for(int i = 0; i < 16; ++i){
+		attr_table_entry_t zeros = {
+			.coord = {
+				.x = 0,
+				.y = 0
+			},
+			.sprite         = 0x0,
+			.color_table    = 0x0,
+			.id             = i
+		};
+		insert_sprite_att(&zeros);
+	}
+	
+	attr_table_entry_t attr = {
+		.coord = {
+			.x = 10,
+			.y = 10
+		},
+		.sprite         = 0x0,
+		.color_table    = 0x0,
+		.id             = 0x0
+	};
 
-    for (int i = 0; i < 250; i ++)
-    {
-        sprite.id++;
-        insert_sprite(&sprite);
-    }
-    for (int i = 0; i < 16; i++)
-    {
-        color_palette.id++;
-        insert_color(&color_palette);
-    }
+	insert_sprite_att(&attr);
 
-//    for (int a = 0; a < 15; a ++) {
-//
-//        for (int i = 0; i < 1280; i += 10) {
-//            for (int j = 0; j < 480; j += 10) {
-//                attr.coord.x = i;
-//                attr.coord.y = j;
-//                attr.id      = a;
-//                insert_sprite_att(&attr);
-//            }
-//        }
-//    }
+	for (int i = 0; i < 16; i ++)
+	{
+		insert_sprite(&sprite);
+		sprite.id++;
+	}
+	for (int i = 0; i < 4; i++)
+	{
+		insert_color(&color_palette);
+		color_palette.id++;
+	}
 
+	for(int i = 0 ; i < 640; ++i){
 
+		attr.coord.x++;
+		insert_sprite_att(&attr);
+		usleep(100000);
 
+	}
+
+	for(int i = 0 ; i < 460; ++i){
+
+		attr.coord.y++;
+		insert_sprite_att(&attr);
+		usleep(10000);
+
+	}
 
 	printf("Userspace program terminating\n");
 	return 0;

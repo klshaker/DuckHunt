@@ -69,7 +69,7 @@ static void write_to_color_table(color_table_entry_t *color_palette)
 		color = color | (color_palette->color[i].b << BLUE_OFFSET);
 		color = color | (color_palette->color[i].g << GREEN_OFFSET);
 
-		pr_info("Writing color0 to: %x\n", COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id *
+		pr_info("Writing color %d to: %x\n", i, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id *
 						COLOR_TABLE_ENTRY_SIZE) + i));
 
 		iowrite32(color, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id * COLOR_TABLE_ENTRY_SIZE) + i));

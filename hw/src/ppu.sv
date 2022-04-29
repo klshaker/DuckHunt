@@ -129,8 +129,6 @@ module ppu
 					// this v count.
 					taddr	<= sprite_attr[27:20] + (vcount - sprite_attr[9:0]);
 
-					// QUESTION: why read this in again?
-					// we just computed tcolor?
 					color[pg]	<= sprite_attr[31:28];
 					dc_ld[pg]	<= 1'b1;
 					sh_ld[pg]	<= 1'b1;
@@ -143,8 +141,6 @@ module ppu
 
 			end
 			SET: begin
-			        // TODO make a variable for allowed sprites
-				// and make SPRITE_ATTR = 166666
 				if (acount == SPRITE_ATTRS - 1'b1 || hcount == 11'd1598) state <= IDLE;
 				else state  <= CHECK;
 				taddr <= {4'b0, acount + 4'b1};
@@ -170,9 +166,9 @@ module ppu
 				else if(sh_out[1] != 2'b0) tcolor <= color[2] + {2'b0, sh_out[2]};
 				else if(sh_out[3] != 2'b0) tcolor <= color[3] + {2'b0, sh_out[3]};
 
-				background_r <= color_out[7:0];
-				background_g <= color_out[15:8];
-				background_b <= color_out[23:16];
+				background_r <= tcolor? color_out[7:0] : 8'b0;
+				background_g <= tcolor? color_out[15:8] : 8'b0;
+				background_b <= tcolor? color_out[23:16] : 8'b0;
 			end
 			default: state <= CHECK;
 

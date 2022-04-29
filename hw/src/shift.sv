@@ -11,6 +11,7 @@ module shift
 	 logic [1:0] mem[15:0];
 	 
 	always_ff @(posedge clk) begin
+		data_out <= 2b'0;
 		if (en) begin
 			mem[0] 	<= 2'b0;
 			mem[1] 	<= mem[0];
