@@ -15,7 +15,9 @@
 /* verilator lint_off UNUSED */
 module ppu
 	#(parameter
-	SPRITE_ATTS = 16)
+	VISIBLE_SPRITES = 4,
+	SPRITE_ATTRS = 16
+	)
 	(input logic        	clk,
 	input logic 	   	reset,
 	input logic [31:0]  	writedata,
@@ -38,9 +40,9 @@ module ppu
 	logic [31:0]		sprite_attr, sprite;
 
 	// down counter enable and load variables.
-	logic [SPRITE_ATTS-1:0] dc_en, dc_ld, dc_done;
+	logic [VISIBLE_SPRITES-1:0] dc_en, dc_ld, dc_done;
 	// shifter enable and load variables.
-	logic [SPRITE_ATTS-1:0]	sh_en, sh_ld;
+	logic [VISIBLE_SPRITES-1:0]	sh_en, sh_ld;
 
 	logic [31:0]		w_data;
 	logic [15:0]		w_addr;
@@ -52,8 +54,8 @@ module ppu
 
 	logic [7:0]		background_r, background_g, background_b;
 
-	logic [1:0]		sh_out [SPRITE_ATTS - 1: 0];
-	logic [3:0]		color [SPRITE_ATTS - 1: 0];
+	logic [1:0]		sh_out [VISIBLE_SPRITES - 1: 0];
+	logic [3:0]		color [VISIBLE_SPRITES - 1: 0];
 	// attribute count variable to loop through attribute table entries. 
 	// pg variable to keep track of how many attributes are actually
 	// visible on screen.
@@ -79,7 +81,7 @@ module ppu
 
 	genvar k;
 	generate
-	for(k = 0; k <= SPRITE_ATTS - 1; k = k+1) begin : pixelgen
+	for(k = 0; k <= VISIBLE_SPRITES - 1; k = k+1) begin : pixelgen
 		down_counter dc(.clk(clk), .en(dc_en[k]), .ld(dc_ld[k]), .data_in(tx), .done(dc_done[k]));
 		shift sh(.clk(clk), .en(sh_en[k]), .ld(sh_ld[k]), .data_in(sprite), .data_out(sh_out[k]));
 	end
@@ -108,11 +110,14 @@ module ppu
 			
 	enum logic [3:0] {CHECK, SET, IDLE, OUTPUT} state;
 	always_ff @(posedge clk) begin
-		dc_en <= 16'b0; dc_ld <= 16'b0; sh_ld <= 16'b0;
+		dc_en <= {VISIBLE_SPRITES{1'b0}}; dc_ld <={VISIBLE_SPRITES{1'b0}}; sh_ld <= {VISIBLE_SPRITES{1'b0}};
 		case (state)
 			CHECK: begin
 				//ty	<= sprite_attr[9:0];
-				if (acount == 15 || hcount == 11'd1598) state <= IDLE;
+				// If we have checked eery entry in the SPRITE
+				// ATTR TABLE OR have seeen 4 sprites that
+				// are located at this pixel.
+				if (acount == SPRITE_ATTRS - 1'b1 || pg == VISIBLE_SPRITES - 1'b1 || hcount == 11'd1598) state <= IDLE;
 				// If any of the lines associated with this sprite appears on this row 
 				// (bits 9-0 are the sprite's y coordinate).
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
@@ -138,8 +143,9 @@ module ppu
 
 			end
 			SET: begin
-			        // 15 is SPRITE_ATTS - 1
-				if (acount == 15 || hcount == 11'd1598) state <= IDLE;
+			        // TODO make a variable for allowed sprites
+				// and make SPRITE_ATTR = 166666
+				if (acount == SPRITE_ATTRS - 1'b1 || hcount == 11'd1598) state <= IDLE;
 				else state  <= CHECK;
 				taddr <= {4'b0, acount + 4'b1};
 				acount <= acount +1'b1;
@@ -148,27 +154,22 @@ module ppu
 			IDLE: begin
 				if (hcount == 11'd1599) begin
 					state <= OUTPUT;
-					dc_en <= {16{1'b1}};
+					dc_en <= {VISIBLE_SPRITES{1'b1}};
 				end
 			end
 			OUTPUT: begin
-				dc_en <= {16{1'b1}};
+				dc_en <= {VISIBLE_SPRITES{1'b1}};
 				if (hcount == 11'd1279) begin 
 					state	<= CHECK;
 					acount	<= 4'b0; 
 					pg	<= 4'b0; 
 				end
 				tcolor <= 4'b0;
-				// k statement or a big if else statement.
-				// Loops in verilog are just unrolling
-				// functions.
-				for (int j = 0; j < acount; j++) begin
-				
-					if (sh_out[j] != 2'b0) begin
-						tcolor <= color[j] + {2'b0, sh_out[j]};
-						break;
-					end
-				end
+				if(sh_out[0] != 2'b0) tcolor <= color[0] + {2'b0, sh_out[0]};
+			        else if(sh_out[1] != 2'b0) tcolor <= color[1] + {2'b0, sh_out[1]};
+				else if(sh_out[1] != 2'b0) tcolor <= color[2] + {2'b0, sh_out[2]};
+				else if(sh_out[3] != 2'b0) tcolor <= color[3] + {2'b0, sh_out[3]};
+
 				background_r <= color_out[7:0];
 				background_g <= color_out[15:8];
 				background_b <= color_out[23:16];
