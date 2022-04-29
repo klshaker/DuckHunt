@@ -17,4 +17,4 @@ sprites_san
 duck_hunt
 hw/tb/obj_dir/*
 *.vcd
-
+driver_test

@@ -60,10 +60,10 @@ static void write_to_color_table(color_table_entry_t *color_palette)
 {
 	// All color tables take up COLOR_TABLE_ENTRY_SIZE 'rows' in the 32 bit FPGA memory. Each call to this function represents one color
 	// table being written.
-	int color;
+	int color = 0x0;
+	int i = 0;
 
-    int i;
-	for (i = 0; i < COLOR_TABLE_ENTRY_SIZE; ++i) {
+	for (; i < COLOR_TABLE_ENTRY_SIZE; ++i) {
 		color = 0x0;
 		color = color | (color_palette->color[i].r << RED_OFFSET);
 		color = color | (color_palette->color[i].b << BLUE_OFFSET);
@@ -88,7 +88,6 @@ static void write_to_sprite_table(sprite_table_entry_t * sprite)
 		iowrite32(sprite->line[i], SPRITE_TABLE_MEMORY_WRITE(dev.virtbase , (sprite->id * SPRITE_TABLE_ENTRY_SIZE) + i));
 	}
 
-	// This function will be called exactly once per sprite.
 }
 
 /*

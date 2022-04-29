@@ -22,25 +22,31 @@ void play_game(){
 
 	while(1){
 
-		game_config_t config;
-		config.bullets = 3;
-		config.score = 0;
-		config.round = 0;
+		// Set inintial game state.
+		game_config_t config = {
+			.bullets = 3, 
+			.score = 0, 
+			.round = 0
+		};
 
-		duck_t ducks[NUM_DUCKS];
-		ducks[0].coord.x = 0;
-		ducks[0].x_direction = east;
-		ducks[0].coord.y = 200;
-		ducks[0].id = 0;
-		ducks[0].value = 5;
+		// Set initial duck state.
+		duck_t ducks[NUM_DUCKS] = {
+			{ 
+				.value =  1,
+				.coord= { .x = 0, .y = 0 },
+				.x_direction = east,
+				.id = 0,
+				.state = flap_up,
+			},
+			{ .value = 5,
+				.coord= { .x = 0, .y = 0 },
+				.x_direction = east,
+				.id = 0,
+				.state = flap_up,
+			}
+		};
 
-		ducks[1].coord.x = 0;
-		ducks[1].coord.y = 400;
-		ducks[1].x_direction = west;
-		ducks[1].value = 10;
-		ducks[1].id = 1;
-		
-		coord_t cross_hair = { 0, 0};
+		coord_t cross_hair = { .x = 0, .y =0};
 		all_game_data_t game_data;
 
 		game_data.game_conf = config;

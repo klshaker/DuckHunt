@@ -121,8 +121,14 @@ module ppu
 					tx	<= sprite_attr[19:10];
 				        // color table for sprite
 					tcolor	<= sprite_attr[31:28];
-					// sprite table for sprite
+					// sprite table for sprite. QUESTION:
+					// why are we subtracting v count and
+					// the y coordinate? Is this the exact
+					// row in the sprite table? 
 					taddr	<= sprite_attr[27:20] + (vcount - sprite_attr[9:0]);
+
+					// QUESTION: why read this in again?
+					// we just computed tcolor?
 
 					color[pg]	<= sprite_attr[31:28];
 					dc_ld[pg]	<= 1'b1;
