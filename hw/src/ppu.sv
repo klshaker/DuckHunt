@@ -29,12 +29,17 @@ module ppu
 	output logic 	   	VGA_SYNC_n);
 
 
+        // which table in memroy to write to (if any).
 	logic [2:0]		mem_write;
+	// which horizontal pixel we are currently on. 
 	logic [10:0]		hcount;
+	// which vertical pixel we are currently on.
 	logic [9:0]		vcount;
 	logic [31:0]		sprite_attr, sprite;
 
+	// down counter enable and load variables.
 	logic [SPRITE_ATTS-1:0] dc_en, dc_ld, dc_done;
+	// shifter enable and load variables.
 	logic [SPRITE_ATTS-1:0]	sh_en, sh_ld;
 
 	logic [31:0]		w_data;
@@ -49,17 +54,15 @@ module ppu
 
 	logic [1:0]		sh_out [SPRITE_ATTS - 1: 0];
 	logic [3:0]		color [SPRITE_ATTS - 1: 0];
+	// attribute count variable to loop through attribute table entries. 
+	// pg variable to keep track of how many attributes are actually
+	// visible on screen.
 	logic [3:0]		acount, pg;
-	logic [9:0]		tx;// ty;
+	logic [9:0]		tx; // ty;
 	logic [7:0]		taddr;
 	logic [3:0]		tcolor;
 
 
-
-	// QUESTION Bryce isn't mem_write all 0s? it isn't an input.
-	// When writing to Sprite Attribute Table, we only need the last
-	// 4 bits of the address since we only support 16 sprites (4 bits of
-	// address spaec). 
 	assign a_addr = mem_write[0] ? w_addr[3:0]: taddr[3:0];
 
         // When writing to Sprite Table we only need 8 bits of address because
@@ -74,8 +77,6 @@ module ppu
 	memory #(32, 256, 8)  	sprite_table(.clk(clk), .we(mem_write[1]), .addr(s_addr[7:0]), .data_in(w_data), .data_out(sprite));
 	memory #(32,  16, 4)  	color_table (.clk(clk), .we(mem_write[2]), .addr(c_addr[3:0]), .data_in(w_data), .data_out(color_out));
 
-	// QUESTION are we generating one down counter and one shift module
-	// for each SPRITE ATTR TABLE ENTRY or each sprite?
 	genvar k;
 	generate
 	for(k = 0; k <= SPRITE_ATTS - 1; k = k+1) begin : pixelgen
@@ -102,7 +103,6 @@ module ppu
 			endcase
 			w_addr <= address;
 			w_data <= writedata;
-
 		end
 	end
 			
@@ -113,23 +113,19 @@ module ppu
 			CHECK: begin
 				//ty	<= sprite_attr[9:0];
 				if (acount == 15 || hcount == 11'd1598) state <= IDLE;
-				// If the sprite appers on this row (bits 9-0 are the sprite's y coordinate)
-				   // QUESTION: why are we adding 15? Also why
-				   // are we not just checking for == ?
+				// If any of the lines associated with this sprite appears on this row 
+				// (bits 9-0 are the sprite's y coordinate).
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
 				        // x coordinate of sprite.
 					tx	<= sprite_attr[19:10];
 				        // color table for sprite
 					tcolor	<= sprite_attr[31:28];
-					// sprite table for sprite. QUESTION:
-					// why are we subtracting v count and
-					// the y coordinate? Is this the exact
-					// row in the sprite table? 
+					// exact line in the sprite table for
+					// this v count.
 					taddr	<= sprite_attr[27:20] + (vcount - sprite_attr[9:0]);
 
 					// QUESTION: why read this in again?
 					// we just computed tcolor?
-
 					color[pg]	<= sprite_attr[31:28];
 					dc_ld[pg]	<= 1'b1;
 					sh_ld[pg]	<= 1'b1;
@@ -142,6 +138,7 @@ module ppu
 
 			end
 			SET: begin
+			        // 15 is SPRITE_ATTS - 1
 				if (acount == 15 || hcount == 11'd1598) state <= IDLE;
 				else state  <= CHECK;
 				taddr <= {4'b0, acount + 4'b1};
@@ -162,6 +159,9 @@ module ppu
 					pg	<= 4'b0; 
 				end
 				tcolor <= 4'b0;
+				// k statement or a big if else statement.
+				// Loops in verilog are just unrolling
+				// functions.
 				for (int j = 0; j < acount; j++) begin
 				
 					if (sh_out[j] != 2'b0) begin

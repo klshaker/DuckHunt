@@ -1,9 +1,7 @@
 /*
- * Userspace program that communicates with the vga_ball device driver
+ * Userspace program that communicates with the ppu device driver
  * through ioctls
  *
- * Stephen A. Edwards
- * Columbia University
  */
 
 #include <stdio.h>

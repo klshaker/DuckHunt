@@ -94,10 +94,10 @@ int main(int argc, const char ** argv, const char ** env) {
 	int time = 0;
 	int clock = 0;
 
-	// Write all of the sprites. Will take NUM_SPRITES clock cycles.
-	for(int i = 0; i < 16; i++) {
+	// Write all of the sprites to the Sprite Attribute Table. Will take NUM_SPRITES clock cycles.
+	for(int i = 0; i < NUM_SPRITES; i++) {
 		attr.coord.y = attr.coord.y + (17 * i);
-		attr.coord.x+= 20;
+		attr.coord.x += 20;
 
 		//CLOCK HIGH
 		dut->clk = 1;
@@ -120,6 +120,20 @@ int main(int argc, const char ** argv, const char ** env) {
 		tfp->dump( time );
 
 	}
+
+	
+	for(int i = 0; i < NUM_SPRITES; ++i){
+		dut->clk = 1;
+		dut->address = 0x0000 + i;
+		dut->chipselect = 0;
+		dut->eval();
+		
+		std::cout << std::bitset<32> ( dut->ppu__DOT__sprite_attr) << std::endl;
+
+		dut->clk = 0;
+		dut->eval();
+	}
+
 
 	for(int i = 0; i < 16; i++) {
 		for (int c = 0; c < 4; c++) {

@@ -72,7 +72,6 @@ static void write_to_color_table(color_table_entry_t *color_palette)
 		pr_info("Writing color0 to: %x\n", COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id *
 						COLOR_TABLE_ENTRY_SIZE) + i));
 
-		// QUESTION Bryce this was  + 0 shouldn't it be plus i?
 		iowrite32(color, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id * COLOR_TABLE_ENTRY_SIZE) + i));
 
 	}
