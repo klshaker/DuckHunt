@@ -63,8 +63,10 @@ module ppu
 	logic [9:0]		tx; // ty;
 	logic [7:0]		taddr;
 	logic [3:0]		tcolor;
+	logic [15:0]		haddr;
 
 
+	assign haddr = address ? address : haddr;
 	assign a_addr = mem_write[0] ? w_addr[3:0]: taddr[3:0];
 
         // When writing to Sprite Table we only need 8 bits of address because
@@ -186,11 +188,11 @@ module ppu
 	end
 
 
-	hex7seg h0(address[3:0],	HEX0);
-	hex7seg h1(address[7:4],	HEX1);
+	hex7seg h0(haddr[3:0],	HEX0);
+	hex7seg h1(haddr[7:4],	HEX1);
 
-	hex7seg h2(address[11:8],	HEX2);
-	hex7seg h3(address[15:12],	HEX3);
+	hex7seg h2(haddr[11:8],	HEX2);
+	hex7seg h3(haddr[15:12],	HEX3);
 
 	hex7seg h4(acount[3:0],		HEX4);
 	hex7seg h5(state[3:0],		HEX5);

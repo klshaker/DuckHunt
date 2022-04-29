@@ -57,16 +57,44 @@ int main(int argc, const char ** argv, const char ** env) {
 	dut->write	= 1; 
 	dut->chipselect = 1;
 
-
 	//Attr Table Entry
-	attr_table_entry_t attr = {
-		.coord = {
-			.x = 50,
-			.y = 1,
+	attr_table_entry_t attr_table[NUM_SPRITES] = {
+		{
+			.coord = {
+				.x = 50,
+				.y = 1,
+			},
+			.sprite         = 0x0,
+			.color_table    = 0x0,
+			.id             = 0x0,
 		},
-		.sprite         = 0x0,
-		.color_table    = 0x0,
-		.id             = 0x0,
+		{
+			.coord = {
+				.x = 100,
+				.y = 100,
+			},
+			.sprite         = 0x01,
+			.color_table    = 0x02,
+			.id             = 0x01,
+		},
+		{
+			.coord = {
+				.x = 50,
+				.y = 1,
+			},
+			.sprite         = 0x0,
+			.color_table    = 0x0,
+			.id             = 0x0,
+		},
+		{
+			.coord = {
+				.x = 100,
+				.y = 100,
+			},
+			.sprite         = 0x01,
+			.color_table    = 0x02,
+			.id             = 0x01,
+		}
 	};
 
 	//Sprite Table Entry
@@ -78,7 +106,7 @@ int main(int argc, const char ** argv, const char ** env) {
 			0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
 			0x55555555, 0x55555555, 0x55555555, 0x55555555,
 		},
-	 };
+	};
 
 	//Color Table Entry:
 	color_table_entry_t color_palette = {
@@ -96,21 +124,18 @@ int main(int argc, const char ** argv, const char ** env) {
 
 	// Write all of the sprites to the Sprite Attribute Table. Will take NUM_SPRITES clock cycles.
 	for(int i = 0; i < NUM_SPRITES; i++) {
-		attr.coord.y = attr.coord.y + (17 * i);
-		attr.coord.x += 20;
-
 		//CLOCK HIGH
 		dut->clk = 1;
 		clock++;
 		time += 10;
 
-		std::cout << std::bitset<32> (attr_to_int(&attr)) << std::endl;
-		dut->writedata = attr_to_int(&attr);
+		std::cout << "Writing sprite attr table data" << std::endl;
+		std::cout << std::bitset<32> (attr_to_int(&attr_table[i])) << std::endl;
+		dut->writedata = attr_to_int(&attr_table[i]);
 		dut->address = ATTR_TABLE_MEMORY_OFFSET + i;
 
 		dut->eval();
 		tfp->dump( time );
-
 
 		//CLOCK LOW
 		dut->clk = 0;
@@ -121,14 +146,19 @@ int main(int argc, const char ** argv, const char ** env) {
 
 	}
 
-	
+	// Read all of the sprites attribute entries from the table. Will take 16 clock cycles. 
+	// Compare them to what was input 
 	for(int i = 0; i < NUM_SPRITES; ++i){
 		dut->clk = 1;
-		dut->address = 0x0000 + i;
+		dut->ppu__DOT__taddr = ATTR_TABLE_MEMORY_OFFSET + i;
+		dut->ppu__DOT__state = 3;
 		dut->chipselect = 0;
+		dut->write = 0;
 		dut->eval();
-		
-		std::cout << std::bitset<32> ( dut->ppu__DOT__sprite_attr) << std::endl;
+
+		std::cout << "Reading sprite attr table data" << std::endl;
+		std::cout << std::bitset<32> ( dut->ppu__DOT__sprite_attr ) << std::endl;
+		//assert(dut->ppu__DOT__sprite_attr == attr_to_int(&attr_table[i]));
 
 		dut->clk = 0;
 		dut->eval();
