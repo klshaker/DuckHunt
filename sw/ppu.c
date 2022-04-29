@@ -63,16 +63,17 @@ static void write_to_color_table(color_table_entry_t *color_palette)
 	int color;
 
     int i;
-	for (i = 0; i < 4; i ++) {
+	for (i = 0; i < COLOR_TABLE_ENTRY_SIZE; ++i) {
 		color = 0x0;
 		color = color | (color_palette->color[i].r << RED_OFFSET);
 		color = color | (color_palette->color[i].b << BLUE_OFFSET);
 		color = color | (color_palette->color[i].g << GREEN_OFFSET);
 
 		pr_info("Writing color0 to: %x\n", COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id *
-						COLOR_TABLE_ENTRY_SIZE) + 0));
+						COLOR_TABLE_ENTRY_SIZE) + i));
 
-		iowrite32(color, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id * COLOR_TABLE_ENTRY_SIZE) + 0));
+		// QUESTION Bryce this was  + 0 shouldn't it be plus i?
+		iowrite32(color, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id * COLOR_TABLE_ENTRY_SIZE) + i));
 
 	}
 }
@@ -81,7 +82,7 @@ static void write_to_color_table(color_table_entry_t *color_palette)
 static void write_to_sprite_table(sprite_table_entry_t * sprite)
 {
 	int i = 0;
-	for(; i < SPRITE_TABLE_ENTRY_SIZE; i ++){
+	for(; i < SPRITE_TABLE_ENTRY_SIZE; ++i){
 		pr_info("Writing sprite line(%d): %x to %x\n", i, sprite->line[i], SPRITE_TABLE_MEMORY_WRITE(dev.virtbase ,
 					(sprite->id * SPRITE_TABLE_ENTRY_SIZE) + i));
 		iowrite32(sprite->line[i], SPRITE_TABLE_MEMORY_WRITE(dev.virtbase , (sprite->id * SPRITE_TABLE_ENTRY_SIZE) + i));
@@ -100,8 +101,6 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	attr_table_entry_t      attr_table_entry;
 	sprite_table_entry_t    sprite;
 	color_table_entry_t     color_palette;
-	//int sprite[SPRITE_TABLE_ENTRY_SIZE];
-	//int color[COLOR_TABLE_ENTRY_SIZE];
 
 	switch (cmd) {
 		case ATTR_TABLE_WRITE_DATA:
@@ -112,12 +111,12 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 			break;
 
 		case SPRITE_TABLE_WRITE_DATA:
-			if (copy_from_user(&sprite, (int*) arg, sizeof(sprite_table_entry_t)))
+			if (copy_from_user(&sprite, (sprite_table_entry_t*) arg, sizeof(sprite_table_entry_t)))
 				return -EACCES;
 			write_to_sprite_table(&sprite);
 			break;
 		case COLOR_TABLE_WRITE_DATA:
-			if (copy_from_user(&color_palette, (int*) arg,
+			if (copy_from_user(&color_palette, (color_table_entry_t*) arg,
 						sizeof(color_table_entry_t)))
 				return -EACCES;
 			write_to_color_table(&color_palette);

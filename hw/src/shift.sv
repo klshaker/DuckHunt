@@ -1,4 +1,5 @@
-
+// Reads an entire sprite into memory. Outputs 2 bits of that sprite per clock
+// cycle. Shifts all remaining bits over one memory location.
 module shift
 	(input logic 		 clk,
 	 input logic 		 en,
@@ -6,6 +7,7 @@ module shift
 	 input logic [31:0] 	 data_in,
 	 output logic [1:0]  	 data_out);
 
+ 	 // 16 memory locations each 2 bits in size.
 	 logic [1:0] mem[15:0];
 	 
 	always_ff @(posedge clk) begin

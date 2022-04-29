@@ -2,6 +2,7 @@
 #include "Vmemory.h"
 #include <verilated.h>
 #include <verilated_vcd_c.h>
+#include <cassert>
 
 int main(int argc, const char ** argv, const char ** env) {
   Verilated::commandArgs(argc, argv);
@@ -13,7 +14,7 @@ int main(int argc, const char ** argv, const char ** env) {
     n = 7;
 
   Vmemory * dut = new Vmemory;
-  
+
   Verilated::traceEverOn(true);
   VerilatedVcdC * tfp = new VerilatedVcdC;
   dut->trace(tfp, 99);
@@ -24,42 +25,44 @@ int main(int argc, const char ** argv, const char ** env) {
 
   int time = 0;
 
-//Write to memory
+  //Write to memory
   for (int i = 0 ; i < 16 ; i++) {
     dut->clk = 0;
-	dut->we = 1;
-	dut->addr = i;
+    dut->we = 1;
+    dut->addr = i;
     dut->data_in = i;
     time += 10;
-    
+
     dut->eval();
     tfp->dump( time );
 
     dut->clk = 1;
     time += 10;
-    
+
     dut->eval();
     tfp->dump( time );
 
     std::cout << "(" << i << ") Writing "<< dut->data_in << " to address " << dut->addr  << std::endl;
   }    
-  
+
   dut->we = 0;
-//Read from  memory
+  //Read from  memory
   for (int i = 0 ; i < 16 ; i++) {
     dut->clk = 0;
-	dut->addr = i;
+    dut->addr = i;
     time += 10;
-    
+
     dut->eval();
     tfp->dump( time );
 
+    // on the pos edge we are always reading the memory at addr even if the we bit is not enabled.
     dut->clk = 1;
     time += 10;
-    
+
     dut->eval();
     tfp->dump( time );
     std::cout << i << ' ' << dut->data_out << std::endl;
+    assert(i == dut->data_out);
 
   }    
   tfp->close();

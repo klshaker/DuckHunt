@@ -56,20 +56,31 @@ module ppu
 
 
 
+	// QUESTION Bryce isn't mem_write all 0s? it isn't an input.
+	// When writing to Sprite Attribute Table, we only need the last
+	// 4 bits of the address since we only support 16 sprites (4 bits of
+	// address spaec). 
 	assign a_addr = mem_write[0] ? w_addr[3:0]: taddr[3:0];
+
+        // When writing to Sprite Table we only need 8 bits of address because
+        // We support 16 Sprites that are each 16 rows of data ( 16 * 16 = 256
+	// which is 8 bits of address space ).
 	assign s_addr = mem_write[1] ? w_addr[7:0]: taddr;
+
 	assign c_addr = mem_write[2] ? w_addr[3:0]: tcolor;
 
 	vga_counters 		counters(.clk50(clk), .*);
-	memory #(32,  16, 4) 	attr_table  (clk, mem_write[0], a_addr[3:0], w_data, sprite_attr);
-	memory #(32, 256, 8)  	sprite_table(clk, mem_write[1], s_addr[7:0], w_data, sprite);
-	memory #(32,  16, 4)  	color_table (clk, mem_write[2], c_addr[3:0], w_data, color_out);
+	memory #(32,  16, 4) 	attr_table  (.clk(clk), .we(mem_write[0]), .addr(a_addr[3:0]), .data_in(w_data), .data_out(sprite_attr));
+	memory #(32, 256, 8)  	sprite_table(.clk(clk), .we(mem_write[1]), .addr(s_addr[7:0]), .data_in(w_data), .data_out(sprite));
+	memory #(32,  16, 4)  	color_table (.clk(clk), .we(mem_write[2]), .addr(c_addr[3:0]), .data_in(w_data), .data_out(color_out));
 
+	// QUESTION are we generating one down counter and one shift module
+	// for each SPRITE ATTR TABLE ENTRY or each sprite?
 	genvar k;
 	generate
 	for(k = 0; k <= SPRITE_ATTS - 1; k = k+1) begin : pixelgen
-		down_counter dc(clk, dc_en[k], dc_ld[k], tx, dc_done[k]);
-		shift sh(clk, sh_en[k], sh_ld[k], sprite, sh_out[k]);
+		down_counter dc(.clk(clk), .en(dc_en[k]), .ld(dc_ld[k]), .data_in(tx), .done(dc_done[k]));
+		shift sh(.clk(clk), .en(sh_en[k]), .ld(sh_ld[k]), .data_in(sprite), .data_out(sh_out[k]));
 	end
 	endgenerate
 	assign sh_en = dc_done;
@@ -78,6 +89,11 @@ module ppu
 	always_ff @(posedge clk) begin
 		mem_write <= 3'b0;
 		if (chipselect && write) begin
+			// The first two bits of the address tell us which
+			// table we are writing to. 
+			// 0X0000 Sprite Attribute Table 
+			// 0x0100 Sprite Table 
+			// 0x0200 Color Table
 			case(address[9:8])
 				2'b00: mem_write[0] <= 1'b1;
 				2'b01: mem_write[1] <= 1'b1;
@@ -89,8 +105,6 @@ module ppu
 
 		end
 	end
-
-
 			
 	enum logic [3:0] {CHECK, SET, IDLE, OUTPUT} state;
 	always_ff @(posedge clk) begin
@@ -99,9 +113,15 @@ module ppu
 			CHECK: begin
 				//ty	<= sprite_attr[9:0];
 				if (acount == 15 || hcount == 11'd1598) state <= IDLE;
+				// If the sprite appers on this row (bits 9-0 are the sprite's y coordinate)
+				   // QUESTION: why are we adding 15? Also why
+				   // are we not just checking for == ?
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
+				        // x coordinate of sprite.
 					tx	<= sprite_attr[19:10];
+				        // color table for sprite
 					tcolor	<= sprite_attr[31:28];
+					// sprite table for sprite
 					taddr	<= sprite_attr[27:20] + (vcount - sprite_attr[9:0]);
 
 					color[pg]	<= sprite_attr[31:28];

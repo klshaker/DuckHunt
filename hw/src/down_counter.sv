@@ -9,6 +9,7 @@ module down_counter
 	 output logic 		done);
 
 
+ 	 // How many clock cycles we should wait.
 	 logic [N-1:0] count;
 
 	 always_ff @(posedge clk) begin

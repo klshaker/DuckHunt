@@ -32,33 +32,33 @@ int main(int argc, const char ** argv, const char ** env) {
   dut->data_in = n;
   for (int i = 0 ; i < 16 ; i++) {
     time += 10;
-    
+
     dut->eval();
     tfp->dump( time );
 
     dut->clk = 1;
     time += 10;
-    
+
     dut->eval();
     tfp->dump( time );
     dut->clk = 0;
 
   }    
-  
+
   dut->ld = 0;
-//Read from  memory
+  //Read from  memory
   int count = 0;
   while(!dut->done){
     dut->clk = 0;
     dut->en = 1;
     time += 10;
-    
+
     dut->eval();
     tfp->dump( time );
 
     dut->clk = 1;
     time += 10;
-    
+
     dut->eval();
     tfp->dump( time );
     std::cout << "(" << count++ << ") done: " << std::bitset<1>(dut->done) << std::endl;
