@@ -1,32 +1,42 @@
 #ifndef _GAME_H
 #define _GAME_H
 
+// Constants exposed for testing purposes.
 extern const int kHorizontalScreenSize;
+extern const int kCrossHairSquareSize;
+extern const int kGraphicSize;
+extern const int kVerticalScreenSize;
 
-// Confer with Bryce about how big these sprites are.
-extern const int kDuckXSize;
-extern const int kMaxDucksPerGame;
-
-enum duck_state { flap_up, flap_down, dead, inactive };
-// start with only being able to move on the x axis.
-enum direction { east, west};
+enum duck_state { flap_up, flap_down, dead, inactive, flying_away };
+// east and west denote movement on the x plane. north and south denote movement
+// on the y plane.
+enum direction { east, west, north, south };
 
 typedef struct {
-	unsigned int x,y;
+	// signed so that we can go negative when sprite is partially on the screen.
+	int x,y;
 } coord_t;
 
 typedef struct {
-	// none of these values are larger than 16 bits
-	unsigned int value;
+	// How many points the duck is worth in the game.
+	int value;
+	// Where the duck currently is on the screen.
 	coord_t coord;
 	enum direction x_direction;
-	int id; // unique_id associated with each duck.
+	enum direction y_direction;
+	// Angle in degrees that ducks will move at an angle on the y plane to make game_play more interesting. 
+	// an angle of 45 degrees denotes 1 unit of movement in the y plane for every one unit of movement in the x plane.
+	double y_angle;
+	// unique_id associated with each duck.
+	int id; 
 	enum duck_state state;
+	// The number of times the duck has moved on screen used to approximate time the user has to shoot the duck.
+	int num_moves; 
 } duck_t;
 
 typedef struct {
-	// We should only need 8 bits for each of these
 	unsigned char bullets, score, round;
+	int num_ducks_seen;
 } game_config_t;
 
 typedef struct {

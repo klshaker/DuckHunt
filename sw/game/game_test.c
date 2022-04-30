@@ -4,69 +4,92 @@
 
 int test_calculate_hit(){
 
-	duck_t duck;
-	duck.coord.x = 10;
-	duck.coord.y = 15;
-	coord_t cross_hair;
-	cross_hair.x = 0; 
-	cross_hair.y = 0;
+	duck_t duck = {
+		.coord = { 
+			.x = 10, 
+			.y = 16
+		}
+	};
+	coord_t cross_hair = { .x = 0, .y = 0};
 
 	// x and y are dead on
 	cross_hair.x = 10; 
-	cross_hair.y = 15;
-	assert(calculate_hit(&duck, cross_hair) ==1);
+	cross_hair.y = 16;
+	assert(calculate_hit(&duck, cross_hair) == 1);
 
-	// y is in range but x is out of range.
-	cross_hair.x = 35;
-	assert(calculate_hit(&duck, cross_hair) ==0);
+	// y is in range but x is out of range in either direction
+	cross_hair.x = duck.coord.x + kCrossHairSquareSize; 
+	assert(calculate_hit(&duck, cross_hair) == 0);
+
+	cross_hair.x = duck.coord.x - kCrossHairSquareSize;
+	assert(calculate_hit(&duck, cross_hair) == 0);
+
+	// x is just in range in either direction. Should hit.
+	cross_hair.x = duck.coord.x + kCrossHairSquareSize -1;
+	assert(calculate_hit(&duck, cross_hair) == 1);
+	
+	cross_hair.x = duck.coord.x - kCrossHairSquareSize +1;
+	assert(calculate_hit(&duck, cross_hair) == 1);
 
 	// x is in range but y is out of range.
 	cross_hair.x = 10;
-	cross_hair.y = 35;
-	assert(calculate_hit(&duck, cross_hair)== 0);
-
-	// both x and y are out of range 
-	cross_hair.x = 35;
-	assert(calculate_hit(&duck, cross_hair) ==0);
-
-	// x is just out of range
-	cross_hair.x = 5 ;
-	cross_hair.y = 15;
+	cross_hair.y = duck.coord.y + kCrossHairSquareSize;
 	assert(calculate_hit(&duck, cross_hair) == 0);
 
-	// x is just in range
-	cross_hair.x = 6;
-	cross_hair.y = 15;
+	cross_hair.y = duck.coord.y - kCrossHairSquareSize;
+	assert(calculate_hit(&duck, cross_hair) == 0);
+	
+	// y is just in range in either direction. should hit 
+	cross_hair.y = duck.coord.y + kCrossHairSquareSize -1;
+	assert(calculate_hit(&duck, cross_hair) == 1);
+	
+	cross_hair.y = duck.coord.y - kCrossHairSquareSize + 1;
 	assert(calculate_hit(&duck, cross_hair) == 1);
 
+	// both x and y are wildly out of range 
+	cross_hair.x = 100;
+	cross_hair.y = 100;
+	assert(calculate_hit(&duck, cross_hair) == 0);
+
 }
+
 void test_move_duck(){
-	duck_t duck; 
-	duck.coord.x = 0;
-	duck.x_direction = east;
+	
+	duck_t duck = {
+		.coord = { .x = 200, .y = 200},
+		.x_direction = east,
+		.y_direction = north,
+		.y_angle = 45
+	};
+
+	// Basic test. assert that moving the duck starting at 0, 0 with a 45 degree angle moves the duck 1 unit in the 
+	// x direction and 1 unit in the y direction.
 	int success = move_duck(&duck);
 	assert(success == 1);
-	assert(duck.coord.x == 1);
+	assert(duck.coord.x == 201);
 	assert(duck.x_direction == east);
+	//printf("%d\n", duck.coord.y);
+	assert(duck.coord.y == 199);
+	assert(duck.y_direction == north);
 
-	duck.coord.x = 0;
-	// gets duck to 639
-	for(int i = 0; i < kHorizontalScreenSize-1; i++){
+	duck.coord.x = 1;
+	duck.y_angle = 0;
+
+	// Should move duck all the way to the edge of the screen.
+	// Starting at 1 since 0 is a special case.
+	for(int i = 1; i < kHorizontalScreenSize - kGraphicSize - 1; ++i){
 		assert(duck.coord.x == i);
 		int success = move_duck(&duck);
 		assert(success == 1);
 		assert(duck.coord.x == i + 1 );
+		assert(duck.coord.y == 199);
 		assert(duck.x_direction == east);
 	}
 
-	// moves duck to 640, where we should set direction to west 
-	success = move_duck(&duck);
-	assert(success == 1);
-	assert(duck.coord.x == kHorizontalScreenSize);
-	assert(duck.x_direction == west);
+	assert(duck.coord.x == kHorizontalScreenSize - kGraphicSize - 1);
 
-
-	for(int i = kHorizontalScreenSize; i > 1; --i){
+	duck.coord.x = kHorizontalScreenSize - kGraphicSize;
+	for(int i = duck.coord.x ; i > 0; --i){
 		assert(duck.coord.x == i);
 		int success = move_duck(&duck);
 		assert(success == 1);
@@ -74,28 +97,26 @@ void test_move_duck(){
 		assert(duck.x_direction == west);
 	}
 
-	assert(duck.coord.x == 1);
-	success = move_duck(&duck);
-	assert(success == 1);
 	assert(duck.coord.x == 0);
-	assert(duck.x_direction == east);
 
 	success = move_duck(&duck);
 	assert(success == 1);
 	assert(duck.coord.x == 1);
 	assert(duck.x_direction == east);
-
 
 	// dead ducks don't move on the x plane and fall to the ground.
 	duck_t dead_duck;
 	dead_duck.state = dead;
 	dead_duck.coord.x = 52;
-	dead_duck.coord.y = 300;
-	for(int i =0; i < 500; i++){
+	dead_duck.coord.y = 20;
+	for(int i = 0; i < 400; i++){
 		move_duck(&dead_duck);
 	}
-	assert(dead_duck.coord.x==52);
-	assert(dead_duck.coord.y ==0);
+
+	printf("%d\n", dead_duck.coord.x);
+	printf("%d\n", dead_duck.coord.y);
+	assert(dead_duck.coord.x == 52);
+	assert(dead_duck.coord.y == kVerticalScreenSize + kGraphicSize );
 }
 
 
