@@ -40,9 +40,9 @@ module ppu
 	logic [31:0]		sprite_attr, sprite;
 
 	// down counter enable and load variables.
-	logic [VISIBLE_SPRITES-1:0] dc_en, dc_ld, dc_done;
+	logic [VISIBLE_SPRITES-1:0]	dc_en, dc_ld, dc_done, dc_r;
 	// shifter enable and load variables.
-	logic [VISIBLE_SPRITES-1:0]	sh_en, sh_ld;
+	logic [VISIBLE_SPRITES-1:0]	sh_en, sh_ld, sh_r;
 
 	logic [31:0]		w_data;
 	logic [15:0]		w_addr;
@@ -57,22 +57,21 @@ module ppu
 	logic [1:0]		sh_out [VISIBLE_SPRITES - 1: 0];
 	logic [3:0]		color [VISIBLE_SPRITES - 1: 0];
 	// attribute count variable to loop through attribute table entries. 
-	// pg variable to keep track of how many attributes are actually
+	// vc variable to keep track of how many attributes are actually
 	// visible on screen.
-	logic [3:0]		acount, pg;
+	logic [3:0]		ac, vc;
 	logic [9:0]		tx; // ty;
-	logic [7:0]		taddr;
+	logic [7:0]		sr_addr, ar_addr;
 	logic [3:0]		tcolor;
 	logic [15:0]		haddr;
 
 
-	assign haddr = address ? address : haddr;
-	assign a_addr = mem_write[0] ? w_addr[3:0]: taddr[3:0];
+	assign a_addr = mem_write[0] ? w_addr[3:0]: ar_addr[3:0];
 
         // When writing to Sprite Table we only need 8 bits of address because
         // We support 16 Sprites that are each 16 rows of data ( 16 * 16 = 256
 	// which is 8 bits of address space ).
-	assign s_addr = mem_write[1] ? w_addr[7:0]: taddr;
+	assign s_addr = mem_write[1] ? w_addr[7:0]: sr_addr;
 
 	assign c_addr = mem_write[2] ? w_addr[3:0]: tcolor;
 
@@ -84,11 +83,15 @@ module ppu
 	genvar k;
 	generate
 	for(k = 0; k <= VISIBLE_SPRITES - 1; k = k+1) begin : pixelgen
-		down_counter dc(.clk(clk), .en(dc_en[k]), .ld(dc_ld[k]), .data_in(tx), .done(dc_done[k]));
-		shift sh(.clk(clk), .en(sh_en[k]), .ld(sh_ld[k]), .data_in(sprite), .data_out(sh_out[k]));
+		down_counter dc(.clk(clk), .en(dc_en[k]), .ld(dc_ld[k]), .reset(dc_r[k]), .data_in(tx), .done(dc_done[k]));
+		shift sh(.clk(clk), .en(sh_en[k]), .ld(sh_ld[k]), .reset(sh_r[k]), .data_in(sprite), .data_out(sh_out[k]));
 	end
 	endgenerate
 	assign sh_en = dc_done;
+
+	always_ff @(posedge clk) begin
+		if (address) haddr <= address;
+	end
 
 
 	always_ff @(posedge clk) begin
@@ -110,44 +113,43 @@ module ppu
 		end
 	end
 			
-	enum logic [3:0] {CHECK, SET, IDLE, OUTPUT} state;
+	enum logic [3:0] {A_INDEX, CHECK, S_INDEX, SET, IDLE, OUTPUT} state;
 	always_ff @(posedge clk) begin
-		dc_en <= {VISIBLE_SPRITES{1'b0}}; dc_ld <={VISIBLE_SPRITES{1'b0}}; sh_ld <= {VISIBLE_SPRITES{1'b0}};
+		dc_en <= {VISIBLE_SPRITES{1'b0}}; dc_ld <={VISIBLE_SPRITES{1'b0}}; dc_r <= {VISIBLE_SPRITES{1'b0}};
+		sh_ld <= {VISIBLE_SPRITES{1'b0}}; sh_r <= {VISIBLE_SPRITES{1'b0}};
 		case (state)
-			CHECK: begin
-				//ty	<= sprite_attr[9:0];
-				// If we have checked eery entry in the SPRITE
-				// ATTR TABLE OR have seeen 4 sprites that
-				// are located at this pixel.
-				if (acount == SPRITE_ATTRS - 1'b1 || pg == VISIBLE_SPRITES - 1'b1 || hcount == 11'd1598) state <= IDLE;
-				// If any of the lines associated with this sprite appears on this row 
-				// (bits 9-0 are the sprite's y coordinate).
+			A_INDEX: begin //Attr table index set, data available next cycle
+				state <= CHECK;
+			end
+			CHECK: begin //Attr table output ready, check y
+				if (ac == SPRITE_ATTRS - 1'b1 || vc == VISIBLE_SPRITES - 1'b1 || hcount == 11'd1598) state <= IDLE;
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
-				        // x coordinate of sprite.
 					tx	<= sprite_attr[19:10];
-				        // color table for sprite
-					tcolor	<= sprite_attr[31:28];
-					// exact line in the sprite table for
-					// this v count.
-					taddr	<= sprite_attr[27:20] + (vcount - sprite_attr[9:0]);
+					sr_addr	<= sprite_attr[27:20] + (vcount - sprite_attr[9:0]);
+					color[vc]	<= sprite_attr[31:28];
+					state		<= S_INDEX;
 
-					color[pg]	<= sprite_attr[31:28];
-					dc_ld[pg]	<= 1'b1;
-					sh_ld[pg]	<= 1'b1;
-
-					state		<= SET;
 				end else begin
-					taddr 	<= {4'b0, acount + 4'b1};
-					acount 	<= acount + 1'b1;
+					ar_addr	<= {4'b0, ac + 4'b1};
+					ac 	<= ac + 1'b1;
+					state	<= A_INDEX;
 				end
 
 			end
-			SET: begin
-				if (acount == SPRITE_ATTRS - 1'b1 || hcount == 11'd1598) state <= IDLE;
+			S_INDEX: begin //Sprite table index set, data available next cycle
+				//Prep pixel_gen modules
+				dc_ld[vc]	<= 1'b1;
+				sh_ld[vc]	<= 1'b1;
+
+				//We can use SET state to skip A_INDEX state 
+				ar_addr		<= {4'b0, ac + 4'b1};
+				ac		<= ac + 1'b1;
+				state		<= SET;
+			end
+			SET: begin //Sprite table output ready, just wait
+				if (ac == SPRITE_ATTRS - 1'b1 || hcount == 11'd1598) state <= IDLE;
 				else state  <= CHECK;
-				taddr <= {4'b0, acount + 4'b1};
-				acount <= acount +1'b1;
-				pg	<= pg + 1'b1;
+				vc	<= vc + 1'b1;
 			end
 			IDLE: begin
 				if (hcount == 11'd1599) begin
@@ -158,13 +160,16 @@ module ppu
 			OUTPUT: begin
 				dc_en <= {VISIBLE_SPRITES{1'b1}};
 				if (hcount == 11'd1279) begin 
-					state	<= CHECK;
-					acount	<= 4'b0; 
-					pg	<= 4'b0; 
+					dc_r	<= {VISIBLE_SPRITES{1'b1}};
+					sh_r	<= {VISIBLE_SPRITES{1'b1}};
+					state	<= A_INDEX;
+					ar_addr	<= 8'b0;
+					ac	<= 4'b0; 
+					vc	<= 4'b0; 
 				end
 				tcolor <= 4'b0;
 				if(sh_out[0] != 2'b0) tcolor <= color[0] + {2'b0, sh_out[0]};
-			        else if(sh_out[1] != 2'b0) tcolor <= color[1] + {2'b0, sh_out[1]};
+				else if(sh_out[1] != 2'b0) tcolor <= color[1] + {2'b0, sh_out[1]};
 				else if(sh_out[1] != 2'b0) tcolor <= color[2] + {2'b0, sh_out[2]};
 				else if(sh_out[3] != 2'b0) tcolor <= color[3] + {2'b0, sh_out[3]};
 
@@ -194,7 +199,7 @@ module ppu
 	hex7seg h2(haddr[11:8],	HEX2);
 	hex7seg h3(haddr[15:12],	HEX3);
 
-	hex7seg h4(acount[3:0],		HEX4);
+	hex7seg h4(ac[3:0],		HEX4);
 	hex7seg h5(state[3:0],		HEX5);
 
 endmodule

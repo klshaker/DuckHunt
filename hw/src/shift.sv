@@ -2,6 +2,7 @@
 // cycle. Shifts all remaining bits over one memory location.
 module shift
 	(input logic 		 clk,
+	 input logic		 reset, 
 	 input logic 		 en,
 	 input logic 		 ld,
 	 input logic [31:0] 	 data_in,
@@ -11,8 +12,26 @@ module shift
 	 logic [1:0] mem[15:0];
 	 
 	always_ff @(posedge clk) begin
-		data_out <= 2'b0;
-		if (en) begin
+		if (reset) begin
+			mem[0] 	 <= 2'b0;
+			mem[1] 	 <= 2'b0; 
+			mem[2] 	 <= 2'b0; 
+			mem[3] 	 <= 2'b0; 
+			mem[4] 	 <= 2'b0; 
+			mem[5] 	 <= 2'b0; 
+			mem[6] 	 <= 2'b0; 
+			mem[7] 	 <= 2'b0; 
+			mem[8] 	 <= 2'b0; 
+			mem[9] 	 <= 2'b0; 
+			mem[10]  <= 2'b0; 
+			mem[11]  <= 2'b0; 
+			mem[12]  <= 2'b0; 
+			mem[13]  <= 2'b0; 
+			mem[14]  <= 2'b0; 
+			mem[15]  <= 2'b0; 
+			data_out <= 2'b0;
+		end
+		else if (en) begin
 			mem[0] 	<= 2'b0;
 			mem[1] 	<= mem[0];
 			mem[2] 	<= mem[1];
@@ -31,7 +50,7 @@ module shift
 			mem[15] <= mem[14];
 			data_out <= mem[15];
 		end
-		if (ld) begin
+		else if (ld) begin
 			mem[0] 	<= data_in[31:30];
 			mem[1] 	<= data_in[29:28]; 
 			mem[2] 	<= data_in[27:26]; 
@@ -49,6 +68,7 @@ module shift
 			mem[14] <= data_in[3:2]; 
 			mem[15] <= data_in[1:0]; 
 		end
+		else data_out <= 2'b0;
 	end
 	//assign data_out = mem[15];
  endmodule
