@@ -25,35 +25,35 @@ coord_t get_center_of_graphic(coord_t* top_left) {
 int calculate_hit(duck_t * duck, coord_t cross_hair){
 	coord_t cross_hair_center = get_center_of_graphic(&cross_hair);
 	coord_t duck_center = get_center_of_graphic(&duck->coord);
-	
-	return cross_hair_center.x < (duck_center.x + kCrossHairSquareSize) && cross_hair_center.x > (duck_center.x - kCrossHairSquareSize)
+ 
+	return duck->state != flying_away && duck->state != dead && cross_hair_center.x < (duck_center.x + kCrossHairSquareSize) && cross_hair_center.x > (duck_center.x - kCrossHairSquareSize)
 		&& cross_hair_center.y < (duck_center.y + kCrossHairSquareSize) && cross_hair_center.y > (duck_center.y - kCrossHairSquareSize);
 }
 
-int move_ducks(duck_t* ducks, int num_ducks){
+int move_ducks(duck_t* ducks, int num_ducks, game_config_t * game_config){
 	for(int i = 0; i < num_ducks; ++i){
-		move_duck(&ducks[i]);
+		move_duck(&ducks[i], game_config);
 	}
 }
 
 // Once a duck has moved off of the screen, it is no longer considered "shootable".
-int move_duck(duck_t * duck){
+int move_duck(duck_t * duck, game_config_t * game_config){
 
 	// a dead duck should not move at all on the x plane. It should drop down where it was shot. Dropping in our coordinate system means adding to the y coord.
 	if(duck->state == dead ){
 		if(duck->coord.y < kVerticalScreenSize + kGraphicSize){
-		      duck->coord.y++;	
+			duck->coord.y++;	
 		}
 		return 1;
 	}
 	// a flying away duck should not move on the x plane. It should leave the screen by flyinga directly upward. 
 	if(duck->state == flying_away ){
 		if(duck->coord.y > 0 - kGraphicSize){
-		duck->coord.y--;
+			duck->coord.y--;
 		}
 		return 1;
 	}
-	
+
 	if(duck->coord.x <= 0) {
 		duck->x_direction = east;
 		duck->y_angle = rand() % 90;
@@ -92,10 +92,11 @@ int move_duck(duck_t * duck){
 		duck->coord.y += ceil(tan(duck->y_angle*kPI/180));
 	}
 
-	// If we have hit this if statememnt we know the duck is not dead or flying a way. A dead duck or a flying away duck should not be constrained by num moves.
+	// If we have hit this if statememnt we know the duck is not dead or flying a way. A dead duck or a flying away duck should not be constrained by num moves. 
 	if( duck->num_moves == kMaxNumDuckMoves ){
 		// set the duck state to flying away.
 		duck->state = flying_away;
+		++game_config->num_ducks_seen;
 	}
 	++duck->num_moves;
 

@@ -6,6 +6,7 @@ extern const int kHorizontalScreenSize;
 extern const int kCrossHairSquareSize;
 extern const int kGraphicSize;
 extern const int kVerticalScreenSize;
+extern const int kMaxNumDuckMoves;
 
 enum duck_state { flap_up, flap_down, dead, inactive, flying_away };
 // east and west denote movement on the x plane. north and south denote movement
@@ -39,11 +40,6 @@ typedef struct {
 	int num_ducks_seen;
 } game_config_t;
 
-typedef struct {
-	duck_t ducks[1];
-	coord_t cross_hair;
-	game_config_t game_conf;
-} all_game_data_t;
 
 
 // Checks to see if a given shot has hit any of the ducks.
@@ -57,11 +53,12 @@ int set_up_config(game_config_t * game_config);
 // Deducts from bullet count, adds ducks value to the total score.
 void kill_duck_update_config(duck_t * duck, game_config_t* config);
 
-// Moves ducks across the x plane. (y plane if the duck is dead).
-int move_duck(duck_t * duck);
+// Moves a single duck across the x plane. (y plane if the duck is dead). Increments the num_ducks_seen in the game 
+// config if the duck enters the flying away state.
+int move_duck(duck_t * duck, game_config_t * game_config);
 
 // moves all of the ducks.
-int move_ducks(duck_t* ducks, int num_ducks);
+int move_ducks(duck_t* ducks, int num_ducks, game_config_t * game_config);
 
 // game is over if we are out of bullets or if we've seen a set number of ducks.
 int is_game_over(game_config_t * config, int num_ducks_seen);

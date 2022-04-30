@@ -51,6 +51,13 @@ int test_calculate_hit(){
 	cross_hair.y = 100;
 	assert(calculate_hit(&duck, cross_hair) == 0);
 
+	// ducks that are dead or flying away cannot be hit.
+	duck.state = flying_away;
+	assert(calculate_hit(&duck, cross_hair) == 0);
+
+	duck.state = dead;
+	assert(calculate_hit(&duck, cross_hair) == 0);
+
 }
 
 void test_move_duck(){
@@ -62,9 +69,12 @@ void test_move_duck(){
 		.y_angle = 45
 	};
 
+	game_config_t config = {
+		.num_ducks_seen = 0
+	};
 	// Basic test. assert that moving the duck starting at 0, 0 with a 45 degree angle moves the duck 1 unit in the 
 	// x direction and 1 unit in the y direction.
-	int success = move_duck(&duck);
+	int success = move_duck(&duck, &config);
 	assert(success == 1);
 	assert(duck.coord.x == 201);
 	assert(duck.x_direction == east);
@@ -79,7 +89,7 @@ void test_move_duck(){
 	// Starting at 1 since 0 is a special case.
 	for(int i = 1; i < kHorizontalScreenSize - kGraphicSize - 1; ++i){
 		assert(duck.coord.x == i);
-		int success = move_duck(&duck);
+		int success = move_duck(&duck, &config);
 		assert(success == 1);
 		assert(duck.coord.x == i + 1 );
 		assert(duck.coord.y == 199);
@@ -91,7 +101,7 @@ void test_move_duck(){
 	duck.coord.x = kHorizontalScreenSize - kGraphicSize;
 	for(int i = duck.coord.x ; i > 0; --i){
 		assert(duck.coord.x == i);
-		int success = move_duck(&duck);
+		int success = move_duck(&duck, &config);
 		assert(success == 1);
 		assert(duck.coord.x == i-1);
 		assert(duck.x_direction == west);
@@ -99,7 +109,7 @@ void test_move_duck(){
 
 	assert(duck.coord.x == 0);
 
-	success = move_duck(&duck);
+	success = move_duck(&duck, &config);
 	assert(success == 1);
 	assert(duck.coord.x == 1);
 	assert(duck.x_direction == east);
@@ -109,14 +119,28 @@ void test_move_duck(){
 	dead_duck.state = dead;
 	dead_duck.coord.x = 52;
 	dead_duck.coord.y = 20;
-	for(int i = 0; i < 400; i++){
-		move_duck(&dead_duck);
+	for(int i = 0; i < 300; i++){
+		move_duck(&dead_duck, &config);
 	}
 
 	printf("%d\n", dead_duck.coord.x);
 	printf("%d\n", dead_duck.coord.y);
 	assert(dead_duck.coord.x == 52);
 	assert(dead_duck.coord.y == kVerticalScreenSize + kGraphicSize );
+
+	duck_t flies_away = {
+		.coord = {
+			.x = 200,
+			.y = 200
+		},
+	};
+
+	for(int i = 0; i <= kMaxNumDuckMoves; ++i){
+		move_duck(&flies_away, &config);
+	}
+
+	assert(flies_away.state == flying_away);
+	assert(config.num_ducks_seen == 1); 
 }
 
 
@@ -160,7 +184,6 @@ void test_game_over(){
 	config.bullets = 3;
 	num_ducks_seen = 8;
 	assert(is_game_over(&config, num_ducks_seen) == 1);
-
 }
 
 
