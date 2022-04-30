@@ -22,14 +22,14 @@
 #define OBJ_Y_COORD_OFFSET 0
 #define OBJ_COLOR_OFFSET 28
 
-#define ATTR_TABLE_MEMORY_OFFSET 0x000
-#define SPRITE_TABLE_MEMORY_OFFSET 0x100
-#define COLOR_TABLE_MEMORY_OFFSET 0x200
+#define ATTR_TABLE_MEMORY_OFFSET 0x000 * 4
+#define SPRITE_TABLE_MEMORY_OFFSET 0x100 * 4
+#define COLOR_TABLE_MEMORY_OFFSET 0x200 * 4
 
 // first argument is dev.base, second argument is distance from table offset.
-#define ATTR_TABLE_MEMORY_WRITE(x, y)  (x + ATTR_TABLE_MEMORY_OFFSET + y)
-#define SPRITE_TABLE_MEMORY_WRITE(x,y) (x + SPRITE_TABLE_MEMORY_OFFSET + y)
-#define COLOR_TABLE_MEMORY_WRITE(x, y) (x + COLOR_TABLE_MEMORY_OFFSET + y)
+#define ATTR_TABLE_MEMORY_WRITE(x, y)  (x + ATTR_TABLE_MEMORY_OFFSET + y * 4)
+#define SPRITE_TABLE_MEMORY_WRITE(x,y) (x + SPRITE_TABLE_MEMORY_OFFSET + y * 4)
+#define COLOR_TABLE_MEMORY_WRITE(x, y) (x + COLOR_TABLE_MEMORY_OFFSET + y * 4)
 
 /*
  * Information about our device
@@ -38,6 +38,11 @@ struct ppu_dev {
 	struct resource res; /* Resource: our registers */
 	void __iomem *virtbase; /* Where registers can be accessed in memory */
 } dev;
+
+static void write_to_address(int addr)
+{
+    iowrite32(0, dev.virtbase + addr);
+}
 
 // Write to the attribution table sprite related information. Addr will vary based on which sprite we are updating.
 static void write_to_sprite_attr_table(attr_table_entry_t *sprite)
@@ -99,6 +104,7 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	attr_table_entry_t      attr_table_entry;
 	sprite_table_entry_t    sprite;
 	color_table_entry_t     color_palette;
+    int addr;
 
 	switch (cmd) {
 		case ATTR_TABLE_WRITE_DATA:
@@ -119,6 +125,13 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 				return -EACCES;
 			write_to_color_table(&color_palette);
 			break;
+
+        case WRITE_TO_ADDRESS:
+			if (copy_from_user(&addr, (int*) arg, sizeof(int)))
+                return -EACCES;
+
+            write_to_address(addr);
+            break;
 		default:
 			return -EINVAL;
 	}

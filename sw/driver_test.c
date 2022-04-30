@@ -17,6 +17,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <stdlib.h>
+
 
 int driver_fd;
 
@@ -48,7 +50,15 @@ void insert_color(color_table_entry_t *color_palette)
 }
 
 
-int main()
+void write_to_address(int *addr)
+{
+    if (ioctl(driver_fd, WRITE_TO_ADDRESS, addr)){
+        perror("Failed to write to address - sad");
+        return;
+    }
+}
+
+int main(int argc, char **argv)
 {
 	static const char filename[] = "/dev/ppu";
 
@@ -59,10 +69,18 @@ int main()
 		return -1;
 	}
 
+    if (argc == 2) {
+        int a = atoi(argv[1]);
+        printf("Writing to address: %x\n", a);
+        write_to_address(&a);
+        return 0;
+        
+    }
+
 	sprite_table_entry_t sprite = {
 		.id  = 0x0,
 		.line = {
-			0x55555555, 0x55555555, 0x55555555, 0x55555555,
+			0xAAAAAAAA, 0x55555555, 0x55555555, 0x55555555,
 			0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
 			0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
 			0x55555555, 0x55555555, 0x55555555, 0x55555555,
@@ -73,10 +91,10 @@ int main()
 	color_table_entry_t color_palette = {
 		.id = 0x0,
 		.color = {
-			[0] = {.r = 255,    .g = 0,   .b = 0  },
+			[0] = {.r = 0,    .g = 255,   .b = 0  },
 			[1] = {.r = 255,    .g = 0, .b = 0},
-			[2] = {.r = 255,  .g = 0, .b = 0  },
-			[3] = {.r = 255,  .g = 0,   .b = 0},
+			[2] = {.r = 0,  .g = 255, .b = 0  },
+			[3] = {.r = 0,  .g = 0,   .b = 255},
 		},
 	};
 
@@ -117,21 +135,21 @@ int main()
 		color_palette.id++;
 	}
 
-	for(int i = 0 ; i < 640; ++i){
 
-		attr.coord.x++;
-		insert_sprite_att(&attr);
-		usleep(100000);
 
-	}
+    attr.id = 1;
+    for(int x = 0 ; x < 640; ++x){
+        for (int i = 0; i < 16; i++) {
+            attr.id = i;
+            attr.coord.y = i * 20;
+            attr.coord.x = x;
+            //printf("X: %d\r", x);
+            insert_sprite_att(&attr);
+            usleep(1000);
 
-	for(int i = 0 ; i < 460; ++i){
+        }
 
-		attr.coord.y++;
-		insert_sprite_att(&attr);
-		usleep(10000);
-
-	}
+    }
 
 	printf("Userspace program terminating\n");
 	return 0;
