@@ -7,6 +7,7 @@ extern const int kCrossHairSquareSize;
 extern const int kGraphicSize;
 extern const int kVerticalScreenSize;
 extern const int kMaxNumDuckMoves;
+extern const int kMaxDucksPerGame;
 
 enum duck_state { flap_up, flap_down, dead, inactive, flying_away };
 // east and west denote movement on the x plane. north and south denote movement
@@ -61,6 +62,6 @@ int move_duck(duck_t * duck, game_config_t * game_config);
 int move_ducks(duck_t* ducks, int num_ducks, game_config_t * game_config);
 
 // game is over if we are out of bullets or if we've seen a set number of ducks.
-int is_game_over(game_config_t * config, int num_ducks_seen);
+int is_game_over(game_config_t * config);
 
 #endif

@@ -27,7 +27,7 @@ int test_calculate_hit(){
 	// x is just in range in either direction. Should hit.
 	cross_hair.x = duck.coord.x + kCrossHairSquareSize -1;
 	assert(calculate_hit(&duck, cross_hair) == 1);
-	
+
 	cross_hair.x = duck.coord.x - kCrossHairSquareSize +1;
 	assert(calculate_hit(&duck, cross_hair) == 1);
 
@@ -38,11 +38,11 @@ int test_calculate_hit(){
 
 	cross_hair.y = duck.coord.y - kCrossHairSquareSize;
 	assert(calculate_hit(&duck, cross_hair) == 0);
-	
+
 	// y is just in range in either direction. should hit 
 	cross_hair.y = duck.coord.y + kCrossHairSquareSize -1;
 	assert(calculate_hit(&duck, cross_hair) == 1);
-	
+
 	cross_hair.y = duck.coord.y - kCrossHairSquareSize + 1;
 	assert(calculate_hit(&duck, cross_hair) == 1);
 
@@ -61,7 +61,7 @@ int test_calculate_hit(){
 }
 
 void test_move_duck(){
-	
+
 	duck_t duck = {
 		.coord = { .x = 200, .y = 200},
 		.x_direction = east,
@@ -145,10 +145,12 @@ void test_move_duck(){
 
 
 void test_kill_duck_update_score(){
-	game_config_t config;
-	config.bullets = 3;
-	config.score = 0;
-	config.round = 0;
+	game_config_t config = {
+
+		.bullets = 3,
+		.score = 0,
+		.round = 0
+	};
 
 	duck_t ducks[2] = {};
 	ducks[0].coord.x = 5;
@@ -172,18 +174,19 @@ void test_kill_duck_update_score(){
 }
 
 void test_game_over(){
-	game_config_t config;
-	config.bullets = 3;
-	config.score = 0;
-	config.round = 0;
-	int num_ducks_seen = 0;
+	game_config_t config = {
+	.bullets = 3,
+	.score = 0,
+	.round = 0,
+	.num_ducks_seen = 0
+	};
 
-	assert(is_game_over(&config, num_ducks_seen) == 0);
+	assert(is_game_over(&config) == 0);
 	config.bullets = 0;
-	assert(is_game_over(&config, num_ducks_seen) == 1);
+	assert(is_game_over(&config) == 1);
 	config.bullets = 3;
-	num_ducks_seen = 8;
-	assert(is_game_over(&config, num_ducks_seen) == 1);
+	config.num_ducks_seen = kMaxDucksPerGame;
+	assert(is_game_over(&config) == 1);
 }
 
 
