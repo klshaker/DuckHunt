@@ -25,32 +25,29 @@ void play_game(){
 			.bullets = 3, 
 			.score = 0, 
 			.round = 0
+			.num_ducks_seen = 0;
 		};
 
-		// Set initial duck state.
+		// Set initial duck state. As in original game. ducks come out of the grass.
 		duck_t ducks[NUM_DUCKS] = {
 			{ 
 				.value =  1,
-				.coord= { .x = 0, .y = 0 },
+				.coord= { .x = 200, .y = kVerticalScreenSize },
 				.x_direction = east,
 				.id = 0,
 				.state = flap_up,
 			},
 			{ .value = 5,
-				.coord= { .x = 0, .y = 0 },
+				.coord= { .x = 250, .y = kVerticalScreenSize },
 				.x_direction = east,
 				.id = 0,
 				.state = flap_up,
 			}
 		};
 
-		coord_t cross_hair = { .x = 0, .y =0};
-		all_game_data_t game_data;
+		coord_t cross_hair = { .x = 0, .y = 0};
 
-		game_data.game_conf = config;
-		int num_ducks_seen = 0;
-
-		while(!is_game_over(&game_data.game_conf, num_ducks_seen)){
+		while(!is_game_over(&game_data.game_conf)){
 
 			// poll wii controller.
 			// if trigger pressed

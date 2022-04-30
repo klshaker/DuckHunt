@@ -3,10 +3,16 @@
 
 // Constants exposed for testing purposes.
 extern const int kHorizontalScreenSize;
-extern const int kCrossHairSquareSize;
-extern const int kGraphicSize;
+// how much vertical room the ducks have to move around ( how much sky there is on the screen ).
 extern const int kVerticalScreenSize;
+// Used to caluclate the bounding box for a cross hair. Essentially, how much 
+// leeway to give users in the x and way directions when computing if they successfully shot a duck.
+extern const int kCrossHairSquareSize;
+// How big the ducks and the crosshair are.
+extern const int kGraphicSize;
+// Number of moves a duck can make on screen before it flies away.
 extern const int kMaxNumDuckMoves;
+// How many ducks to give the player an opportunity to shoot before we end the game.
 extern const int kMaxDucksPerGame;
 
 enum duck_state { flap_up, flap_down, dead, inactive, flying_away };
@@ -40,7 +46,6 @@ typedef struct {
 	unsigned char bullets, score, round;
 	int num_ducks_seen;
 } game_config_t;
-
 
 
 // Checks to see if a given shot has hit any of the ducks.

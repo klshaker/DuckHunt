@@ -4,18 +4,11 @@
 #include <stdlib.h>
 
 const int kHorizontalScreenSize = 640;
-// how much vertical room the ducks have to move around ( how much sky there is on the screen ).
 const int kVerticalScreenSize = 300;
 const double kPI = 3.14159;
-// Number of moves a duck can make on screen before it flies away.
 const int kMaxNumDuckMoves = 1500;
-
-// How big the ducks and the crosshair are.
 const int kGraphicSize = 16;
-// How many ducks to give the player an opportunity to shoot before we end the game.
 const int kMaxDucksPerGame = 8;
-
-// How much leeway to give users in the x and way directions when computing if they successfully shot a duck.
 const int kCrossHairSquareSize = 10;
 
 coord_t get_center_of_graphic(coord_t* top_left) {
