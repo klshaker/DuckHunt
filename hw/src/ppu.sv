@@ -158,7 +158,7 @@ module ppu
 				end
 			end
 			OUTPUT: begin
-				dc_en <= {VISIBLE_SPRITES{1'b1}};
+				dc_en <= hcount[0] ? {VISIBLE_SPRITES{1'b0}} : {VISIBLE_SPRITES{1'b1}};
 				if (hcount == 11'd1279) begin 
 					dc_r	<= {VISIBLE_SPRITES{1'b1}};
 					sh_r	<= {VISIBLE_SPRITES{1'b1}};
@@ -170,12 +170,12 @@ module ppu
 				tcolor <= 4'b0;
 				if(sh_out[0] != 2'b0) tcolor <= color[0] + {2'b0, sh_out[0]};
 				else if(sh_out[1] != 2'b0) tcolor <= color[1] + {2'b0, sh_out[1]};
-				else if(sh_out[1] != 2'b0) tcolor <= color[2] + {2'b0, sh_out[2]};
+				else if(sh_out[2] != 2'b0) tcolor <= color[2] + {2'b0, sh_out[2]};
 				else if(sh_out[3] != 2'b0) tcolor <= color[3] + {2'b0, sh_out[3]};
 
-				background_r <= tcolor? color_out[7:0] : 8'b0;
-				background_g <= tcolor? color_out[15:8] : 8'b0;
-				background_b <= tcolor? color_out[23:16] : 8'b0;
+				background_r <= color_out[7:0];
+				background_g <= color_out[15:8];
+				background_b <= color_out[23:16];
 			end
 			default: state <= CHECK;
 

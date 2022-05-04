@@ -26,5 +26,6 @@ module down_counter
 			 if (count == 0) done <= 1;
 			 else count <= count - 1'b1; 
 		 end
+		 else done <= 0;
 	 end
  endmodule
