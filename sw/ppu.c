@@ -39,9 +39,9 @@ struct ppu_dev {
 	void __iomem *virtbase; /* Where registers can be accessed in memory */
 } dev;
 
-static void write_to_address(int addr)
+static void write_to_address(struct wta *wv)
 {
-    iowrite32(0, dev.virtbase + addr);
+    iowrite32(wv->value, dev.virtbase + wv->addr);
 }
 
 // Write to the attribution table sprite related information. Addr will vary based on which sprite we are updating.
@@ -68,7 +68,7 @@ static void write_to_color_table(color_table_entry_t *color_palette)
 	int color = 0x0;
 	int i = 0;
 
-	for (; i < COLOR_TABLE_ENTRY_SIZE; ++i) {
+	for (; i < COLOR_TABLE_ENTRY_SIZE; i++) {
 		color = 0x0;
 		color = color | (color_palette->color[i].r << RED_OFFSET);
 		color = color | (color_palette->color[i].b << BLUE_OFFSET);
@@ -77,7 +77,7 @@ static void write_to_color_table(color_table_entry_t *color_palette)
 		pr_info("Writing color %d to: %x\n", i, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id *
 						COLOR_TABLE_ENTRY_SIZE) + i));
 
-		iowrite32(color, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id * COLOR_TABLE_ENTRY_SIZE) + i));
+		iowrite32(color, COLOR_TABLE_MEMORY_WRITE(dev.virtbase , (color_palette->id * COLOR_TABLE_ENTRY_SIZE * 4) + i));
 
 	}
 }
@@ -86,10 +86,10 @@ static void write_to_color_table(color_table_entry_t *color_palette)
 static void write_to_sprite_table(sprite_table_entry_t * sprite)
 {
 	int i = 0;
-	for(; i < SPRITE_TABLE_ENTRY_SIZE; ++i){
+	for(; i < SPRITE_TABLE_ENTRY_SIZE; i++){
 		pr_info("Writing sprite line(%d): %x to %x\n", i, sprite->line[i], SPRITE_TABLE_MEMORY_WRITE(dev.virtbase ,
 					(sprite->id * SPRITE_TABLE_ENTRY_SIZE) + i));
-		iowrite32(sprite->line[i], SPRITE_TABLE_MEMORY_WRITE(dev.virtbase , (sprite->id * SPRITE_TABLE_ENTRY_SIZE) + i));
+		iowrite32(sprite->line[i], SPRITE_TABLE_MEMORY_WRITE(dev.virtbase , (sprite->id * SPRITE_TABLE_ENTRY_SIZE * 4) + i));
 	}
 
 }
@@ -104,7 +104,7 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	attr_table_entry_t      attr_table_entry;
 	sprite_table_entry_t    sprite;
 	color_table_entry_t     color_palette;
-    int addr;
+    struct wta av;
 
 	switch (cmd) {
 		case ATTR_TABLE_WRITE_DATA:
@@ -127,10 +127,10 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 			break;
 
         case WRITE_TO_ADDRESS:
-			if (copy_from_user(&addr, (int*) arg, sizeof(int)))
+			if (copy_from_user(&av, (struct wta*) arg, sizeof(struct wta)))
                 return -EACCES;
 
-            write_to_address(addr);
+            write_to_address(&av);
             break;
 		default:
 			return -EINVAL;

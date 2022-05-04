@@ -17,5 +17,9 @@ iowrite calls.
 #define COLOR_TABLE_WRITE_DATA  _IOW(PPU_MAGIC, 3, int *)
 #define WRITE_TO_ADDRESS        _IOW(PPU_MAGIC, 4, int *)
 
+struct wta {
+    int addr;
+    int value;
+};
 
 #endif

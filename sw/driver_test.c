@@ -50,7 +50,7 @@ void insert_color(color_table_entry_t *color_palette)
 }
 
 
-void write_to_address(int *addr)
+void write_to_address(struct wta *addr)
 {
     if (ioctl(driver_fd, WRITE_TO_ADDRESS, addr)){
         perror("Failed to write to address - sad");
@@ -69,79 +69,108 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-    if (argc == 2) {
-        int a = atoi(argv[1]);
-        printf("Writing to address: %x\n", a);
-        write_to_address(&a);
+    struct wta av= {0, 0};
+
+    if (argc == 3) {
+        av.addr = atoi(argv[1]);
+        av.value = atoi(argv[2]);
+        printf("Writing %x to address: %x\n", av.value, av.addr);
+        write_to_address(&av);
         return 0;
         
     }
 
+    //zero sprites
+    //for (int i = 0; i < 15; i++)
+    //{
+    //    sprite_table_entry_t zero = {
+    //        .id = i,
+    //        .line = {
+    //            0, 0, 0, 0, 
+    //            0, 0, 0, 0, 
+    //            0, 0, 0, 0,
+    //            0, 0, 0, 0 
+    //            },
+    //    };
+    //    insert_sprite(&zero);
+    //}
+
 	sprite_table_entry_t sprite = {
-		.id  = 0x0,
+		.id  = 0x1,
+            //.line = {
+            //    0, 0, 0, 0, 
+            //    0, 0, 0, 0, 
+            //    0, 0, 0, 0,
+            //    0, 0, 0, 0 
+            //    },
 		.line = {
-			0xAAAAAAAA, 0x55555555, 0x55555555, 0x55555555,
+			0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
+			0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
 			0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
-			0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
 			0x55555555, 0x55555555, 0x55555555, 0x55555555,
 		},
 	};
 
-	//Color Table Entry:
+	//Color Table En:
 	color_table_entry_t color_palette = {
-		.id = 0x0,
+		.id = 0x1,
 		.color = {
-			[0] = {.r = 0,    .g = 255,   .b = 0  },
-			[1] = {.r = 255,    .g = 0, .b = 0},
+			[0] = {.r = 0,    .g = 0,   .b = 0  },
+			[1] = {.r = 0,  .g = 101, .b = 0  },
 			[2] = {.r = 0,  .g = 255, .b = 0  },
 			[3] = {.r = 0,  .g = 0,   .b = 255},
 		},
 	};
 
-	// Clear out the attribute table.
-	for(int i = 0; i < 16; ++i){
-		attr_table_entry_t zeros = {
-			.coord = {
-				.x = 0,
-				.y = 0
-			},
-			.sprite         = 0x0,
-			.color_table    = 0x0,
-			.id             = i
-		};
-		insert_sprite_att(&zeros);
-	}
-	
+
+
 	attr_table_entry_t attr = {
 		.coord = {
 			.x = 10,
 			.y = 10
 		},
-		.sprite         = 0x0,
-		.color_table    = 0x0,
-		.id             = 0x0
+		.sprite         = 0x1,
+		.color_table    = 0x1,
+		.id             = 0x1
 	};
 
+    int x, y, id, c;
+    printf("Enter attr.id: ");
+    scanf("%d", &id);  
+    printf("Enter attr.x: ");
+    scanf("%d", &x);  
+    printf("Enter attr.y: ");
+    scanf("%d", &y);  
+    printf("Enter attr.c: ");
+    scanf("%d", &c);  
+    attr.id = id;
+    attr.coord.x = x;
+    attr.coord.y = y;
+    attr.color_table = y;
 	insert_sprite_att(&attr);
 
-	for (int i = 0; i < 16; i ++)
-	{
-		insert_sprite(&sprite);
-		sprite.id++;
-	}
-	for (int i = 0; i < 4; i++)
-	{
-		insert_color(&color_palette);
-		color_palette.id++;
-	}
+    printf("\nEnter colortable.id: ");
+    scanf("%d", &x);  
+    color_palette.id = x;
+    insert_color(&color_palette);
+
+    printf("\nEnter sprite.id: ");
+    scanf("%d", &x);  
+    sprite.id = x;
+    insert_sprite(&sprite);
+    scanf("%d", &x);  
+	//for (int i = 0; i < 4; i++)
+	//{
+	//	insert_color(&color_palette);
+	//	color_palette.id++;
+	//}
 
 
 
-    attr.id = 1;
-    for(int x = 0 ; x < 640; ++x){
-        for (int i = 0; i < 16; i++) {
+    for(int x = 0 ; x < 630; ++x){
+        for (int i = 1; i < 16; i++) {
             attr.id = i;
-            attr.coord.y = i * 20;
+            attr.coord.y = i * 25;
             attr.coord.x = x;
             //printf("X: %d\r", x);
             insert_sprite_att(&attr);

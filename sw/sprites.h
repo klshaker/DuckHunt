@@ -13,9 +13,9 @@
 #include <linux/types.h> 
 #endif
 // sizes of each entry in various tables in memory
-#define SPRITE_TABLE_ENTRY_SIZE 16
-#define COLOR_TABLE_ENTRY_SIZE 4
-#define ATTR_TABLE_ENTRY_SIZE 1
+#define SPRITE_TABLE_ENTRY_SIZE (16)
+#define COLOR_TABLE_ENTRY_SIZE  (4)
+#define ATTR_TABLE_ENTRY_SIZE   (1)
 
 // offsets of various classes of sprites in the sprite table. 
 #define DUCK_SPRITE_OFFSET 0
@@ -38,8 +38,8 @@
 #define NUM_SCORE_DIGITS 2 
 
 #define RED_OFFSET 0
-#define BLUE_OFFSET 8
-#define GREEN_OFFSET 16
+#define BLUE_OFFSET 16
+#define GREEN_OFFSET 8  
 
 
 // An entry in the sprite attribution table.
