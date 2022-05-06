@@ -31,56 +31,39 @@ module ppu
 	output logic 	   	VGA_SYNC_n);
 
 
-        // which table in memroy to write to (if any).
-	logic [2:0]		mem_write;
-	// which horizontal pixel we are currently on. 
 	logic [10:0]		hcount;
-	// which vertical pixel we are currently on.
 	logic [9:0]		vcount;
-	logic [31:0]		sprite_attr, sprite;
 
-	// down counter enable and load variables.
-	logic [VISIBLE_SPRITES-1:0]	dc_en, dc_ld, dc_done, dc_r;
-	// shifter enable and load variables.
-	logic [VISIBLE_SPRITES-1:0]	sh_en, sh_ld, sh_r;
+	// attribute count variable to loop through attribute table entries. 
+	// vc variable to keep track of how many attributes are actually
+	// visible on screen.
+	logic [5:0]		ac;
+	logic [9:0]		tx;
 
 	logic [31:0]		w_data;
 	logic [15:0]		w_addr;
 
-	logic [7:0]		s_addr;
-       	logic [3:0]		a_addr;
-       	logic [3:0]		c_addr;
-	logic [31:0]		color_out;
+	logic [2:0]		mem_write;
+	logic [15:0]		sr_addr, ar_addr, cr_addr;
+	logic [15:0]		s_addr,  a_addr,  c_addr;
+	logic [31:0]		sprite_attr, sprite, color_out;
 
-	logic [7:0]		background_r, background_g, background_b;
-
-	logic [1:0]		sh_out [VISIBLE_SPRITES - 1: 0];
-	logic [3:0]		color [VISIBLE_SPRITES - 1: 0];
-	// attribute count variable to loop through attribute table entries. 
-	// vc variable to keep track of how many attributes are actually
-	// visible on screen.
-	logic [3:0]		ac, vc;
-	logic [9:0]		tx; // ty;
-	logic [7:0]		sr_addr, ar_addr;
-	logic [3:0]		tcolor;
-	logic [15:0]		haddr;
-
-
-	assign a_addr = mem_write[0] ? w_addr[3:0]: ar_addr[3:0];
-
-        // When writing to Sprite Table we only need 8 bits of address because
-        // We support 16 Sprites that are each 16 rows of data ( 16 * 16 = 256
-	// which is 8 bits of address space ).
-	assign s_addr = mem_write[1] ? w_addr[7:0]: sr_addr;
-
-	assign c_addr = mem_write[2] ? w_addr[3:0]: tcolor;
-
-	vga_counters 		counters(.clk50(clk), .*);
-	memory #(32,  16, 4) 	attr_table  (.clk(clk), .we(mem_write[0]), .addr(a_addr[3:0]), .data_in(w_data), .data_out(sprite_attr));
+	assign a_addr = mem_write[0] ? w_addr : ar_addr;
+	assign s_addr = mem_write[1] ? w_addr : sr_addr;
+	assign c_addr = mem_write[2] ? w_addr : cr_addr;
+	memory #(32,  64, 6) 	attr_table  (.clk(clk), .we(mem_write[0]), .addr(a_addr[5:0]), .data_in(w_data), .data_out(sprite_attr));
 	memory #(32, 256, 8)  	sprite_table(.clk(clk), .we(mem_write[1]), .addr(s_addr[7:0]), .data_in(w_data), .data_out(sprite));
-	memory #(32,  16, 4)  	color_table (.clk(clk), .we(mem_write[2]), .addr(c_addr[3:0]), .data_in(w_data), .data_out(color_out));
+	memory #(32,  64, 6)  	color_table (.clk(clk), .we(mem_write[2]), .addr(c_addr[5:0]), .data_in(w_data), .data_out(color_out));
 
+	// down counter enable and load variables.
+	// shifter enable and load variables.
+	logic [1:0]			sh_out [VISIBLE_SPRITES - 1: 0];
+	logic [3:0]			color [VISIBLE_SPRITES - 1: 0];
+	logic [VISIBLE_SPRITES - 1:0]	dc_en, dc_ld, dc_done, dc_r;
+	logic [VISIBLE_SPRITES - 1:0]	sh_en, sh_ld, sh_r;
+	logic [VISIBLE_SPRITES - 1:0]	vc;
 	genvar k;
+
 	generate
 	for(k = 0; k <= VISIBLE_SPRITES - 1; k = k+1) begin : pixelgen
 		down_counter dc(.clk(clk), .en(dc_en[k]), .ld(dc_ld[k]), .reset(dc_r[k]), .data_in(tx), .done(dc_done[k]));
@@ -89,11 +72,19 @@ module ppu
 	endgenerate
 	assign sh_en = dc_done;
 
-	always_ff @(posedge clk) begin
-		if (address) haddr <= address;
+
+	//Write background color to VGA
+	logic [7:0]	background_r, background_g, background_b;
+	vga_counters	counters(.clk50(clk), .*);
+	always_comb begin
+		if (VGA_BLANK_n )
+			{VGA_R, VGA_G, VGA_B} = {background_r, background_g, background_b};
+		else
+			{VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0};
 	end
 
 
+	//Writing to memory logic
 	always_ff @(posedge clk) begin
 		mem_write <= 3'b0;
 		if (chipselect && write) begin
@@ -113,6 +104,8 @@ module ppu
 		end
 	end
 			
+
+	//State Logic to handle pixel generation
 	enum logic [3:0] {A_INDEX, CHECK, S_INDEX, SET, IDLE, OUTPUT} state;
 	always_ff @(posedge clk) begin
 		dc_en <= {VISIBLE_SPRITES{1'b0}}; dc_ld <={VISIBLE_SPRITES{1'b0}}; dc_r <= {VISIBLE_SPRITES{1'b0}};
@@ -124,13 +117,13 @@ module ppu
 			CHECK: begin //Attr table output ready, check y
 				if (ac == SPRITE_ATTRS - 1'b1 || vc == VISIBLE_SPRITES - 1'b1 || hcount == 11'd1598) state <= IDLE;
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
-					tx	<= sprite_attr[19:10];
-					sr_addr	<= sprite_attr[27:20] + (vcount - sprite_attr[9:0]);
-					color[vc]	<= sprite_attr[31:28];
+					tx		<= sprite_attr[19:10];
+					sr_addr		<= (sprite_attr[27:20] << 4) + (vcount - sprite_attr[9:0]);
+					color[vc]	<= sprite_attr[31:28] << 2;
 					state		<= S_INDEX;
 
 				end else begin
-					ar_addr	<= {4'b0, ac + 4'b1};
+					ar_addr	<= {12'b0, ac + 4'b1};
 					ac 	<= ac + 1'b1;
 					state	<= A_INDEX;
 				end
@@ -142,7 +135,7 @@ module ppu
 				sh_ld[vc]	<= 1'b1;
 
 				//We can use SET state to skip A_INDEX state 
-				ar_addr		<= {4'b0, ac + 4'b1};
+				ar_addr		<= {12'b0, ac + 4'b1};
 				ac		<= ac + 1'b1;
 				state		<= SET;
 			end
@@ -163,15 +156,15 @@ module ppu
 					dc_r	<= {VISIBLE_SPRITES{1'b1}};
 					sh_r	<= {VISIBLE_SPRITES{1'b1}};
 					state	<= A_INDEX;
-					ar_addr	<= 8'b0;
+					ar_addr	<= 16'b0;
 					ac	<= 4'b0; 
 					vc	<= 4'b0; 
 				end
-				tcolor <= 4'b0;
-				if(sh_out[0] != 2'b0) tcolor <= color[0] + {2'b0, sh_out[0]};
-				else if(sh_out[1] != 2'b0) tcolor <= color[1] + {2'b0, sh_out[1]};
-				else if(sh_out[2] != 2'b0) tcolor <= color[2] + {2'b0, sh_out[2]};
-				else if(sh_out[3] != 2'b0) tcolor <= color[3] + {2'b0, sh_out[3]};
+				cr_addr <= 16'b0;
+				if(sh_out[0] != 2'b0)	   cr_addr <= color[0] + {3'b0, sh_out[0]};
+				else if(sh_out[1] != 2'b0) cr_addr <= color[1] + {3'b0, sh_out[1]};
+				else if(sh_out[2] != 2'b0) cr_addr <= color[2] + {3'b0, sh_out[2]};
+				else if(sh_out[3] != 2'b0) cr_addr <= color[3] + {3'b0, sh_out[3]};
 
 				background_r <= color_out[7:0];
 				background_g <= color_out[15:8];
@@ -183,24 +176,19 @@ module ppu
 	end //always_ff
 
 
-
-	//Write background color to VGA
-	always_comb begin
-		if (VGA_BLANK_n )
-			{VGA_R, VGA_G, VGA_B} = {background_r, background_g, background_b};
-		else
-			{VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0};
+	//Logic to update HEX Display for Debugging
+	logic [15:0] haddr;
+	always_ff @(posedge clk) begin
+		if (address) haddr <= address;
 	end
 
+	hex7seg h0(haddr[3:0],	 HEX0);
+	hex7seg h1(haddr[7:4],	 HEX1);
+	hex7seg h2(haddr[11:8],	 HEX2);
+	hex7seg h3(haddr[15:12], HEX3);
 
-	hex7seg h0(haddr[3:0],	HEX0);
-	hex7seg h1(haddr[7:4],	HEX1);
-
-	hex7seg h2(haddr[11:8],	HEX2);
-	hex7seg h3(haddr[15:12],	HEX3);
-
-	hex7seg h4(ac[3:0],		HEX4);
-	hex7seg h5(state[3:0],		HEX5);
+	hex7seg h4(ac[3:0],	 HEX4);
+	hex7seg h5(state[3:0],	 HEX5);
 
 endmodule
 
