@@ -47,9 +47,9 @@ module ppu
 	logic [31:0]		w_data;
 	logic [15:0]		w_addr;
 
-	logic [7:0]		s_addr;
-       	logic [3:0]		a_addr;
-       	logic [3:0]		c_addr;
+	logic [9:0]		s_addr;
+       	logic [5:0]		a_addr;
+       	logic [5:0]		c_addr;
 	logic [31:0]		color_out;
 
 	logic [7:0]		background_r, background_g, background_b;
@@ -59,21 +59,21 @@ module ppu
 	// attribute count variable to loop through attribute table entries. 
 	// vc variable to keep track of how many attributes are actually
 	// visible on screen.
-	logic [3:0]		ac, vc;
+	logic [5:0]		ac, vc;
 	logic [9:0]		tx; // ty;
 	logic [7:0]		sr_addr, ar_addr;
-	logic [3:0]		tcolor;
+	logic [5:0]		tcolor;
 	logic [15:0]		haddr;
 
 
-	assign a_addr = mem_write[0] ? w_addr[3:0]: ar_addr[3:0];
-	assign c_addr = mem_write[1] ? w_addr[3:0]: tcolor;
+	assign a_addr = mem_write[0] ? w_addr[5:0]: ar_addr[5:0];
+	assign c_addr = mem_write[1] ? w_addr[5:0]: tcolor;
 	assign s_addr = mem_write[2] ? w_addr[7:0]: sr_addr;
 
 	vga_counters 		counters(.clk50(clk), .*);
-	memory #(32,  16, 4) 	attr_table  (.clk(clk), .we(mem_write[0]), .addr(a_addr[3:0]), .data_in(w_data), .data_out(sprite_attr));
-	memory #(32, 256, 8)  	sprite_table(.clk(clk), .we(mem_write[1]), .addr(s_addr[7:0]), .data_in(w_data), .data_out(sprite));
-	memory #(32,  16, 4)  	color_table (.clk(clk), .we(mem_write[2]), .addr(c_addr[3:0]), .data_in(w_data), .data_out(color_out));
+	memory #(32,  64, 6) 	attr_table  (.clk(clk), .we(mem_write[0]), .addr(a_addr[5:0]), .data_in(w_data), .data_out(sprite_attr));
+	memory #(32,  64, 6)  	color_table (.clk(clk), .we(mem_write[1]), .addr(c_addr[5:0]), .data_in(w_data), .data_out(color_out));
+	memory #(32, 1024, 10) 	sprite_table(.clk(clk), .we(mem_write[2]), .addr(s_addr[9:0]), .data_in(w_data), .data_out(sprite));
 
 	genvar k;
 	generate
@@ -124,7 +124,7 @@ module ppu
 					state		<= S_INDEX;
 
 				end else begin
-					ar_addr	<= {4'b0, ac + 4'b1};
+					ar_addr	<= {2'b0, ac + 4'b1};
 					ac 	<= ac + 1'b1;
 					state	<= A_INDEX;
 				end
@@ -136,7 +136,7 @@ module ppu
 				sh_ld[vc]	<= 1'b1;
 
 				//We can use SET state to skip A_INDEX state 
-				ar_addr		<= {4'b0, ac + 4'b1};
+				ar_addr		<= {2'b0, ac + 4'b1};
 				ac		<= ac + 1'b1;
 				state		<= SET;
 			end
@@ -161,11 +161,11 @@ module ppu
 					ac	<= 4'b0; 
 					vc	<= 4'b0; 
 				end
-				tcolor <= 4'b0;
-				if(sh_out[0] != 2'b0) tcolor <= color[0] + {2'b0, sh_out[0]};
-				else if(sh_out[1] != 2'b0) tcolor <= color[1] + {2'b0, sh_out[1]};
-				else if(sh_out[2] != 2'b0) tcolor <= color[2] + {2'b0, sh_out[2]};
-				else if(sh_out[3] != 2'b0) tcolor <= color[3] + {2'b0, sh_out[3]};
+				tcolor <= 6'b0;
+				if(sh_out[0] != 2'b0)	   tcolor <= color[0] + {3'b0, sh_out[0]};
+				else if(sh_out[1] != 2'b0) tcolor <= color[1] + {3'b0, sh_out[1]};
+				else if(sh_out[2] != 2'b0) tcolor <= color[2] + {3'b0, sh_out[2]};
+				else if(sh_out[3] != 2'b0) tcolor <= color[3] + {3'b0, sh_out[3]};
 
 				background_r <= color_out[7:0];
 				background_g <= color_out[15:8];
