@@ -67,13 +67,8 @@ module ppu
 
 
 	assign a_addr = mem_write[0] ? w_addr[3:0]: ar_addr[3:0];
-
-        // When writing to Sprite Table we only need 8 bits of address because
-        // We support 16 Sprites that are each 16 rows of data ( 16 * 16 = 256
-	// which is 8 bits of address space ).
-	assign s_addr = mem_write[1] ? w_addr[7:0]: sr_addr;
-
-	assign c_addr = mem_write[2] ? w_addr[3:0]: tcolor;
+	assign c_addr = mem_write[1] ? w_addr[3:0]: tcolor;
+	assign s_addr = mem_write[2] ? w_addr[7:0]: sr_addr;
 
 	vga_counters 		counters(.clk50(clk), .*);
 	memory #(32,  16, 4) 	attr_table  (.clk(clk), .we(mem_write[0]), .addr(a_addr[3:0]), .data_in(w_data), .data_out(sprite_attr));
@@ -103,10 +98,9 @@ module ppu
 			// 0x0100 Sprite Table 
 			// 0x0200 Color Table
 			case(address[9:8])
-				2'b00: mem_write[0] <= 1'b1;
-				2'b01: mem_write[1] <= 1'b1;
-				2'b10: mem_write[2] <= 1'b1;
-				default: mem_write  <= 3'b0;
+				2'b00: mem_write[0]	<= 1'b1;
+				2'b01: mem_write[1]	<= 1'b1;
+				default: mem_write[2]	<= 1'b1;
 			endcase
 			w_addr <= address;
 			w_data <= writedata;
