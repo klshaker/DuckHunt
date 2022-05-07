@@ -23,8 +23,8 @@
 #define OBJ_COLOR_OFFSET 28
 
 #define ATTR_TABLE_MEMORY_OFFSET 0x000 * 4
-#define SPRITE_TABLE_MEMORY_OFFSET 0x100 * 4
-#define COLOR_TABLE_MEMORY_OFFSET 0x200 * 4
+#define COLOR_TABLE_MEMORY_OFFSET 0x100 * 4
+#define SPRITE_TABLE_MEMORY_OFFSET 0x200 * 4
 
 // first argument is dev.base, second argument is distance from table offset.
 #define ATTR_TABLE_MEMORY_WRITE(x, y)  (x + ATTR_TABLE_MEMORY_OFFSET + y * 4)
@@ -52,8 +52,8 @@ static void write_to_sprite_attr_table(attr_table_entry_t *sprite)
 
 	data = data | (sprite->coord.x << OBJ_X_COORD_OFFSET);
 	data = data | (sprite->coord.y << OBJ_Y_COORD_OFFSET);
-	data = data | (sprite->sprite  << OBJ_SPRITE_OFFSET);
-	data = data | (sprite->color_table   << OBJ_COLOR_OFFSET);
+	data = data | ((sprite->sprite * SPRITE_TABLE_ENTRY_SIZE)       << OBJ_SPRITE_OFFSET);
+	data = data | ((sprite->color_table * COLOR_TABLE_ENTRY_SIZE)   << OBJ_COLOR_OFFSET);
 
 	pr_info("Writing attr:(%x %x %x %x) %x to %x\n", sprite->color_table, sprite->sprite, sprite->coord.x,
 			sprite->coord.y, data, ATTR_TABLE_MEMORY_WRITE(dev.virtbase , sprite->id * ATTR_TABLE_ENTRY_SIZE));
