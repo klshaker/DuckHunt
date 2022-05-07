@@ -96,13 +96,7 @@ int main(int argc, char **argv)
     //}
 
 	sprite_table_entry_t sprite = {
-		.id  = 0x1,
-            //.line = {
-            //    0, 0, 0, 0, 
-            //    0, 0, 0, 0, 
-            //    0, 0, 0, 0,
-            //    0, 0, 0, 0 
-            //    },
+		.id  = 0x0,
 		.line = {
 			0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
 			0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
@@ -111,9 +105,18 @@ int main(int argc, char **argv)
 		},
 	};
 
+	sprite_table_entry_t sprite1 = {
+		.id  = 0x1,
+		.line = {
+			0x55555555, 0x55555555, 0x55555555, 0x55555555,
+			0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
+			0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
+			0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
+		},
+	};
 	//Color Table En:
 	color_table_entry_t color_palette = {
-		.id = 0x1,
+		.id = 0x0,
 		.color = {
 			[0] = {.r = 0,    .g = 0,   .b = 0  },
 			[1] = {.r = 0,  .g = 101, .b = 0  },
@@ -122,6 +125,15 @@ int main(int argc, char **argv)
 		},
 	};
 
+	color_table_entry_t color_palette2= {
+		.id = 0x1,
+		.color = {
+			[0] = {.r = 0,    .g = 0,   .b = 0  },
+			[1] = {.r = 255,  .g = 101, .b = 0  },
+			[2] = {.r = 10,  .g = 255, .b = 78  },
+			[3] = {.r = 255,  .g = 0,   .b = 255},
+		},
+	};
 
 
 	attr_table_entry_t attr = {
@@ -134,44 +146,54 @@ int main(int argc, char **argv)
 		.id             = 0x1
 	};
 
-    int x, y, id, c;
-    printf("Enter attr.id: ");
-    scanf("%d", &id);  
-    printf("Enter attr.x: ");
-    scanf("%d", &x);  
-    printf("Enter attr.y: ");
-    scanf("%d", &y);  
-    printf("Enter attr.c: ");
-    scanf("%d", &c);  
-    attr.id = id;
-    attr.coord.x = x;
-    attr.coord.y = y;
-    attr.color_table = y;
+//    int x;
+//    printf("Enter attr.i: ");
+//    scanf("%d", &x);  
+//    attr.id = x;
+//
+//    printf("Enter attr.x: ");
+//    scanf("%d", &x);  
+//    attr.coord.x = x;
+//
+//    printf("Enter attr.y: ");
+//    scanf("%d", &x);  
+//    attr.coord.y = x;
+//
+//    printf("Enter attr.c: ");
+//    scanf("%d", &x);  
+//    attr.color_table = x;
+//
+//    printf("Enter attr.s: ");
+//    scanf("%d", &x);  
+//    attr.sprite = x;
+//
+//	insert_sprite_att(&attr);
+//
+//    printf("\nEnter colortable.id: ");
+//    scanf("%d", &x);  
+//    color_palette.id = x;
+
+
+//    printf("\nEnter sprite.id: ");
+//    scanf("%d", &x);  
+//    sprite.id = x;
+    int x;
+
 	insert_sprite_att(&attr);
-
-    printf("\nEnter colortable.id: ");
-    scanf("%d", &x);  
-    color_palette.id = x;
     insert_color(&color_palette);
-
-    printf("\nEnter sprite.id: ");
-    scanf("%d", &x);  
-    sprite.id = x;
+    insert_color(&color_palette2);
     insert_sprite(&sprite);
+    insert_sprite(&sprite1);
     scanf("%d", &x);  
-	//for (int i = 0; i < 4; i++)
-	//{
-	//	insert_color(&color_palette);
-	//	color_palette.id++;
-	//}
-
 
 
     for(int x = 0 ; x < 630; ++x){
-        for (int i = 1; i < 16; i++) {
+        for (int i = 0; i < 64; i++) {
             attr.id = i;
-            attr.coord.y = i * 25;
-            attr.coord.x = x;
+            attr.color_table = (i % 2);
+            attr.sprite = (i % 2);
+            attr.coord.y = (i * 15) % 480 + i * 2;
+            attr.coord.x = (i + (15 * (i % 2 )));
             //printf("X: %d\r", x);
             insert_sprite_att(&attr);
             usleep(1000);

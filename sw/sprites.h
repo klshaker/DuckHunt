@@ -12,10 +12,12 @@
 #else
 #include <linux/types.h> 
 #endif
-// sizes of each entry in various tables in memory
-#define SPRITE_TABLE_ENTRY_SIZE (16)
-#define COLOR_TABLE_ENTRY_SIZE  (4)
-#define ATTR_TABLE_ENTRY_SIZE   (1)
+
+#define NUM_SPRITES 16 
+
+#define NUM_BULLETS 3
+#define NUM_DUCKS 2
+#define NUM_SCORE_DIGITS 2 
 
 // offsets of various classes of sprites in the sprite table. 
 #define DUCK_SPRITE_OFFSET 0
@@ -30,48 +32,6 @@
 #define SCORE_SPRITE_ATTR_TABLE_OFFSET 5
 #define ROUND_SPRITE_ATTR_TABLE_OFFSET 7
 #define CROSSHAIR_SPRITE_ATTR_TABLE_OFFSET 8
-
-#define NUM_SPRITES 16 
-
-#define NUM_BULLETS 3
-#define NUM_DUCKS 2
-#define NUM_SCORE_DIGITS 2 
-
-#define RED_OFFSET 0
-#define BLUE_OFFSET 16
-#define GREEN_OFFSET 8  
-
-
-// An entry in the sprite attribution table.
-typedef struct {
-	unsigned int x,y;
-} coord_t;
-
-typedef struct {
-	// Location of this attr table entry on the VGA monitor.
-	coord_t coord;
-	// Sprite table offset.
-	char sprite;
-	// Color table offset with RBG values for whichever sprite this attr table entry represents.
-	char color_table; 
-	// Unique id associated with an attr table entry. Offset in the attr table will 
-	// be computed by multiplying id * ATTR_TABLE_ENTRY_SIZE.
-	int id;
-} attr_table_entry_t;
-
-typedef struct {
-    uint32_t id;
-    uint32_t line[16];
-} sprite_table_entry_t;
-
-typedef struct {
-    int r, g, b;
-} color_t;
-
-typedef struct {
-    int id;
-    color_t color[4]; //, color1, color2, color3;
-} color_table_entry_t;
 
 // Populates attr_table_entry_t array with all of the attr table entries. Because of the number of entries in this table and how much data is stored in each entry, it is more readible to populate the entries programtically than by initializing a global array.
 int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries);
