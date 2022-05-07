@@ -15,8 +15,8 @@
 /* verilator lint_off UNUSED */
 module ppu
 	#(parameter
-	VISIBLE_SPRITES = 4,
-	SPRITE_ATTRS = 16
+	VISIBLE_SPRITES = 8,
+	SPRITE_ATTRS = 64
 	)
 	(input logic        	clk,
 	input logic 	   	reset,
@@ -166,6 +166,10 @@ module ppu
 				else if(sh_out[1] != 2'b0) tcolor <= color[1] + {3'b0, sh_out[1]};
 				else if(sh_out[2] != 2'b0) tcolor <= color[2] + {3'b0, sh_out[2]};
 				else if(sh_out[3] != 2'b0) tcolor <= color[3] + {3'b0, sh_out[3]};
+				else if(sh_out[4] != 2'b0) tcolor <= color[4] + {3'b0, sh_out[4]};
+				else if(sh_out[5] != 2'b0) tcolor <= color[5] + {3'b0, sh_out[5]};
+				else if(sh_out[6] != 2'b0) tcolor <= color[6] + {3'b0, sh_out[6]};
+				else if(sh_out[7] != 2'b0) tcolor <= color[7] + {3'b0, sh_out[7]};
 
 				background_r <= color_out[7:0];
 				background_g <= color_out[15:8];
