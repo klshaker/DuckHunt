@@ -10,16 +10,20 @@ else
 	KERNEL_SOURCE := /usr/src/linux-headers-$(shell uname -r)
         PWD := $(shell pwd)
 
-EXTRA_CFLAGS = -I$(src)/game
+EXTRA_CFLAGS = -I$(src)/game 
 default: module duck_hunt 
 
-duck_hunt: game/game.o sprites.o
+duck_hunt.o: duck_hunt.c game/game.h sprites.h
+	gcc -c duck_hunt.c -o duck_hunt.o -lm
+
+duck_hunt: duck_hunt.o game/game.o sprites.o 
+	gcc -o duck_hunt duck_hunt.o game/game.o sprites.o -lm
 
 driver_test: sprites.h ppu.h driver_test.o
-	gcc -g driver_test.c -o driver_test
+	gcc -g driver_test.c -o driver_test -lm
 
 module: 
-	${MAKE} -C ${KERNEL_SOURCE} ${EXTRA_CFLAGS} SUBDIRS=${PWD}  modules
+	${MAKE} -C ${KERNEL_SOURCE} ${EXTRA_CFLAGS} SUBDIRS=${PWD}  modules 
 
 clean:
 	${MAKE} -C ${KERNEL_SOURCE} SUBDIRS=${PWD} clean
@@ -39,7 +43,6 @@ sprites_san.o: sprites.h sprites.c
 
 sprites_test_san.o: sprites.h sprites.c
 	gcc -c sprites_test.c -o sprites_test_san.o -fsanitize=address -static-libasan -g
-
 
 sprites_test_san : sprites_test_san.o sprites_san.o
 	gcc sprites_test_san.o sprites_san.o -o sprites_san -fsanitize=address -static-libasan -g

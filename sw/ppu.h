@@ -20,8 +20,11 @@ iowrite calls.
 #define COLOR_TABLE_ENTRY_SIZE  (4)
 #define ATTR_TABLE_ENTRY_SIZE   (1)
 
-
 // How the bits for each attr table entry are laid out.
+#define OBJ_Y_COORD_OFFSET 0
+#define OBJ_X_COORD_OFFSET 10
+#define OBJ_SPRITE_OFFSET 20
+#define OBJ_COLOR_OFFSET 28
 
 #define ATTR_TABLE_MEMORY_OFFSET    (0x000 * 4)
 #define COLOR_TABLE_MEMORY_OFFSET   (0x100 * 4)
@@ -38,19 +41,15 @@ struct wta {
     int value;
 };
 
+typedef struct {
+	// signed so that we can go negative when sprite is partially on the screen.
+	int x,y;
+} sprite_coord_t;
 
 // An entry in the sprite attribution table.
 typedef struct {
-	unsigned int x,y;
-} coord_t;
-
-#define OBJ_Y_COORD_OFFSET 0
-#define OBJ_X_COORD_OFFSET 10
-#define OBJ_SPRITE_OFFSET 20
-#define OBJ_COLOR_OFFSET 28
-typedef struct {
 	// Location of this attr table entry on the VGA monitor.
-	coord_t coord;
+	sprite_coord_t coord;
 	// Sprite table offset.
 	char sprite;
 	// Color table offset with RBG values for whichever sprite this attr table entry represents.
@@ -65,7 +64,6 @@ typedef struct {
     uint32_t line[16];
 } sprite_table_entry_t;
 
-
 #define RED_OFFSET 0
 #define GREEN_OFFSET 8  
 #define BLUE_OFFSET 16
@@ -78,12 +76,11 @@ typedef struct {
     color_t color[4]; //, color1, color2, color3;
 } color_table_entry_t;
 
-
-
 /* ioctls and their arguments */
 #define PPU_MAGIC 'p'
 #define ATTR_TABLE_WRITE_DATA   _IOW(PPU_MAGIC, 1, attr_table_entry_t *)
 #define SPRITE_TABLE_WRITE_DATA _IOW(PPU_MAGIC, 2, sprite_table_entry_t *)
 #define COLOR_TABLE_WRITE_DATA  _IOW(PPU_MAGIC, 3, color_table_entry_t *)
 #define WRITE_TO_ADDRESS        _IOW(PPU_MAGIC, 4, struct wta *)
+
 #endif

@@ -30,7 +30,9 @@ typedef struct {
 	int value;
 	// Where the duck currently is on the screen.
 	coord_t coord;
+	// Direction on x plane.
 	enum direction x_direction;
+	// Direction on y plane.
 	enum direction y_direction;
 	// Angle in degrees that ducks will move at an angle on the y plane to make game_play more interesting. 
 	// an angle of 45 degrees denotes 1 unit of movement in the y plane for every one unit of movement in the x plane.
@@ -53,8 +55,6 @@ int shoot_at_ducks(duck_t* ducks, int num_ducks, coord_t cross_hair, game_config
 
 // Caclulates hit square associated with x,y position of the duck. Returns 1 if cross_hair is in the hit square. Returns 0 if cross_hair is outside of the hit square.
 int calculate_hit(duck_t * duck, coord_t cross_hair);
-
-int set_up_config(game_config_t * game_config);
 
 // Deducts from bullet count, adds ducks value to the total score.
 void kill_duck_update_config(duck_t * duck, game_config_t* config);

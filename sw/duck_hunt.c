@@ -21,11 +21,11 @@ void play_game(){
 	while(1){
 
 		// Set inintial game state.
-		game_config_t config = {
+		game_config_t game_data = {
 			.bullets = 3, 
 			.score = 0, 
-			.round = 0
-			.num_ducks_seen = 0;
+			.round = 0,
+			.num_ducks_seen = 0
 		};
 
 		// Set initial duck state. As in original game. ducks come out of the grass.
@@ -47,12 +47,11 @@ void play_game(){
 
 		coord_t cross_hair = { .x = 0, .y = 0};
 
-		while(!is_game_over(&game_data.game_conf)){
+		while(!is_game_over(&game_data)){
 
 			// poll wii controller.
 			// if trigger pressed
-
-			move_ducks(ducks, NUM_DUCKS);
+			move_ducks(ducks, NUM_DUCKS, &game_data);
 			update_duck_attr(duck_hunt_fd, ducks);
 			//update_game_data(&game_data);
 		}

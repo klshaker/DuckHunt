@@ -1,7 +1,7 @@
 
 
 game : game.o
-	gcc -o game game.o
+	gcc -o game game.o -lm
 
 game_san.o : game.h game.c
 	gcc -c game.c -fsanitize=address -static-libasan -g
@@ -14,7 +14,7 @@ game_test_san : game_test_san.o game_san.o
 	./game_test
 
 game.o : game.h game.c
-	gcc -c game.c -lm
+	gcc -c game.c 
 
 game_test.o : game.h game_test.c 
 	gcc -c game_test.c 

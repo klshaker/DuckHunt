@@ -5,7 +5,8 @@
 #ifndef _SPRITES_H
 #define _SPRITES_H
 
-//#include "game/game.h"
+#include "game/game.h"
+#include "ppu.h"
 
 #ifndef __KERNEL__
 #include <stdint.h>
@@ -46,6 +47,6 @@ int write_sprite_table(int fd);
 int write_color_table(int fd);
 
 // Takes the data structure used to represent a duck in the game (duck_t) and pulls the info that is needed for the attr table for it. Writes that info to the attribution table with an ioctl call.
-//int update_duck_attr(int fd, duck_t * ducks);
+int update_duck_attr(int fd, duck_t * ducks);
 
 #endif
