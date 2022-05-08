@@ -34,13 +34,13 @@ void play_game(){
 				.value =  1,
 				.coord= { .x = 200, .y = kVerticalScreenSize },
 				.x_direction = east,
-				.id = 0,
+				.id = 0x0,
 				.state = flap_up,
 			},
 			{ .value = 5,
 				.coord= { .x = 250, .y = kVerticalScreenSize },
 				.x_direction = east,
-				.id = 0,
+				.id = 0x1,
 				.state = flap_up,
 			}
 		};
@@ -54,6 +54,7 @@ void play_game(){
 			move_ducks(ducks, NUM_DUCKS, &game_data);
 			update_duck_attr(duck_hunt_fd, ducks);
 			//update_game_data(&game_data);
+			usleep(10000);	
 		}
 
 	}

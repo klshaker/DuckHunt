@@ -51,10 +51,10 @@ void insert_color(color_table_entry_t *color_palette)
 
 void write_to_address(struct wta *addr)
 {
-    if (ioctl(driver_fd, WRITE_TO_ADDRESS, addr)){
-        perror("Failed to write to address - sad");
-        return;
-    }
+	if (ioctl(driver_fd, WRITE_TO_ADDRESS, addr)){
+		perror("Failed to write to address - sad");
+		return;
+	}
 }
 
 int main(int argc, char **argv)
@@ -68,31 +68,31 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-    struct wta av= {0, 0};
+	struct wta av= {0, 0};
 
-    if (argc == 3) {
-        av.addr = atoi(argv[1]);
-        av.value = atoi(argv[2]);
-        printf("Writing %x to address: %x\n", av.value, av.addr);
-        write_to_address(&av);
-        return 0;
-        
-    }
+	if (argc == 3) {
+		av.addr = atoi(argv[1]);
+		av.value = atoi(argv[2]);
+		printf("Writing %x to address: %x\n", av.value, av.addr);
+		write_to_address(&av);
+		return 0;
 
-    //zero sprites
-    //for (int i = 0; i < 15; i++)
-    //{
-    //    sprite_table_entry_t zero = {
-    //        .id = i,
-    //        .line = {
-    //            0, 0, 0, 0, 
-    //            0, 0, 0, 0, 
-    //            0, 0, 0, 0,
-    //            0, 0, 0, 0 
-    //            },
-    //    };
-    //    insert_sprite(&zero);
-    //}
+	}
+
+	//zero sprites
+	//for (int i = 0; i < 15; i++)
+	//{
+	//    sprite_table_entry_t zero = {
+	//        .id = i,
+	//        .line = {
+	//            0, 0, 0, 0, 
+	//            0, 0, 0, 0, 
+	//            0, 0, 0, 0,
+	//            0, 0, 0, 0 
+	//            },
+	//    };
+	//    insert_sprite(&zero);
+	//}
 
 	sprite_table_entry_t sprite = {
 		.id  = 0x0,
@@ -145,61 +145,60 @@ int main(int argc, char **argv)
 		.id             = 0x1
 	};
 
-//    int x;
-//    printf("Enter attr.i: ");
-//    scanf("%d", &x);  
-//    attr.id = x;
-//
-//    printf("Enter attr.x: ");
-//    scanf("%d", &x);  
-//    attr.coord.x = x;
-//
-//    printf("Enter attr.y: ");
-//    scanf("%d", &x);  
-//    attr.coord.y = x;
-//
-//    printf("Enter attr.c: ");
-//    scanf("%d", &x);  
-//    attr.color_table = x;
-//
-//    printf("Enter attr.s: ");
-//    scanf("%d", &x);  
-//    attr.sprite = x;
-//
-//	insert_sprite_att(&attr);
-//
-//    printf("\nEnter colortable.id: ");
-//    scanf("%d", &x);  
-//    color_palette.id = x;
+	//    int x;
+	//    printf("Enter attr.i: ");
+	//    scanf("%d", &x);  
+	//    attr.id = x;
+	//
+	//    printf("Enter attr.x: ");
+	//    scanf("%d", &x);  
+	//    attr.coord.x = x;
+	//
+	//    printf("Enter attr.y: ");
+	//    scanf("%d", &x);  
+	//    attr.coord.y = x;
+	//
+	//    printf("Enter attr.c: ");
+	//    scanf("%d", &x);  
+	//    attr.color_table = x;
+	//
+	//    printf("Enter attr.s: ");
+	//    scanf("%d", &x);  
+	//    attr.sprite = x;
+	//
+	//	insert_sprite_att(&attr);
+	//
+	//    printf("\nEnter colortable.id: ");
+	//    scanf("%d", &x);  
+	//    color_palette.id = x;
 
 
-//    printf("\nEnter sprite.id: ");
-//    scanf("%d", &x);  
-//    sprite.id = x;
-    int x;
+	//    printf("\nEnter sprite.id: ");
+	//    scanf("%d", &x);  
+	//    sprite.id = x;
 
+	int x;
 	insert_sprite_att(&attr);
-    insert_color(&color_palette);
-    insert_color(&color_palette2);
-    insert_sprite(&sprite);
-    insert_sprite(&sprite1);
-    scanf("%d", &x);  
+	insert_color(&color_palette);
+	insert_color(&color_palette2);
+	insert_sprite(&sprite);
+	insert_sprite(&sprite1);
+	//scanf("%d", &x);  
 
+	for(int x = 0 ; x < 630; ++x){
+		for (int i = 0; i < 64; i++) {
+			attr.id = i;
+			attr.color_table = (i % 2);
+			attr.sprite = (i % 2);
+			attr.coord.y = (i * 15) % 480 + i * 2;
+			attr.coord.x = (i + (15 * (i % 2 )));
+			printf("X: %d\r", x);
+			insert_sprite_att(&attr);
+			usleep(1000);
 
-    for(int x = 0 ; x < 630; ++x){
-        for (int i = 0; i < 64; i++) {
-            attr.id = i;
-            attr.color_table = (i % 2);
-            attr.sprite = (i % 2);
-            attr.coord.y = (i * 15) % 480 + i * 2;
-            attr.coord.x = (i + (15 * (i % 2 )));
-            //printf("X: %d\r", x);
-            insert_sprite_att(&attr);
-            usleep(1000);
+		}
 
-        }
-
-    }
+	}
 
 	printf("Userspace program terminating\n");
 	return 0;

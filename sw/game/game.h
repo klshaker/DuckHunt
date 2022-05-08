@@ -1,5 +1,9 @@
+/* This module contains all of the game specific logic for Duck Hunt. 
+*/
+
 #ifndef _GAME_H
 #define _GAME_H
+
 
 // Constants exposed for testing purposes.
 extern const int kHorizontalScreenSize;

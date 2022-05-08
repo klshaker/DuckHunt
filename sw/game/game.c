@@ -3,10 +3,11 @@
 #include <math.h>
 #include <stdlib.h>
 
+
 const int kHorizontalScreenSize = 640;
 const int kVerticalScreenSize = 300;
 const double kPI = 3.14159;
-const int kMaxNumDuckMoves = 1500;
+const int kMaxNumDuckMoves = 500;
 const int kGraphicSize = 16;
 const int kMaxDucksPerGame = 8;
 const int kCrossHairSquareSize = 10;
