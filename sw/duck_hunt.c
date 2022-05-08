@@ -53,8 +53,9 @@ void play_game(){
 			// if trigger pressed
 			move_ducks(ducks, NUM_DUCKS, &game_data);
 			update_duck_attr(duck_hunt_fd, ducks);
-			//update_game_data(&game_data);
+			update_game_state_attrs(duck_hunt_fd, &game_data );
 			usleep(10000);	
+
 		}
 
 	}

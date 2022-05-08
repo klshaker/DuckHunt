@@ -33,18 +33,19 @@
 
 // Offsets of various classes of entries in the sprite attribution table.
 // The order in which these entries are laid out is an implementation decision.
-#define DUCK_SPRITE_ATTR_TABLE_OFFSET 0
+#define DUCK_ATTR_TABLE_OFFSET 0
 // 0 + 2 = 2
-#define BULLET_SPRITE_ATTR_TABLE_OFFSET DUCK_SPRITE_ATTR_TABLE_OFFSET + NUM_DUCKS
+#define BULLET_ATTR_TABLE_OFFSET DUCK_ATTR_TABLE_OFFSET + NUM_DUCKS
 // 2 + 3 = 5
-#define SCORE_SPRITE_ATTR_TABLE_OFFSET BULLET_SPRITE_ATTR_TABLE_OFFSET + NUM_BULLETS
+#define SCORE_ATTR_TABLE_OFFSET BULLET_ATTR_TABLE_OFFSET + NUM_BULLETS
 // 5 + 2 = 7
-#define ROUND_SPRITE_ATTR_TABLE_OFFSET SCORE_SPRITE_ATTR_TABLE_OFFSET + NUM_SCORE_DIGITS
-#define CROSSHAIR_SPRITE_ATTR_TABLE_OFFSET ROUND_SPRITE_ATTR_TABLE_OFFSET + 1
+#define ROUND_ATTR_TABLE_OFFSET SCORE_ATTR_TABLE_OFFSET + NUM_SCORE_DIGITS
+#define CROSSHAIR_ATTR_TABLE_OFFSET ROUND_ATTR_TABLE_OFFSET + 1
 
 #define DUCK_COLOR_TABLE_OFFSET 1
-#define BULLET_COLOR_TABLE_OFFSET 2 
-#define NUMBER_LETTER_COLOR_TABLE_OFFSET 3
+#define SHADED_BULLET_COLOR_TABLE_OFFSET 2 
+#define UNSHADED_BULLET_COLOR_TABLE_OFFSET 3
+#define NUMBER_LETTER_COLOR_TABLE_OFFSET 4
 
 // Populates attr_table_entry_t array with all of the attr table entries. Because of the number of entries in this table and how much data is stored in each entry, it is more readible to populate the entries programtically than by initializing a global array.
 int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries);
@@ -57,6 +58,9 @@ int write_sprite_table(int fd);
 
 // Write the color table to FPGA memory using ioctl calls. Returns 1 if writes succesful, 0 on failure.
 int write_color_table(int fd);
+
+// Updates score and number of bullets remaining every round.
+int update_game_state_attrs(int fd, game_config_t * game_data );
 
 // Takes the data structure used to represent a duck in the game (duck_t) and pulls the info that is needed for the attr table for it. Writes that info to the attribution table with an ioctl call.
 int update_duck_attr(int fd, duck_t * ducks);
