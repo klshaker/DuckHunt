@@ -61,7 +61,7 @@ module ppu
 	// visible on screen.
 	logic [5:0]		ac, vc;
 	logic [9:0]		tx; // ty;
-	logic [7:0]		sr_addr, ar_addr;
+	logic [9:0]		sr_addr, ar_addr;
 	logic [5:0]		tcolor;
 	logic [15:0]		haddr;
 
@@ -97,9 +97,9 @@ module ppu
 			// 0X0000 Sprite Attribute Table 
 			// 0x0100 Sprite Table 
 			// 0x0200 Color Table
-			case(address[9:8])
-				2'b00: mem_write[0]	<= 1'b1;
-				2'b01: mem_write[1]	<= 1'b1;
+			case(address[15:12])
+				4'b0000: mem_write[0]	<= 1'b1;
+				4'b0001: mem_write[1]	<= 1'b1;
 				default: mem_write[2]	<= 1'b1;
 			endcase
 			w_addr <= address;
@@ -120,7 +120,7 @@ module ppu
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
 					tx	<= sprite_attr[19:10];
 					sr_addr	<= (sprite_attr[27:20] << 4) + (vcount - sprite_attr[9:0]);
-					color[vc]	<= sprite_attr[31:28];
+					color[vc]	<= sprite_attr[31:28] << 2;
 					state		<= S_INDEX;
 
 				end else begin
