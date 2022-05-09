@@ -119,7 +119,7 @@ module ppu
 				if (ac == SPRITE_ATTRS - 1'b1 || vc == VISIBLE_SPRITES - 1'b1 || hcount == 11'd1598) state <= IDLE;
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
 					tx	<= sprite_attr[19:10];
-					sr_addr	<= sprite_attr[27:20] + (vcount - sprite_attr[9:0]);
+					sr_addr	<= (sprite_attr[27:20] << 4) + (vcount - sprite_attr[9:0]);
 					color[vc]	<= sprite_attr[31:28];
 					state		<= S_INDEX;
 
