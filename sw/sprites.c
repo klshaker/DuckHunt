@@ -614,6 +614,28 @@ int write_sprite_table(int fd){
 				0x0,
 			}
 		},
+		// Crosshair
+		[26] = {
+			.id = 26,
+			.line = {
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0xfc3f00,
+				0xffff00,
+				0xffff00,
+				0x3ffc00,
+				0x3ffc00,
+				0xffff00,
+				0xffff00,
+				0xfc3f00,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			}
+		},
 	};
 
 	int i = 0;
