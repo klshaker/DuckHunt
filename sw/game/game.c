@@ -8,9 +8,9 @@ const int kHorizontalScreenSize = 640;
 const int kVerticalScreenSize = 300;
 const double kPI = 3.14159;
 const int kMaxNumDuckMoves = 500;
-const int kGraphicSize = 16;
 const int kMaxDucksPerGame = 8;
 const int kCrossHairSquareSize = 10;
+const int kGraphicSize = 16;
 
 coord_t get_center_of_graphic(coord_t* top_left) {
 	return (coord_t){.x = top_left->x + kGraphicSize/2, .y = top_left->y + kGraphicSize/2};

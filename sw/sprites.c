@@ -9,6 +9,8 @@ const int kScoreSpriteXLoc = 500;
 const int kLowerGraphicYLoc = 400;
 const int kBulletSpaceApart = 2;
 const int kScoreSpaceApart = 0;
+const int kSmallGraphicWidth = 16;
+const int kSmallGraphicHeight = 16;
 
 attr_table_entry_t attr_table[NUM_SPRITES] = {};
 
@@ -32,7 +34,7 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 	for(;i < NUM_BULLETS; ++i){
 		attr_table_entry_t bullet = {
 			.coord =  {
-				.x = kBulletSpriteXLoc + i * kGraphicSize + i * kBulletSpaceApart, 
+				.x = kBulletSpriteXLoc + i * kSmallGraphicWidth + i * kBulletSpaceApart, 
 				.y = kLowerGraphicYLoc 
 			},
 			// all bullets start off shaded and on screen.
@@ -47,7 +49,7 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 	i = 0;
 	for(;i< NUM_SCORE_DIGITS; ++i){
 		attr_table_entry_t score = {
-			.coord = { .x = kScoreSpriteXLoc + i * kGraphicSize+ i* kScoreSpaceApart, .y = kLowerGraphicYLoc },
+			.coord = { .x = kScoreSpriteXLoc + i * kSmallGraphicWidth+ i* kScoreSpaceApart, .y = kLowerGraphicYLoc },
 			// score starts off 0 0
 			.sprite = NUMBER_SPRITE_OFFSET,
 			.id = *num_entries,
@@ -61,7 +63,7 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 
 	attr_table_entry_t round = {
 		// Round sprite is right above bullets.  
-		.coord = {.x = kBulletSpriteXLoc, .y = kLowerGraphicYLoc - kGraphicSize - 10 },
+		.coord = {.x = kBulletSpriteXLoc, .y = kLowerGraphicYLoc - kSmallGraphicHeight - 10 },
 		// round starts at 0
 		.sprite = NUMBER_SPRITE_OFFSET,
 		.id = *num_entries,
@@ -102,30 +104,229 @@ int write_sprite_table(int fd){
 				0x55555555, 0x55555555, 0x55555555, 0x55555555,
 			},
 		},
-		// Duck Flap Up
+		// Duck Flap Down Top Left
 		[1] = {
 			.id  = 0x1,
 			.line = {
-				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
-				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
-				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
-				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x15000000,
+				0x55550000,
+				0x55555400,
+				0x55555554,
+				0x55555555,
+				0x55555558,
+				0x55555560,
+				0x55555580,
+				0x55565a80,
+				0x5556aa00,
+				0x555aa800,
 			},
-
 		},
-		// Duck Flap Down
+		// Duck Flap Down Top Right
 		[2] = {
-			.id  = 0x2,
+			.id  = 2,
 			.line = {
-				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
-				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
-				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
-				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+				0x555ac000,
+				0x5553ff00,
+				0x5560ff00,
+				0x55603f00,
+				0x55800c00,
+				0x59800000,
+				0x9a000000,
+				0xa0000000,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
 			},
 		},
-		// Duck Dead
+		// Duck Flap Down Bottom Left
 		[3] = {
-			.id  = 0x3,
+			.id  = 3,
+			.line = {
+				0x0,
+				0x3bc000,
+				0xeaf000,
+				0xdafc00,
+				0x3daff00,
+				0x3feaff90,
+				0x3ffbff95,
+				0x3fffff95,
+				0x3ffe95,
+				0xe55,
+				0x55,
+				0x5,
+				0x2,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Flap Down Bottom Right
+		[4] = {
+			.id  = 4,
+			.line = {
+				0x1,
+				0x1,
+				0x1,
+				0x1,
+				0x5,
+				0x5,
+				0x5,
+				0x15,
+				0x16,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Flap Up Top Left
+		[5] = {
+			.id  = 5,
+			.line = {
+				0x0,
+				0x50000000,
+				0x64000000,
+				0xa9800000,
+				0xaa900000,
+				0xaa900000,
+				0xaaa00000,
+				0xaaa00000,
+				0xaaa00000,
+				0xaaa80000,
+				0x6aa80000,
+				0x2aa80000,
+				0x2aa80000,
+				0x6aa94000,
+				0x5aa95500,
+				0x5aa95554,
+			},
+		},
+		// Duck Flap Up Top Right
+		[6] = {
+			.id  = 6,
+			.line = {
+				0x5aa95555,
+				0xaaa95558,
+				0xaaa95560,
+				0xaaaa5680,
+				0x2aaaaa80,
+				0x2aaaa00,
+				0x2aa800,
+				0x2c000,
+				0xff00,
+				0x3f00,
+				0xf00,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Flap Up Bottom Left
+		[7] = {
+			.id  = 7,
+			.line = {
+				0x14,
+				0x19,
+				0x1a,
+				0x6,
+				0x6,
+				0x2,
+				0x1,
+				0x0,
+				0xbc000,
+				0x2af000,
+				0x1afc00,
+				0xdaff00,
+				0x3feaff90,
+				0x3ffbff95,
+				0x3fffff95,
+				0xffe95,
+			},
+		},
+		// Duck Flap Up Bottom Right
+		[8] = {
+			.id  = 8,
+			.line = {
+				0x255,
+				0x15,
+				0x2,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Dead Top
+		[9] = {
+			.id  = 9,
+			.line = {
+				0x0,
+				0x110000,
+				0x150000,
+				0x58000,
+				0x6a300,
+				0x2896af20,
+				0x2896bf2c,
+				0x2656bf7f,
+				0x1596bfaf,
+				0x1565afaf,
+				0x1565aaaf,
+				0x1559aaac,
+				0x1555aa00,
+				0x15556a00,
+				0x5556a00,
+				0x1556a00,
+			},
+		},
+		// Duck Dead Bottom
+		[10] = {
+			.id  = 10,
+			.line = {
+				0x556800,
+				0x556800,
+				0x156400,
+				0x155000,
+				0x55000,
+				0x54000,
+				0x54000,
+				0xa8000,
+				0xfc000,
+				0x3ffc00,
+				0x3fff30,
+				0xffaff0,
+				0xfe6bc0,
+				0xfd57fc,
+				0x3d54ff,
+				0x0,
+			},
+		},
+		// Duck Flying Away TODO
+		[11] = {
+			.id  = 11,
 			.line = {
 				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
 				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
@@ -134,9 +335,31 @@ int write_sprite_table(int fd){
 			},
 
 		},
-		// Duck Flying Away
-		[4] = {
-			.id  = 0x4,
+		// Duck Flying Away TODO
+		[12] = {
+			.id  = 12,
+			.line = {
+				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
+				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
+				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
+				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+			},
+
+		},
+		// Duck Flying Away TODO
+		[13] = {
+			.id  = 13,
+			.line = {
+				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
+				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
+				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
+				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+			},
+
+		},
+		// Duck Flying Away TODO
+		[14] = {
+			.id  = 14,
 			.line = {
 				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
 				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
@@ -146,39 +369,251 @@ int write_sprite_table(int fd){
 
 		},
 		// Bullet Shaded & Non Shaded
-		[5] = {
-			.id  = 0x5,
+		[15] = {
+			.id  = 15,
 			.line = {
-				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
-				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
-				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
-				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+				0x0,
+				0x0,
+				0x155400,
+				0x555500,
+				0x5aa500,
+				0x5aa500,
+				0x5eb500,
+				0x5eb500,
+				0x5eb500,
+				0x5eb500,
+				0x5aa500,
+				0x5aa500,
+				0x555500,
+				0x155400,
+				0x0,
+				0x0,
 			},
 
 		},
 		// Number Sprites
 		// 0 
-		[6] = {
-			.id  = 0x6,
+		[16] = {
+			.id  = 16,
 			.line = {
-				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
-				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
-				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
-				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+				0x0,
+				0x555500,
+				0x1555540,
+				0x56aa950,
+				0x5aaaa50,
+				0x5a55a50,
+				0x5a55a50,
+				0x5a55a50,
+				0x5a55a50,
+				0x5a55a50,
+				0x5a55a50,
+				0x5aaaa50,
+				0x56aa950,
+				0x1555540,
+				0x555500,
+				0x0,
 			},
 
 		},
 		// 1 
-		[7] = {
-			.id  = 0x7,
+		[17] = {
+			.id  = 17,
 			.line = {
-				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
-				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
-				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
-				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+				0x0,
+				0x15540,
+				0x55540,
+				0x15a940,
+				0x16a940,
+				0x169540,
+				0x169540,
+				0x169400,
+				0x169400,
+				0x1569540,
+				0x1569540,
+				0x16aa940,
+				0x16aa940,
+				0x1555540,
+				0x1555540,
+				0x0,
 			},
 
-		}
+		},
+		// 2
+		[18] = {
+			.id = 18,
+			.line = {
+				0x0,
+				0x555550,
+				0x1555550,
+				0x56aaa50,
+				0x5aaaa50,
+				0x5a55550,
+				0x5a55540,
+				0x5aaa950,
+				0x56aaa50,
+				0x1555a50,
+				0x5555a50,
+				0x5aaaa50,
+				0x5aaaa50,
+				0x5555550,
+				0x5555550,
+				0x0,
+			}
+		},
+		// 3
+		[19] = {
+			.id = 19,
+			.line = {
+				0x0,
+				0x555550,
+				0x1555550,
+				0x56aaa50,
+				0x5aaaa50,
+				0x5a55550,
+				0x5a55550,
+				0x5aaaa50,
+				0x5aaaa50,
+				0x5a55550,
+				0x5a55550,
+				0x5aaaa50,
+				0x56aaa50,
+				0x1555550,
+				0x555550,
+				0x0,
+			}
+		},
+		// 4
+		[20] = {
+			.id = 20,
+			.line = {
+				0x0,
+				0x5555550,
+				0x5555550,
+				0x5a55a50,
+				0x5a55a50,
+				0x5a55a50,
+				0x5a55a50,
+				0x5aaaa50,
+				0x5aaaa50,
+				0x5a55550,
+				0x5a55550,
+				0x5a50000,
+				0x5a50000,
+				0x5550000,
+				0x5550000,
+				0x0,
+			}
+		},
+		// 5
+		[21] = {
+			.id = 21,
+			.line = {
+				0x0,
+				0x5555550,
+				0x5555550,
+				0x5aaaa50,
+				0x5aaaa50,
+				0x5555a50,
+				0x1555a50,
+				0x56aaa50,
+				0x5aaa950,
+				0x5a55540,
+				0x5a55550,
+				0x5aaaa50,
+				0x56aaa50,
+				0x1555550,
+				0x555550,
+				0x0,
+			}
+		},
+		// 6
+		[22] = {
+			.id = 22,
+			.line = {
+				0x0,
+				0x5550,
+				0x5550,
+				0x5a50,
+				0x5a50,
+				0x555a50,
+				0x1555a50,
+				0x56aaa50,
+				0x5aaaa50,
+				0x5a55a50,
+				0x5a55a50,
+				0x5aaaa50,
+				0x56aa950,
+				0x1555540,
+				0x555500,
+				0x0,
+			}
+		},
+		// 7
+		[23] = {
+			.id = 23,
+			.line = {
+				0x0,
+				0x555550,
+				0x1555550,
+				0x56aaa50,
+				0x5aaaa50,
+				0x5a55550,
+				0x5a55550,
+				0x5a50000,
+				0x5a50000,
+				0x5a50000,
+				0x5a50000,
+				0x5a50000,
+				0x5a50000,
+				0x5550000,
+				0x5550000,
+				0x0,
+			}
+		},
+		// 8
+		[24] = {
+			.id = 24,
+			.line = {
+				0x0,
+				0x555500,
+				0x1555540,
+				0x56aa950,
+				0x5aaaa50,
+				0x5a55a50,
+				0x5a55a50,
+				0x5aaaa50,
+				0x5aaaa50,
+				0x5a55a50,
+				0x5a55a50,
+				0x5aaaa50,
+				0x56aa950,
+				0x1555540,
+				0x555500,
+				0x0,
+			}
+		},
+		// 9
+		[25] = {
+			.id = 25,
+			.line = {
+				0x0,
+				0x555500,
+				0x1555540,
+				0x56aa950,
+				0x5aaaa50,
+				0x5a55a50,
+				0x5a55a50,
+				0x5aaaa50,
+				0x5aaa950,
+				0x5a55540,
+				0x5a55500,
+				0x5a50000,
+				0x5a50000,
+				0x5550000,
+				0x5550000,
+				0x0,
+			}
+		},
 	};
 
 	int i = 0;
@@ -199,10 +634,10 @@ int write_color_table(int fd){
 		[0] = {
 			.id = 0x0,
 			.color = {
-				[0] = {.r = 0,  .g = 0,   .b = 0  },
-				[1] = {.r = 0,  .g = 101, .b = 0  },
-				[2] = {.r = 0,  .g = 255, .b = 0  },
-				[3] = {.r = 0,  .g = 0,   .b = 255},
+				[0] = {.r = 0, .g = 0, .b = 0},
+				[1] = {.r = 0, .g = 0, .b = 168 },
+				[2] = {.r = 252, .g = 252, .b = 252 },
+				[3] = {.r = 188, .g = 0, .b = 188 },
 			},
 		},
 		// Shaded Bullet
@@ -211,9 +646,9 @@ int write_color_table(int fd){
 			.id = 0x1,
 			.color = {
 				[0] = {.r = 0,  .g = 0,   .b = 0  },
-				[1] = {.r = 0,  .g = 101, .b = 0  },
-				[2] = {.r = 0,  .g = 255, .b = 0  },
-				[3] = {.r = 0,  .g = 0,   .b = 255},
+				[1] = {.r = 111, .g = 62, .b = 67 },
+				[2] = {.r = 244, .g = 180, .b = 27 },
+				[3] = {.r = 254, .g = 228, .b = 129 },
 			},
 		},
 		// Unshaded Bullet
@@ -222,9 +657,9 @@ int write_color_table(int fd){
 			.id = 0x2,
 			.color = {
 				[0] = {.r = 0,  .g = 0,   .b = 0  },
-				[1] = {.r = 0,  .g = 101, .b = 0  },
-				[2] = {.r = 0,  .g = 255, .b = 0  },
-				[3] = {.r = 0,  .g = 0,   .b = 255},
+				[1] = {.r = 67, .g = 74, .b = 95 },
+				[2] = {.r = 223, .g = 246, .b = 245 },
+				[3] = {.r = 223, .g = 246, .b = 245 },
 			},
 		},
 		// Numbers and Letters 
@@ -232,9 +667,9 @@ int write_color_table(int fd){
 		{
 			.id = 0x3,
 			.color = {
-				[0] = {.r = 0,  .g = 0,   .b = 0  },
-				[1] = {.r = 0,  .g = 101, .b = 0  },
-				[2] = {.r = 0,  .g = 255, .b = 0  },
+				[0] = {.r = 0, .g = 0, .b = 0},
+				[1] = {.r = 67, .g = 74, .b = 95 },
+				[2] = {.r = 223, .g = 246, .b = 245 },
 				[3] = {.r = 0,  .g = 0,   .b = 255},
 			},
 		},
@@ -253,7 +688,7 @@ int write_color_table(int fd){
 	};
 
 	int i = 0;
-	for(;i< NUM_SPRITES; ++i){
+	for(;i< NUM_COLOR_TABLE_ENTRIES; ++i){
 		if (ioctl(fd, COLOR_TABLE_WRITE_DATA, &color_tables[i])) {
 			perror("ioctl(COLOR_TABLE_WRITE_DATA) failed");
 			return 0;
@@ -276,21 +711,12 @@ int write_sprite_attr_table(int fd){
 	}
 }
 
-attr_table_entry_t convert_duck_to_attr_entry(duck_t* duck){
-	attr_table_entry_t entry = {	
-		.coord = { .x = duck->coord.x, .y = duck->coord.y }, 
-		.id =  DUCK_ATTR_TABLE_OFFSET + duck->id, 
-		.sprite =  DUCK_SPRITE_OFFSET + duck->state,
-		.color_table = DUCK_COLOR_TABLE_OFFSET
-	};
-	return entry;
-}
 
-int update_game_state_attrs(int fd, game_config_t * game_data ){
+int update_game_state_attrs(int fd, int num_bullets, int score){
 
 	int i = 0;
 	for(; i < NUM_BULLETS; ++i){
-		if(game_data->bullets > i ){
+		if(num_bullets > i ){
 			attr_table[BULLET_ATTR_TABLE_OFFSET + i].color_table = SHADED_BULLET_COLOR_TABLE_OFFSET;
 		}
 		else {
@@ -302,29 +728,29 @@ int update_game_state_attrs(int fd, game_config_t * game_data ){
 		}
 	}
 
-	int tmp_score = game_data->score;
 	i = NUM_SCORE_DIGITS;
 	// work from lowest significant digit to highest significant digit. 
 	for(; i > 0; --i) {
-		attr_table[SCORE_ATTR_TABLE_OFFSET + i - 1].sprite = NUMBER_SPRITE_OFFSET + tmp_score % 10; 
-	 	tmp_score = tmp_score / 10;	
+		attr_table[SCORE_ATTR_TABLE_OFFSET + i - 1].sprite = NUMBER_SPRITE_OFFSET + score % 10; 
+		score = score / 10;	
 		if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[SCORE_ATTR_TABLE_OFFSET + i - 1])) {
 			perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
 			return 0;
 		}
 	}	
-return 1;
+	return 1;
 }
 
-int update_duck_attr(int fd, duck_t * ducks) {
+int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id) {
 
-	int i = 0;
-	for(; i < NUM_DUCKS; ++i){
-		attr_table_entry_t duck_attr = convert_duck_to_attr_entry(&ducks[i]);
-		if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &duck_attr)) {
-			perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
-			return 0;
-		}
-	}	
+	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].coord.x = x_coord;
+	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].coord.y = y_coord;
+	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].sprite  =  DUCK_DOWN_SPRITE_OFFSET + duck_state;
+
+	if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id])) {
+		perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
+		return 0;
+	}
+
 	return 1;
 }

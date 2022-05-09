@@ -13,12 +13,13 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 int duck_hunt_fd;
 
 void play_game(){
 
-	while(1){
+		while(1){
 
 		// Set inintial game state.
 		game_config_t game_data = {
@@ -47,13 +48,20 @@ void play_game(){
 
 		coord_t cross_hair = { .x = 0, .y = 0};
 
+		time_t now = time(0);
+		printf("TIME %ld\n", now);
+		int visible_ducks = 0;
 		while(!is_game_over(&game_data)){
-
+			
+	
 			// poll wii controller.
 			// if trigger pressed
 			move_ducks(ducks, NUM_DUCKS, &game_data);
-			update_duck_attr(duck_hunt_fd, ducks);
-			update_game_state_attrs(duck_hunt_fd, &game_data );
+			int i = 0;
+			for(; i < NUM_DUCKS; ++i){
+				update_duck_attr(duck_hunt_fd, ducks[i].coord.x, ducks[i].coord.y, ducks[i].state, ducks[i].id);
+			}
+			update_game_state_attrs(duck_hunt_fd, game_data.bullets, game_data.score);
 			usleep(10000);	
 
 		}
