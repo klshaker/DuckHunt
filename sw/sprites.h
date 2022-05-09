@@ -5,7 +5,6 @@
 #ifndef _SPRITES_H
 #define _SPRITES_H
 
-#include "game/game.h"
 #include "ppu.h"
 
 #ifndef __KERNEL__
@@ -15,7 +14,6 @@
 #endif
 
 #define NUM_SPRITES 16 
-
 #define NUM_BULLETS 3
 #define NUM_DUCKS 2
 #define NUM_SCORE_DIGITS 2 
@@ -60,9 +58,9 @@ int write_sprite_table(int fd);
 int write_color_table(int fd);
 
 // Updates score and number of bullets remaining every round.
-int update_game_state_attrs(int fd, game_config_t * game_data );
+int update_game_state_attrs(int fd, int num_bullets, int score);
 
-// Takes the data structure used to represent a duck in the game (duck_t) and pulls the info that is needed for the attr table for it. Writes that info to the attribution table with an ioctl call.
-int update_duck_attr(int fd, duck_t * ducks);
+// Updates the duck attr for the duck corresponding to duck_id in the attr table every round.
+int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id);
 
 #endif

@@ -9,6 +9,8 @@ const int kScoreSpriteXLoc = 500;
 const int kLowerGraphicYLoc = 400;
 const int kBulletSpaceApart = 2;
 const int kScoreSpaceApart = 0;
+const int kSmallGraphicWidth = 16;
+const int kSmallGraphicHeight = 16;
 
 attr_table_entry_t attr_table[NUM_SPRITES] = {};
 
@@ -32,7 +34,7 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 	for(;i < NUM_BULLETS; ++i){
 		attr_table_entry_t bullet = {
 			.coord =  {
-				.x = kBulletSpriteXLoc + i * kGraphicSize + i * kBulletSpaceApart, 
+				.x = kBulletSpriteXLoc + i * kSmallGraphicWidth + i * kBulletSpaceApart, 
 				.y = kLowerGraphicYLoc 
 			},
 			// all bullets start off shaded and on screen.
@@ -47,7 +49,7 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 	i = 0;
 	for(;i< NUM_SCORE_DIGITS; ++i){
 		attr_table_entry_t score = {
-			.coord = { .x = kScoreSpriteXLoc + i * kGraphicSize+ i* kScoreSpaceApart, .y = kLowerGraphicYLoc },
+			.coord = { .x = kScoreSpriteXLoc + i * kSmallGraphicWidth+ i* kScoreSpaceApart, .y = kLowerGraphicYLoc },
 			// score starts off 0 0
 			.sprite = NUMBER_SPRITE_OFFSET,
 			.id = *num_entries,
@@ -61,7 +63,7 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 
 	attr_table_entry_t round = {
 		// Round sprite is right above bullets.  
-		.coord = {.x = kBulletSpriteXLoc, .y = kLowerGraphicYLoc - kGraphicSize - 10 },
+		.coord = {.x = kBulletSpriteXLoc, .y = kLowerGraphicYLoc - kSmallGraphicHeight - 10 },
 		// round starts at 0
 		.sprite = NUMBER_SPRITE_OFFSET,
 		.id = *num_entries,
@@ -178,7 +180,52 @@ int write_sprite_table(int fd){
 				0x55555555, 0x55555555, 0x55555555, 0x55555555,
 			},
 
+		},
+		// 2 
+		[8] = {
+			.id  = 0x8,
+			.line = {
+				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
+				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
+				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
+				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+			},
+
+		},
+		// 3 
+		[9] = {
+			.id  = 0x9,
+			.line = {
+				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
+				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
+				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
+				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+			},
+
+		},
+		// 4 
+		[10] = {
+			.id  = 0xA,
+			.line = {
+				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
+				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
+				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
+				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+			},
+
+		},
+		// 5 
+		[11] = {
+			.id  = 0xB,
+			.line = {
+				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
+				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
+				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
+				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+			},
+
 		}
+
 	};
 
 	int i = 0;
@@ -276,21 +323,12 @@ int write_sprite_attr_table(int fd){
 	}
 }
 
-attr_table_entry_t convert_duck_to_attr_entry(duck_t* duck){
-	attr_table_entry_t entry = {	
-		.coord = { .x = duck->coord.x, .y = duck->coord.y }, 
-		.id =  DUCK_ATTR_TABLE_OFFSET + duck->id, 
-		.sprite =  DUCK_SPRITE_OFFSET + duck->state,
-		.color_table = DUCK_COLOR_TABLE_OFFSET
-	};
-	return entry;
-}
 
-int update_game_state_attrs(int fd, game_config_t * game_data ){
+int update_game_state_attrs(int fd, int num_bullets, int score){
 
 	int i = 0;
 	for(; i < NUM_BULLETS; ++i){
-		if(game_data->bullets > i ){
+		if(num_bullets > i ){
 			attr_table[BULLET_ATTR_TABLE_OFFSET + i].color_table = SHADED_BULLET_COLOR_TABLE_OFFSET;
 		}
 		else {
@@ -302,29 +340,29 @@ int update_game_state_attrs(int fd, game_config_t * game_data ){
 		}
 	}
 
-	int tmp_score = game_data->score;
 	i = NUM_SCORE_DIGITS;
 	// work from lowest significant digit to highest significant digit. 
 	for(; i > 0; --i) {
-		attr_table[SCORE_ATTR_TABLE_OFFSET + i - 1].sprite = NUMBER_SPRITE_OFFSET + tmp_score % 10; 
-	 	tmp_score = tmp_score / 10;	
+		attr_table[SCORE_ATTR_TABLE_OFFSET + i - 1].sprite = NUMBER_SPRITE_OFFSET + score % 10; 
+		score = score / 10;	
 		if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[SCORE_ATTR_TABLE_OFFSET + i - 1])) {
 			perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
 			return 0;
 		}
 	}	
-return 1;
+	return 1;
 }
 
-int update_duck_attr(int fd, duck_t * ducks) {
+int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id) {
 
-	int i = 0;
-	for(; i < NUM_DUCKS; ++i){
-		attr_table_entry_t duck_attr = convert_duck_to_attr_entry(&ducks[i]);
-		if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &duck_attr)) {
-			perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
-			return 0;
-		}
-	}	
+	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].coord.x = x_coord;
+	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].coord.y = y_coord;
+	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].sprite  =  DUCK_SPRITE_OFFSET + duck_state;
+
+	if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id])) {
+		perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
+		return 0;
+	}
+
 	return 1;
 }
