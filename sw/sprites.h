@@ -14,7 +14,7 @@
 #endif
 
 #define NUM_SPRITES 64 
-#define NUM_COLOR_TABLE_ENTRIES 5
+#define NUM_COLOR_TABLE_ENTRIES 4
 
 #define NUM_BULLETS 3
 #define NUM_DUCKS 2
@@ -64,6 +64,6 @@ int write_color_table(int fd);
 int update_game_state_attrs(int fd, int num_bullets, int score);
 
 // Updates the duck attr for the duck corresponding to duck_id in the attr table every round.
-int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id);
+int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id, int visible);
 
 #endif

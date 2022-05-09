@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <stdio.h>
+#include <unistd.h>
 
 const int kBulletSpriteXLoc = 5;
 const int kScoreSpriteXLoc = 500;
@@ -55,7 +56,7 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 			.id = *num_entries,
 			//TODO(WHY WON"T THIS WORK WITH THE COLOR TABLE OFFSET OF 4?)
 			// this should be SHADED_BULLET_COLOR_TABLE_OFFSET
-			.color_table = SHADED_BULLET_COLOR_TABLE_OFFSET
+			.color_table = NUMBER_LETTER_COLOR_TABLE_OFFSET
 		};
 		entries[*num_entries] = score;
 		++(*num_entries);
@@ -67,7 +68,7 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 		// round starts at 0
 		.sprite = NUMBER_SPRITE_OFFSET,
 		.id = *num_entries,
-		.color_table = SHADED_BULLET_COLOR_TABLE_OFFSET
+		.color_table = NUMBER_LETTER_COLOR_TABLE_OFFSET
 	};
 
 	entries[*num_entries] = round;
@@ -617,7 +618,7 @@ int write_sprite_table(int fd){
 	};
 
 	int i = 0;
-	for(; i < NUM_SPRITES; ++i){
+	for(; i < 16; ++i){
 		if (ioctl(fd, SPRITE_TABLE_WRITE_DATA, &sprites[i])) {
 			perror("ioctl(SPRITE_TABLE_WRITE_DATA) failed");
 			return 0;
@@ -741,11 +742,14 @@ int update_game_state_attrs(int fd, int num_bullets, int score){
 	return 1;
 }
 
-int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id) {
+int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id, int visible) {
 
+	if(!visible){
+return 1;
+}	
 	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].coord.x = x_coord;
 	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].coord.y = y_coord;
-	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].sprite  =  DUCK_DOWN_SPRITE_OFFSET + duck_state;
+	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].sprite  =   DUCK_DOWN_SPRITE_OFFSET + duck_state;
 
 	if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id])) {
 		perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");

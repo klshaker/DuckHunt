@@ -47,11 +47,13 @@ typedef struct {
 	enum duck_state state;
 	// when the duck was created.
 	time_t spawn_time; 
+	int is_visible;
 } duck_t;
 
 typedef struct {
 	unsigned char bullets, score, round;
 	int num_ducks_seen;
+	int visible_ducks;
 } game_config_t;
 
 
