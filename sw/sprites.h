@@ -13,7 +13,8 @@
 #include <linux/types.h> 
 #endif
 
-#define NUM_SPRITES 16 
+#define NUM_SPRITES 64 
+
 #define NUM_BULLETS 3
 #define NUM_DUCKS 2
 #define NUM_SCORE_DIGITS 2 
@@ -22,18 +23,18 @@
 // The 0th offset is reserved for sprites we do not want to see on the screen.
 #define DUCK_SPRITE_OFFSET 1
 // 1 + 4 duck states = 5
-#define BULLET_SPRITE_OFFSET 5
+#define BULLET_SPRITE_OFFSET 16
 // Shaded and non shaded bullets will share the same sprite but point
 // to different color tables.
-#define NUMBER_SPRITE_OFFSET 6
+#define NUMBER_SPRITE_OFFSET 17
 // 6 + 10 digits = 16
-#define CROSSHAIR_SPRITE_OFFSET 16
+#define CROSSHAIR_SPRITE_OFFSET 18
 
 // Offsets of various classes of entries in the sprite attribution table.
 // The order in which these entries are laid out is an implementation decision.
 #define DUCK_ATTR_TABLE_OFFSET 0
 // 0 + 2 = 2
-#define BULLET_ATTR_TABLE_OFFSET DUCK_ATTR_TABLE_OFFSET + NUM_DUCKS
+#define BULLET_ATTR_TABLE_OFFSET DUCK_ATTR_TABLE_OFFSET + NUM_DUCKS 
 // 2 + 3 = 5
 #define SCORE_ATTR_TABLE_OFFSET BULLET_ATTR_TABLE_OFFSET + NUM_BULLETS
 // 5 + 2 = 7
