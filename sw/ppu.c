@@ -36,8 +36,9 @@ static void write_to_attr_table(attr_table_entry_t *attr)
 
 	data = data | (attr->coord.x << OBJ_X_COORD_OFFSET);
 	data = data | (attr->coord.y << OBJ_Y_COORD_OFFSET);
-	data = data | ((attr->sprite)<< OBJ_SPRITE_OFFSET);
-	data = data | ((attr->color_table * COLOR_TABLE_ENTRY_SIZE) << OBJ_COLOR_OFFSET);
+
+	data = data | (attr->sprite          << OBJ_SPRITE_OFFSET);
+	data = data | (attr->color_table << OBJ_COLOR_OFFSET);
 
 	iowrite32(data, ATTR_WRITE(dev.virtbase, attr->id * ATTR_TABLE_ENTRY_SIZE));
 
