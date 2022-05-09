@@ -2,12 +2,12 @@
 #include "stdio.h"
 #include <math.h>
 #include <stdlib.h>
+#include <time.h>
 
-
-const int kHorizontalScreenSize = 640;
 const int kVerticalScreenSize = 300;
+const int kHorizontalScreenSize = 500;
 const double kPI = 3.14159;
-const int kMaxNumDuckMoves = 500;
+const int kMaxDuckTimeSeconds = 10;
 const int kMaxDucksPerGame = 8;
 const int kCrossHairSquareSize = 10;
 const int kGraphicSize = 16;
@@ -87,12 +87,15 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 	}
 
 	// If we have hit this if statememnt we know the duck is not dead or flying a way. A dead duck or a flying away duck should not be constrained by num moves. 
-	if( duck->num_moves == kMaxNumDuckMoves ){
+	printf("spawn time %ld\n",  time(0) - duck->spawn_time);
+	if( duck->is_visible && time(0) - duck->spawn_time  > kMaxDuckTimeSeconds){
+
 		// set the duck state to flying away.
+		printf("FLYING AWAY");
 		duck->state = flying_away;
 		++game_config->num_ducks_seen;
+		--game_config->visible_ducks;
 	}
-	++duck->num_moves;
 
 	return 1;
 }
@@ -100,6 +103,7 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 void kill_duck_update_config(duck_t * duck, game_config_t* config){
 	duck->state = dead;
 	config->score += duck->value;
+	config->visible_ducks--;
 }
 
 int shoot_at_ducks(duck_t* ducks, int num_ducks, coord_t cross_hair, game_config_t* config){
