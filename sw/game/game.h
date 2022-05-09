@@ -3,6 +3,7 @@
 
 #ifndef _GAME_H
 #define _GAME_H
+#include <time.h>
 
 
 // Constants exposed for testing purposes.
@@ -44,8 +45,8 @@ typedef struct {
 	// unique_id associated with each duck.
 	int id; 
 	enum duck_state state;
-	// The number of times the duck has moved on screen used to approximate time the user has to shoot the duck.
-	int num_moves; 
+	// when the duck was created.
+	time_t spawn_time; 
 } duck_t;
 
 typedef struct {

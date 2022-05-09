@@ -688,7 +688,7 @@ int write_color_table(int fd){
 	};
 
 	int i = 0;
-	for(;i< NUM_SPRITES; ++i){
+	for(;i< NUM_COLOR_TABLE_ENTRIES; ++i){
 		if (ioctl(fd, COLOR_TABLE_WRITE_DATA, &color_tables[i])) {
 			perror("ioctl(COLOR_TABLE_WRITE_DATA) failed");
 			return 0;
@@ -745,7 +745,7 @@ int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_
 
 	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].coord.x = x_coord;
 	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].coord.y = y_coord;
-	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].sprite  =  DUCK_SPRITE_OFFSET + duck_state;
+	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].sprite  =  DUCK_DOWN_SPRITE_OFFSET + duck_state;
 
 	if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id])) {
 		perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");

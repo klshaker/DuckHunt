@@ -14,6 +14,7 @@
 #endif
 
 #define NUM_SPRITES 64 
+#define NUM_COLOR_TABLE_ENTRIES 5
 
 #define NUM_BULLETS 3
 #define NUM_DUCKS 2
@@ -21,14 +22,15 @@
 
 // Offsets of various classes of sprites in the sprite table. 
 // The 0th offset is reserved for sprites we do not want to see on the screen.
-#define DUCK_SPRITE_OFFSET 1
-// 1 + 4 duck states = 5
-#define BULLET_SPRITE_OFFSET 16
+#define DUCK_DOWN_SPRITE_OFFSET 1
+#define DUCK_UP_SPRITE_OFFSET 5 
+#define DUCK_DEAD_SPRITE_OFFSET 9
+#define BULLET_SPRITE_OFFSET 15
 // Shaded and non shaded bullets will share the same sprite but point
 // to different color tables.
-#define NUMBER_SPRITE_OFFSET 17
+#define NUMBER_SPRITE_OFFSET 16
 // 6 + 10 digits = 16
-#define CROSSHAIR_SPRITE_OFFSET 18
+#define CROSSHAIR_SPRITE_OFFSET 17
 
 // Offsets of various classes of entries in the sprite attribution table.
 // The order in which these entries are laid out is an implementation decision.
@@ -41,10 +43,10 @@
 #define ROUND_ATTR_TABLE_OFFSET SCORE_ATTR_TABLE_OFFSET + NUM_SCORE_DIGITS
 #define CROSSHAIR_ATTR_TABLE_OFFSET ROUND_ATTR_TABLE_OFFSET + 1
 
-#define DUCK_COLOR_TABLE_OFFSET 1
-#define SHADED_BULLET_COLOR_TABLE_OFFSET 2 
-#define UNSHADED_BULLET_COLOR_TABLE_OFFSET 3
-#define NUMBER_LETTER_COLOR_TABLE_OFFSET 4
+#define DUCK_COLOR_TABLE_OFFSET 0
+#define SHADED_BULLET_COLOR_TABLE_OFFSET 1
+#define UNSHADED_BULLET_COLOR_TABLE_OFFSET 2
+#define NUMBER_LETTER_COLOR_TABLE_OFFSET 3
 
 // Populates attr_table_entry_t array with all of the attr table entries. Because of the number of entries in this table and how much data is stored in each entry, it is more readible to populate the entries programtically than by initializing a global array.
 int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries);

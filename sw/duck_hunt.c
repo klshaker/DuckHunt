@@ -19,10 +19,7 @@ int duck_hunt_fd;
 
 void play_game(){
 
-	time_t now = time(0);
-	printf("TIME %ld\n", now);
-
-	while(1){
+		while(1){
 
 		// Set inintial game state.
 		game_config_t game_data = {
@@ -51,8 +48,12 @@ void play_game(){
 
 		coord_t cross_hair = { .x = 0, .y = 0};
 
+		time_t now = time(0);
+		printf("TIME %ld\n", now);
+		int visible_ducks = 0;
 		while(!is_game_over(&game_data)){
-
+			
+	
 			// poll wii controller.
 			// if trigger pressed
 			move_ducks(ducks, NUM_DUCKS, &game_data);
