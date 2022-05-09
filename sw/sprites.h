@@ -14,7 +14,7 @@
 #include <linux/types.h> 
 #endif
 
-#define NUM_SPRITES 16 
+#define NUM_SPRITES 64 
 
 #define NUM_BULLETS 3
 #define NUM_DUCKS 2
