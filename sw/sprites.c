@@ -15,20 +15,20 @@ const int kSmallGraphicHeight = 16;
 
 attr_table_entry_t attr_table[NUM_SPRITES] = {};
 
-int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
+int build_sprite_attr_table(attr_table_entry_t * entries){
 
-	*num_entries = 0;
+	int num_entries = 0;
 	int i = 0;
 	for(;i < NUM_DUCKS; i++){
 		attr_table_entry_t duck = {
 			.coord = { .x = 0, .y = 0 },
 			// duck starts off screen;
 			.sprite = 0x0,
-			.id = *num_entries,
+			.id = num_entries,
 			.color_table = DUCK_COLOR_TABLE_OFFSET,
 		};
-		entries[*num_entries] = duck;
-		++(*num_entries);
+		entries[num_entries] = duck;
+		++(num_entries);
 	}
 
 	i = 0;
@@ -40,11 +40,11 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 			},
 			// all bullets start off shaded and on screen.
 			.sprite = BULLET_SPRITE_OFFSET,
-			.id = *num_entries,
+			.id = num_entries,
 			.color_table = SHADED_BULLET_COLOR_TABLE_OFFSET
 		};
-		entries[*num_entries] = bullet;
-		++(*num_entries);
+		entries[num_entries] = bullet;
+		++(num_entries);
 	}
 
 	i = 0;
@@ -53,13 +53,13 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 			.coord = { .x = kScoreSpriteXLoc + i * kSmallGraphicWidth+ i* kScoreSpaceApart, .y = kLowerGraphicYLoc },
 			// score starts off 0 0
 			.sprite = NUMBER_SPRITE_OFFSET,
-			.id = *num_entries,
+			.id = num_entries,
 			//TODO(WHY WON"T THIS WORK WITH THE COLOR TABLE OFFSET OF 4?)
 			// this should be SHADED_BULLET_COLOR_TABLE_OFFSET
 			.color_table = NUMBER_LETTER_COLOR_TABLE_OFFSET
 		};
-		entries[*num_entries] = score;
-		++(*num_entries);
+		entries[num_entries] = score;
+		++(num_entries);
 	}
 
 	attr_table_entry_t round = {
@@ -67,23 +67,23 @@ int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries){
 		.coord = {.x = kBulletSpriteXLoc, .y = kLowerGraphicYLoc - kSmallGraphicHeight - 10 },
 		// round starts at 0
 		.sprite = NUMBER_SPRITE_OFFSET,
-		.id = *num_entries,
+		.id = num_entries,
 		.color_table = NUMBER_LETTER_COLOR_TABLE_OFFSET
 	};
 
-	entries[*num_entries] = round;
-	++(*num_entries);
+	entries[num_entries] = round;
+	++(num_entries);
 
 	attr_table_entry_t crosshair;
 	// TODO(kristenshaker): change these coords
 	crosshair.coord.x = 600;
 	crosshair.coord.y = 10;
 	crosshair.sprite = CROSSHAIR_SPRITE_OFFSET;
-	crosshair.id = *num_entries;
+	crosshair.id = num_entries;
 	crosshair.color_table = 0x1;
 
-	entries[*num_entries]=crosshair;
-	++(*num_entries);
+	entries[num_entries]=crosshair;
+	++(num_entries);
 
 	return 1;
 }
@@ -618,7 +618,7 @@ int write_sprite_table(int fd){
 	};
 
 	int i = 0;
-	for(; i < 16; ++i){
+	for(; i < NUM_SPRITES; ++i){
 		if (ioctl(fd, SPRITE_TABLE_WRITE_DATA, &sprites[i])) {
 			perror("ioctl(SPRITE_TABLE_WRITE_DATA) failed");
 			return 0;
@@ -698,13 +698,12 @@ int write_color_table(int fd){
 }
 
 int write_sprite_attr_table(int fd){
-	int num_entries_actual = 0;
-	if(!build_sprite_attr_table(attr_table, &num_entries_actual)){
+	if(!build_sprite_attr_table(attr_table)){
 
 		return 0;
 	}
 	int i = 0;
-	for(; i < num_entries_actual; ++i){
+	for(; i < NUM_ATTR_TABLE_ENTRIES; ++i){
 		if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[i])) {
 			perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
 			return 0;
@@ -749,7 +748,7 @@ return 1;
 }	
 	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].coord.x = x_coord;
 	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].coord.y = y_coord;
-	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].sprite  =   DUCK_DOWN_SPRITE_OFFSET + duck_state;
+	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].sprite  = DUCK_DOWN_SPRITE_OFFSET ;
 
 	if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id])) {
 		perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");

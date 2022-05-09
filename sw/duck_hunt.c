@@ -57,21 +57,23 @@ void play_game(){
 		time_t last_spawned_time = time(0);
 		printf("TIME %ld\n", last_spawned_time);
 
-		while(!is_game_over(&game_data)){
+		//while(!is_game_over(&game_data)){
+		while(1){
 
 			// Introduce a duck every 5 seconds if there are fewer than 2 ducks on the screen.
 			time_t now = time(0);
-			//printf("TIME %ld\n", now - last_spawned_time);
 			
 			if(now - last_spawned_time > SECONDS_BETWEEN_SPAWNS && game_data.visible_ducks < NUM_DUCKS ) {
 				last_spawned_time = now;
 				if(game_data.visible_ducks == 0){ 
 					ducks[0].is_visible = 1;
 					ducks[0].spawn_time = now;
+					ducks[0].state = flap_up;
 				} 
 				else {
 				 	ducks[1].is_visible = 1; 
 					ducks[1].spawn_time = now;
+					ducks[1].state = flap_up;
 				}
 				++game_data.visible_ducks;
 			}
@@ -85,6 +87,7 @@ void play_game(){
 			update_game_state_attrs(duck_hunt_fd, game_data.bullets, game_data.score);
 			usleep(10000);	
 		}
+		printf("GAME_OVER");
 
 	}
 }

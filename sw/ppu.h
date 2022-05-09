@@ -26,9 +26,9 @@ iowrite calls.
 #define OBJ_SPRITE_OFFSET 20
 #define OBJ_COLOR_OFFSET 28
 
-#define ATTR_TABLE_MEMORY_OFFSET    (0x000 * 4)
-#define COLOR_TABLE_MEMORY_OFFSET   (0x100 * 4)
-#define SPRITE_TABLE_MEMORY_OFFSET  (0x200 * 4)
+#define ATTR_TABLE_MEMORY_OFFSET    (0x0000 * 4)
+#define COLOR_TABLE_MEMORY_OFFSET   (0x1000 * 4)
+#define SPRITE_TABLE_MEMORY_OFFSET  (0x2000 * 4)
 
 // first argument is dev.base, second argument is distance from table offset.
 #define ATTR_WRITE(x, y)  (x + ATTR_TABLE_MEMORY_OFFSET    + (y * 4))

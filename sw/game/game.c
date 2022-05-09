@@ -20,7 +20,7 @@ int calculate_hit(duck_t * duck, coord_t cross_hair){
 	coord_t cross_hair_center = get_center_of_graphic(&cross_hair);
 	coord_t duck_center = get_center_of_graphic(&duck->coord);
  
-	return duck->state != flying_away && duck->state != dead && cross_hair_center.x < (duck_center.x + kCrossHairSquareSize) && cross_hair_center.x > (duck_center.x - kCrossHairSquareSize)
+	return duck->is_visible && duck->state != flying_away && duck->state != dead && cross_hair_center.x < (duck_center.x + kCrossHairSquareSize) && cross_hair_center.x > (duck_center.x - kCrossHairSquareSize)
 		&& cross_hair_center.y < (duck_center.y + kCrossHairSquareSize) && cross_hair_center.y > (duck_center.y - kCrossHairSquareSize);
 }
 
@@ -34,6 +34,7 @@ int move_ducks(duck_t* ducks, int num_ducks, game_config_t * game_config){
 int move_duck(duck_t * duck, game_config_t * game_config){
 
 	// a dead duck should not move at all on the x plane. It should drop down where it was shot. Dropping in our coordinate system means adding to the y coord.
+	if(!duck->is_visible) return 1;
 	if(duck->state == dead ){
 		if(duck->coord.y < kVerticalScreenSize + kGraphicSize){
 			duck->coord.y++;	
@@ -41,10 +42,17 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 		return 1;
 	}
 	// a flying away duck should not move on the x plane. It should leave the screen by flyinga directly upward. 
-	if(duck->state == flying_away ){
+	if(duck->is_visible && duck->state == flying_away ){
 		if(duck->coord.y > 0 - kGraphicSize){
 			duck->coord.y--;
 		}
+		else {
+			printf("flew off screen");
+			duck->is_visible = 0;
+			++game_config->num_ducks_seen;
+			--game_config->visible_ducks;
+
+		}	
 		return 1;
 	}
 
@@ -88,13 +96,11 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 
 	// If we have hit this if statememnt we know the duck is not dead or flying a way. A dead duck or a flying away duck should not be constrained by num moves. 
 	printf("spawn time %ld\n",  time(0) - duck->spawn_time);
-	if( duck->is_visible && time(0) - duck->spawn_time  > kMaxDuckTimeSeconds){
+	if(duck->is_visible && time(0) - duck->spawn_time  > kMaxDuckTimeSeconds){
 
 		// set the duck state to flying away.
 		printf("FLYING AWAY");
 		duck->state = flying_away;
-		++game_config->num_ducks_seen;
-		--game_config->visible_ducks;
 	}
 
 	return 1;

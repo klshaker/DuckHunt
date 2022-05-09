@@ -15,6 +15,7 @@
 
 #define NUM_SPRITES 64 
 #define NUM_COLOR_TABLE_ENTRIES 4
+#define NUM_ATTR_TABLE_ENTRIES 64
 
 #define NUM_BULLETS 3
 #define NUM_DUCKS 2
@@ -49,7 +50,7 @@
 #define NUMBER_LETTER_COLOR_TABLE_OFFSET 3
 
 // Populates attr_table_entry_t array with all of the attr table entries. Because of the number of entries in this table and how much data is stored in each entry, it is more readible to populate the entries programtically than by initializing a global array.
-int build_sprite_attr_table(attr_table_entry_t * entries, int* num_entries);
+int build_sprite_attr_table(attr_table_entry_t * entries);
 
 // Writes all entries in the attribution table to FPGA memory using ioctl calls. Returns 1 if writes succesful, 0 on failure.
 int write_sprite_attr_table(int fd);
