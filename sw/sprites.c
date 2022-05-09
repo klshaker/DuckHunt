@@ -127,8 +127,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Flap Down Top Right
-		[16] = {
-			.id  = 16,
+		[2] = {
+			.id  = 2,
 			.line = {
 				0x555ac000,
 				0x5553ff00,
@@ -149,8 +149,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Flap Down Bottom Left
-		[17] = {
-			.id  = 17,
+		[3] = {
+			.id  = 3,
 			.line = {
 				0x0,
 				0x3bc000,
@@ -171,8 +171,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Flap Down Bottom Right
-		[18] = {
-			.id  = 18,
+		[4] = {
+			.id  = 4,
 			.line = {
 				0x1,
 				0x1,
@@ -193,8 +193,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Flap Up Top Left
-		[2] = {
-			.id  = 0x2,
+		[5] = {
+			.id  = 5,
 			.line = {
 				0x0,
 				0x50000000,
@@ -215,8 +215,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Flap Up Top Right
-		[19] = {
-			.id  = 19,
+		[6] = {
+			.id  = 6,
 			.line = {
 				0x5aa95555,
 				0xaaa95558,
@@ -237,8 +237,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Flap Up Bottom Left
-		[20] = {
-			.id  = 20,
+		[7] = {
+			.id  = 7,
 			.line = {
 				0x14,
 				0x19,
@@ -259,8 +259,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Flap Up Bottom Right
-		[21] = {
-			.id  = 21,
+		[8] = {
+			.id  = 8,
 			.line = {
 				0x255,
 				0x15,
@@ -281,8 +281,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Dead Top
-		[3] = {
-			.id  = 0x3,
+		[9] = {
+			.id  = 9,
 			.line = {
 				0x0,
 				0x110000,
@@ -303,8 +303,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Dead Bottom
-		[22] = {
-			.id  = 22,
+		[10] = {
+			.id  = 10,
 			.line = {
 				0x556800,
 				0x556800,
@@ -324,9 +324,42 @@ int write_sprite_table(int fd){
 				0x0,
 			},
 		},
-		// Duck Flying Away
-		[4] = {
-			.id  = 0x4,
+		// Duck Flying Away TODO
+		[11] = {
+			.id  = 11,
+			.line = {
+				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
+				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
+				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
+				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+			},
+
+		},
+		// Duck Flying Away TODO
+		[12] = {
+			.id  = 12,
+			.line = {
+				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
+				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
+				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
+				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+			},
+
+		},
+		// Duck Flying Away TODO
+		[13] = {
+			.id  = 13,
+			.line = {
+				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
+				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
+				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
+				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+			},
+
+		},
+		// Duck Flying Away TODO
+		[14] = {
+			.id  = 14,
 			.line = {
 				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
 				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
@@ -336,8 +369,8 @@ int write_sprite_table(int fd){
 
 		},
 		// Bullet Shaded & Non Shaded
-		[5] = {
-			.id  = 0x5,
+		[15] = {
+			.id  = 15,
 			.line = {
 				0x0,
 				0x0,
@@ -360,8 +393,8 @@ int write_sprite_table(int fd){
 		},
 		// Number Sprites
 		// 0 
-		[6] = {
-			.id  = 0x6,
+		[16] = {
+			.id  = 16,
 			.line = {
 				0x0,
 				0x555500,
@@ -383,8 +416,8 @@ int write_sprite_table(int fd){
 
 		},
 		// 1 
-		[7] = {
-			.id  = 0x7,
+		[17] = {
+			.id  = 17,
 			.line = {
 				0x0,
 				0x15540,
@@ -406,8 +439,8 @@ int write_sprite_table(int fd){
 
 		},
 		// 2
-		[8] = {
-			.id = 0x8,
+		[18] = {
+			.id = 18,
 			.line = {
 				0x0,
 				0x555550,
@@ -428,8 +461,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 3
-		[9] = {
-			.id = 0x9,
+		[19] = {
+			.id = 19,
 			.line = {
 				0x0,
 				0x555550,
@@ -450,8 +483,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 4
-		[10] = {
-			.id = 10,
+		[20] = {
+			.id = 20,
 			.line = {
 				0x0,
 				0x5555550,
@@ -472,8 +505,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 5
-		[11] = {
-			.id = 11,
+		[21] = {
+			.id = 21,
 			.line = {
 				0x0,
 				0x5555550,
@@ -494,8 +527,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 6
-		[12] = {
-			.id = 12,
+		[22] = {
+			.id = 22,
 			.line = {
 				0x0,
 				0x5550,
@@ -516,8 +549,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 7
-		[13] = {
-			.id = 13,
+		[23] = {
+			.id = 23,
 			.line = {
 				0x0,
 				0x555550,
@@ -538,8 +571,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 8
-		[14] = {
-			.id = 14,
+		[24] = {
+			.id = 24,
 			.line = {
 				0x0,
 				0x555500,
@@ -560,8 +593,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 9
-		[15] = {
-			.id = 15,
+		[25] = {
+			.id = 25,
 			.line = {
 				0x0,
 				0x555500,
