@@ -68,7 +68,7 @@ module ppu
 
 	assign a_addr = mem_write[0] ? w_addr[5:0]: ar_addr[5:0];
 	assign c_addr = mem_write[1] ? w_addr[5:0]: tcolor;
-	assign s_addr = mem_write[2] ? w_addr[7:0]: sr_addr;
+	assign s_addr = mem_write[2] ? w_addr[9:0]: sr_addr;
 
 	vga_counters 		counters(.clk50(clk), .*);
 	memory #(32,  64, 6) 	attr_table  (.clk(clk), .we(mem_write[0]), .addr(a_addr[5:0]), .data_in(w_data), .data_out(sprite_attr));
