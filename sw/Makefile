@@ -1,3 +1,4 @@
+LDLIBS = -lwiiuse -lm -lbluetooth
 ifneq (${KERNELRELEASE},)
 
 # KERNELRELEASE defined: we are being compiled as part of the Kernel
@@ -15,6 +16,8 @@ default: module duck_hunt
 
 duck_hunt.o: duck_hunt.c game/game.h sprites.h
 	gcc -c duck_hunt.c -o duck_hunt.o -lm
+
+duck_hunt_wii: duck_hunt_wii.o game/game.o sprites.o game/game.h sprites.h 
 
 duck_hunt: duck_hunt.o game/game.o sprites.o 
 	gcc -o duck_hunt duck_hunt.o game/game.o sprites.o -lm
