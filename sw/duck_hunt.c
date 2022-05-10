@@ -62,7 +62,7 @@ void play_game(){
 			// Introduce a duck every 5 seconds if there are fewer than 2 ducks on the screen.
 			time_t now = time(0);
 			if(now - last_spawned_time > SECONDS_BETWEEN_SPAWNS 
-				&& game_data.visible_ducks < NUM_DUCKS ) {
+					&& game_data.visible_ducks < NUM_DUCKS ) {
 
 				//printf("trying to spawn duck\n");
 				last_spawned_time = now;
@@ -89,25 +89,25 @@ void play_game(){
 		printf("GAME_OVER");
 
 	}
+}
+
+int main()
+{
+	static const char filename[] = "/dev/ppu";
+
+	printf("Duck Hunt userspace program started\n");
+
+	if ( (duck_hunt_fd = open(filename, O_RDWR)) == -1) {
+		fprintf(stderr, "could not open %s\n", filename);
+		return -1;
 	}
 
-	int main()
-	{
-		static const char filename[] = "/dev/ppu";
+	write_sprite_table(duck_hunt_fd);
+	write_color_table(duck_hunt_fd);
+	write_sprite_attr_table(duck_hunt_fd);
 
-		printf("Duck Hunt userspace program started\n");
+	play_game();
 
-		if ( (duck_hunt_fd = open(filename, O_RDWR)) == -1) {
-			fprintf(stderr, "could not open %s\n", filename);
-			return -1;
-		}
-
-		write_sprite_table(duck_hunt_fd);
-		write_color_table(duck_hunt_fd);
-		write_sprite_attr_table(duck_hunt_fd);
-
-		play_game();
-
-		printf("VGA BALL Userspace program terminating\n");
-		return 0;
-	}
+	printf("VGA BALL Userspace program terminating\n");
+	return 0;
+}
