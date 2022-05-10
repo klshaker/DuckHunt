@@ -61,14 +61,14 @@ module ppu
 	// visible on screen.
 	logic [5:0]		ac, vc;
 	logic [9:0]		tx; // ty;
-	logic [7:0]		sr_addr, ar_addr;
+	logic [9:0]		sr_addr, ar_addr;
 	logic [5:0]		tcolor;
 	logic [15:0]		haddr;
 
 
 	assign a_addr = mem_write[0] ? w_addr[5:0]: ar_addr[5:0];
 	assign c_addr = mem_write[1] ? w_addr[5:0]: tcolor;
-	assign s_addr = mem_write[2] ? w_addr[7:0]: sr_addr;
+	assign s_addr = mem_write[2] ? w_addr[9:0]: sr_addr;
 
 	vga_counters 		counters(.clk50(clk), .*);
 	memory #(32,  64, 6) 	attr_table  (.clk(clk), .we(mem_write[0]), .addr(a_addr[5:0]), .data_in(w_data), .data_out(sprite_attr));
@@ -97,9 +97,9 @@ module ppu
 			// 0X0000 Sprite Attribute Table 
 			// 0x0100 Sprite Table 
 			// 0x0200 Color Table
-			case(address[9:8])
-				2'b00: mem_write[0]	<= 1'b1;
-				2'b01: mem_write[1]	<= 1'b1;
+			case(address[15:12])
+				4'b0000: mem_write[0]	<= 1'b1;
+				4'b0001: mem_write[1]	<= 1'b1;
 				default: mem_write[2]	<= 1'b1;
 			endcase
 			w_addr <= address;
@@ -119,8 +119,8 @@ module ppu
 				if (ac == SPRITE_ATTRS - 1'b1 || vc == VISIBLE_SPRITES - 1'b1 || hcount == 11'd1598) state <= IDLE;
 				else if (vcount <= sprite_attr[9:0] + 15 && vcount >= sprite_attr[9:0]) begin
 					tx	<= sprite_attr[19:10];
-					sr_addr	<= sprite_attr[27:20] + (vcount - sprite_attr[9:0]);
-					color[vc]	<= sprite_attr[31:28];
+					sr_addr	<= (sprite_attr[27:20] << 4) + (vcount - sprite_attr[9:0]);
+					color[vc]	<= sprite_attr[31:28] << 2;
 					state		<= S_INDEX;
 
 				end else begin

@@ -325,27 +325,49 @@ int write_sprite_table(int fd){
 				0x0,
 			},
 		},
-		// Duck Flying Away TODO
+		// Duck Dead Empty
 		[11] = {
 			.id  = 11,
 			.line = {
-				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
-				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
-				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
-				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
 			},
-
 		},
-		// Duck Flying Away TODO
+		// Duck Dead Empty 2
 		[12] = {
 			.id  = 12,
 			.line = {
-				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
-				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
-				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
-				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
 			},
-
 		},
 		// Duck Flying Away TODO
 		[13] = {
@@ -369,9 +391,31 @@ int write_sprite_table(int fd){
 			},
 
 		},
-		// Bullet Shaded & Non Shaded
+		// Duck Flying Away TODO
 		[15] = {
 			.id  = 15,
+			.line = {
+				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
+				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
+				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
+				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+			},
+
+		},
+		// Duck Flying Away TODO
+		[16] = {
+			.id  = 16,
+			.line = {
+				0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0, 0xF0F0F0F0,
+				0xF00FF00F, 0xF00FF00F, 0xF00FF00F, 0xF00FF00F,
+				0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA, 0xAAAAAAAA,
+				0x55555555, 0x55555555, 0x55555555, 0x55555555,
+			},
+
+		},
+		// Bullet Shaded & Non Shaded
+		[17] = {
+			.id  = 17,
 			.line = {
 				0x0,
 				0x0,
@@ -394,8 +438,8 @@ int write_sprite_table(int fd){
 		},
 		// Number Sprites
 		// 0 
-		[16] = {
-			.id  = 16,
+		[18] = {
+			.id  = 18,
 			.line = {
 				0x0,
 				0x555500,
@@ -417,8 +461,8 @@ int write_sprite_table(int fd){
 
 		},
 		// 1 
-		[17] = {
-			.id  = 17,
+		[19] = {
+			.id  = 19,
 			.line = {
 				0x0,
 				0x15540,
@@ -440,8 +484,8 @@ int write_sprite_table(int fd){
 
 		},
 		// 2
-		[18] = {
-			.id = 18,
+		[20] = {
+			.id = 20,
 			.line = {
 				0x0,
 				0x555550,
@@ -462,8 +506,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 3
-		[19] = {
-			.id = 19,
+		[21] = {
+			.id = 21,
 			.line = {
 				0x0,
 				0x555550,
@@ -484,8 +528,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 4
-		[20] = {
-			.id = 20,
+		[22] = {
+			.id = 22,
 			.line = {
 				0x0,
 				0x5555550,
@@ -506,8 +550,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 5
-		[21] = {
-			.id = 21,
+		[23] = {
+			.id = 23,
 			.line = {
 				0x0,
 				0x5555550,
@@ -528,8 +572,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 6
-		[22] = {
-			.id = 22,
+		[24] = {
+			.id = 24,
 			.line = {
 				0x0,
 				0x5550,
@@ -550,8 +594,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 7
-		[23] = {
-			.id = 23,
+		[25] = {
+			.id = 25,
 			.line = {
 				0x0,
 				0x555550,
@@ -572,8 +616,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 8
-		[24] = {
-			.id = 24,
+		[26] = {
+			.id = 26,
 			.line = {
 				0x0,
 				0x555500,
@@ -594,8 +638,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 9
-		[25] = {
-			.id = 25,
+		[27] = {
+			.id = 27,
 			.line = {
 				0x0,
 				0x555500,
@@ -612,6 +656,28 @@ int write_sprite_table(int fd){
 				0x5a50000,
 				0x5550000,
 				0x5550000,
+				0x0,
+			}
+		},
+		// Crosshair
+		[28] = {
+			.id = 28,
+			.line = {
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0xfc3f00,
+				0xffff00,
+				0xffff00,
+				0x3ffc00,
+				0x3ffc00,
+				0xffff00,
+				0xffff00,
+				0xfc3f00,
+				0x0,
+				0x0,
+				0x0,
 				0x0,
 			}
 		},
