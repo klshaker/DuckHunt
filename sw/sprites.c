@@ -76,6 +76,7 @@ int build_sprite_attr_table(attr_table_entry_t * entries){
 
 	attr_table_entry_t crosshair;
 	// TODO(kristenshaker): change these coords
+	printf("Crosshair at: %d \n", num_entries);
 	crosshair.coord.x = 600;
 	crosshair.coord.y = 10;
 	crosshair.sprite = CROSSHAIR_SPRITE_OFFSET;
@@ -831,7 +832,7 @@ int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_
 }
 
 int update_crosshair_attr(int fd, int x_coord, int y_coord) {
-	int attr_table_entry = CROSSHAIR_SPRITE_OFFSET;
+	int attr_table_entry = CROSSHAIR_ATTR_TABLE_OFFSET;
 	attr_table[attr_table_entry].coord.x = x_coord;
 	attr_table[attr_table_entry].coord.y = y_coord;
 
