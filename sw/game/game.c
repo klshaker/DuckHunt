@@ -7,7 +7,7 @@
 const int kVerticalScreenSize = 300;
 const int kHorizontalScreenSize = 640;
 const double kPI = 3.14159;
-const int kMaxDuckTimeSeconds = 10;
+const int kMaxDuckTimeSeconds = 8;
 const int kMaxDucksPerGame = 8;
 const int kCrossHairSquareSize = 10;
 const int kGraphicSize = 32;
@@ -58,21 +58,22 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 
 	if(duck->coord.x <= 0) {
 		duck->x_direction = east;
-		duck->y_angle = rand() % 90;
+		duck->y_angle = rand() % 45;
 	}
 	// right edge of the graphic at the edge of the screen
 	if(duck->coord.x >= kHorizontalScreenSize - kGraphicSize - 1){
 		duck->x_direction = west;
-		duck->y_angle = rand() % 90;
+		duck->y_angle = rand() % 45;
 	}
 	// at the top of the screen
 	if(duck->coord.y <= 0) {
 		duck->y_direction = south;
-		duck->y_angle = rand() % 90;
+		duck->state = flap_down;
+		duck->y_angle = rand() % 45;
 	}
 	if(duck->coord.y >= kVerticalScreenSize - kGraphicSize - 1) {
 		duck->y_direction = north;
-		duck->y_angle = rand() % 90;
+		duck->y_angle = rand() % 45;
 	}
 
 	// Otherwise a duck should continue moving in the x and y direction it was previously.
@@ -101,6 +102,10 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 		printf("FLYING AWAY\n");
 		duck->state = flying_away;
 	}
+	
+	if(duck->y_direction == north){
+		duck->state = (time(0) % 2) ? flap_up : flap_down;
+	}	
 
 	return 1;
 }

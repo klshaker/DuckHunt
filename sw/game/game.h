@@ -20,7 +20,7 @@ extern const int kMaxNumDuckMoves;
 // How many ducks to give the player an opportunity to shoot before we end the game.
 extern const int kMaxDucksPerGame;
 
-enum duck_state { flap_up, flap_down, dead, flying_away };
+enum duck_state { flap_down, flap_up,  dead, flying_away };
 // east and west denote movement on the x plane. north and south denote movement
 // on the y plane.
 enum direction { east, west, north, south };

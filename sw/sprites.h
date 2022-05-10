@@ -27,23 +27,20 @@
 #define DUCK_DOWN_SPRITE_OFFSET 1
 #define DUCK_UP_SPRITE_OFFSET 5 
 #define DUCK_DEAD_SPRITE_OFFSET 9
-#define BULLET_SPRITE_OFFSET 15
+#define BULLET_SPRITE_OFFSET 17
 // Shaded and non shaded bullets will share the same sprite but point
 // to different color tables.
-#define NUMBER_SPRITE_OFFSET 16
+#define NUMBER_SPRITE_OFFSET 18
 // 6 + 10 digits = 16
-#define CROSSHAIR_SPRITE_OFFSET 17
+#define CROSSHAIR_SPRITE_OFFSET 28
 
 // Offsets of various classes of entries in the sprite attribution table.
 // The order in which these entries are laid out is an implementation decision.
 #define DUCK_ATTR_TABLE_OFFSET 0
-// 0 + 2 = 2
-#define BULLET_ATTR_TABLE_OFFSET DUCK_ATTR_TABLE_OFFSET + NUM_DUCKS 
-// 2 + 3 = 5
-#define SCORE_ATTR_TABLE_OFFSET BULLET_ATTR_TABLE_OFFSET + NUM_BULLETS
-// 5 + 2 = 7
-#define ROUND_ATTR_TABLE_OFFSET SCORE_ATTR_TABLE_OFFSET + NUM_SCORE_DIGITS
-#define CROSSHAIR_ATTR_TABLE_OFFSET ROUND_ATTR_TABLE_OFFSET + 1
+#define BULLET_ATTR_TABLE_OFFSET 8
+#define SCORE_ATTR_TABLE_OFFSET 11
+#define ROUND_ATTR_TABLE_OFFSET 13
+#define CROSSHAIR_ATTR_TABLE_OFFSET 14
 
 #define DUCK_COLOR_TABLE_OFFSET 0
 #define SHADED_BULLET_COLOR_TABLE_OFFSET 1

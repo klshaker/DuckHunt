@@ -83,7 +83,6 @@ int build_sprite_attr_table(attr_table_entry_t * entries){
 	crosshair.color_table = 0x1;
 
 	entries[num_entries]=crosshair;
-	++(num_entries);
 
 	return 1;
 }
@@ -816,8 +815,8 @@ int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_
 	for(; i < NUM_SPRITES_PER_DUCK; ++i){
 
 		int attr_table_entry = DUCK_ATTR_TABLE_OFFSET + duck_id * NUM_SPRITES_PER_DUCK + i;
-		attr_table[attr_table_entry].coord.x = x_coord + 16 * (i / 2);
-		attr_table[attr_table_entry].coord.y = y_coord + 16 * (i % 2) ;
+		attr_table[attr_table_entry].coord.x = x_coord + SPRITE_TABLE_ENTRY_SIZE * (i / 2);
+		attr_table[attr_table_entry].coord.y = y_coord + SPRITE_TABLE_ENTRY_SIZE * (i % 2) ;
 		attr_table[attr_table_entry].sprite  = DUCK_DOWN_SPRITE_OFFSET + duck_state * NUM_SPRITES_PER_DUCK + i ;
 		
 		printf("printing for duck %d at attr entry %d sprite number %d :\n", duck_id, attr_table_entry, attr_table[attr_table_entry].sprite);

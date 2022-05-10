@@ -57,12 +57,12 @@ void play_game(){
 		time_t last_spawned_time = time(0);
 		printf("TIME %ld\n", last_spawned_time);
 
-		//while(!is_game_over(&game_data)){
-		while(1){
+		while(!is_game_over(&game_data)){
 
 			// Introduce a duck every 5 seconds if there are fewer than 2 ducks on the screen.
 			time_t now = time(0);
-			if(now - last_spawned_time > SECONDS_BETWEEN_SPAWNS && game_data.visible_ducks < NUM_DUCKS ) {
+			if(now - last_spawned_time > SECONDS_BETWEEN_SPAWNS 
+				&& game_data.visible_ducks < NUM_DUCKS ) {
 
 				//printf("trying to spawn duck\n");
 				last_spawned_time = now;
