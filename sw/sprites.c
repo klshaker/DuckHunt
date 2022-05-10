@@ -829,3 +829,15 @@ int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_
 
 	return 1;
 }
+
+int update_crosshair_attr(int fd, int x_coord, int y_coord) {
+	int attr_table_entry = CROSSHAIR_SPRITE_OFFSET;
+	attr_table[attr_table_entry].coord.x = x_coord;
+	attr_table[attr_table_entry].coord.y = y_coord;
+
+	if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[attr_table_entry])) {
+		perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
+		return 0;
+	}
+	return 1;
+}
