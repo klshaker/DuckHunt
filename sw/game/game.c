@@ -5,7 +5,7 @@
 #include <time.h>
 
 const int kVerticalScreenSize = 300;
-const int kHorizontalScreenSize = 500;
+const int kHorizontalScreenSize = 640;
 const double kPI = 3.14159;
 const int kMaxDuckTimeSeconds = 10;
 const int kMaxDucksPerGame = 8;
@@ -19,7 +19,7 @@ coord_t get_center_of_graphic(coord_t* top_left) {
 int calculate_hit(duck_t * duck, coord_t cross_hair){
 	coord_t cross_hair_center = get_center_of_graphic(&cross_hair);
 	coord_t duck_center = get_center_of_graphic(&duck->coord);
- 
+
 	return duck->is_visible && duck->state != flying_away && duck->state != dead && cross_hair_center.x < (duck_center.x + kCrossHairSquareSize) && cross_hair_center.x > (duck_center.x - kCrossHairSquareSize)
 		&& cross_hair_center.y < (duck_center.y + kCrossHairSquareSize) && cross_hair_center.y > (duck_center.y - kCrossHairSquareSize);
 }
@@ -42,16 +42,16 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 		return 1;
 	}
 	// a flying away duck should not move on the x plane. It should leave the screen by flyinga directly upward. 
-	if(duck->is_visible && duck->state == flying_away ){
+	if(duck->state == flying_away ){
 		if(duck->coord.y > 0 - kGraphicSize){
 			duck->coord.y--;
 		}
 		else {
-			printf("flew off screen");
+			printf("flew off screen\n");
 			duck->is_visible = 0;
 			++game_config->num_ducks_seen;
 			--game_config->visible_ducks;
-
+			printf("%d", game_config->visible_ducks);
 		}	
 		return 1;
 	}
@@ -95,11 +95,10 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 	}
 
 	// If we have hit this if statememnt we know the duck is not dead or flying a way. A dead duck or a flying away duck should not be constrained by num moves. 
-	printf("spawn time %ld\n",  time(0) - duck->spawn_time);
-	if(duck->is_visible && time(0) - duck->spawn_time  > kMaxDuckTimeSeconds){
-
+	//printf("spawn time %ld\n",  time(0) - duck->spawn_time);
+	if(time(0) - duck->spawn_time  > kMaxDuckTimeSeconds){
 		// set the duck state to flying away.
-		printf("FLYING AWAY");
+		printf("FLYING AWAY\n");
 		duck->state = flying_away;
 	}
 
@@ -128,4 +127,15 @@ int shoot_at_ducks(duck_t* ducks, int num_ducks, coord_t cross_hair, game_config
 
 int is_game_over(game_config_t * config){
 	return config->bullets ==0 || config->num_ducks_seen == kMaxDucksPerGame;
+}
+int spawn_duck(duck_t * duck, game_config_t * config){
+
+	duck->coord.x = 250;
+	duck->coord.y = kVerticalScreenSize;
+	duck->is_visible = 1;
+	duck->spawn_time = time(0);
+	duck->state = flap_up;
+
+	config->visible_ducks++;
+
 }

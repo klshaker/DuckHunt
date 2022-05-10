@@ -75,5 +75,6 @@ int move_ducks(duck_t* ducks, int num_ducks, game_config_t * game_config);
 
 // game is over if we are out of bullets or if we've seen a set number of ducks.
 int is_game_over(game_config_t * config);
+int spawn_duck(duck_t * duck, game_config_t * config);
 
 #endif

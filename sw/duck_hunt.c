@@ -62,20 +62,20 @@ void play_game(){
 
 			// Introduce a duck every 5 seconds if there are fewer than 2 ducks on the screen.
 			time_t now = time(0);
-			
+			printf("%d\n", game_data.visible_ducks);
 			if(now - last_spawned_time > SECONDS_BETWEEN_SPAWNS && game_data.visible_ducks < NUM_DUCKS ) {
+
+				//printf("trying to spawn duck\n");
 				last_spawned_time = now;
-				if(game_data.visible_ducks == 0){ 
-					ducks[0].is_visible = 1;
-					ducks[0].spawn_time = now;
-					ducks[0].state = flap_up;
-				} 
-				else {
-				 	ducks[1].is_visible = 1; 
-					ducks[1].spawn_time = now;
-					ducks[1].state = flap_up;
+				int i = 0;
+				// spawn the first duck that is currently not visible.
+				for(; i < NUM_DUCKS; ++i){
+					if(!ducks[i].is_visible){
+						spawn_duck(&ducks[i], &game_data);
+						break;
+					}
 				}
-				++game_data.visible_ducks;
+
 			}
 			// poll wii controller.
 			// if trigger pressed
@@ -90,25 +90,25 @@ void play_game(){
 		printf("GAME_OVER");
 
 	}
-}
-
-int main()
-{
-	static const char filename[] = "/dev/ppu";
-
-	printf("Duck Hunt userspace program started\n");
-
-	if ( (duck_hunt_fd = open(filename, O_RDWR)) == -1) {
-		fprintf(stderr, "could not open %s\n", filename);
-		return -1;
 	}
 
-	write_sprite_table(duck_hunt_fd);
-	write_color_table(duck_hunt_fd);
-	write_sprite_attr_table(duck_hunt_fd);
+	int main()
+	{
+		static const char filename[] = "/dev/ppu";
 
-	play_game();
+		printf("Duck Hunt userspace program started\n");
 
-	printf("VGA BALL Userspace program terminating\n");
-	return 0;
-}
+		if ( (duck_hunt_fd = open(filename, O_RDWR)) == -1) {
+			fprintf(stderr, "could not open %s\n", filename);
+			return -1;
+		}
+
+		write_sprite_table(duck_hunt_fd);
+		write_color_table(duck_hunt_fd);
+		write_sprite_attr_table(duck_hunt_fd);
+
+		play_game();
+
+		printf("VGA BALL Userspace program terminating\n");
+		return 0;
+	}
