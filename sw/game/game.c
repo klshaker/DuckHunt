@@ -10,7 +10,7 @@ const double kPI = 3.14159;
 const int kMaxDuckTimeSeconds = 10;
 const int kMaxDucksPerGame = 8;
 const int kCrossHairSquareSize = 10;
-const int kGraphicSize = 16;
+const int kGraphicSize = 32;
 
 coord_t get_center_of_graphic(coord_t* top_left) {
 	return (coord_t){.x = top_left->x + kGraphicSize/2, .y = top_left->y + kGraphicSize/2};

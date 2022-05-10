@@ -19,7 +19,7 @@ int build_sprite_attr_table(attr_table_entry_t * entries){
 
 	int num_entries = 0;
 	int i = 0;
-	for(;i < NUM_DUCKS; i++){
+	for(;i < NUM_DUCKS * NUM_SPRITES_PER_DUCK; ++i){
 		attr_table_entry_t duck = {
 			.coord = { .x = 0, .y = 0 },
 			// duck starts off screen;
@@ -744,16 +744,23 @@ int update_game_state_attrs(int fd, int num_bullets, int score){
 int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id, int visible) {
 
 	if(!visible){
-return 1;
-}	
-	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].coord.x = x_coord;
-	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].coord.y = y_coord;
-	attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id].sprite  = DUCK_DOWN_SPRITE_OFFSET ;
+		return 1;
+	}	
+	int i = 0;
+	for(; i < NUM_SPRITES_PER_DUCK; ++i){
 
-	if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[DUCK_ATTR_TABLE_OFFSET + duck_id])) {
-		perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
-		return 0;
+		int attr_table_entry = DUCK_ATTR_TABLE_OFFSET + duck_id * NUM_SPRITES_PER_DUCK + i;
+		attr_table[attr_table_entry].coord.x = x_coord + 16 * (i / 2);
+		attr_table[attr_table_entry].coord.y = y_coord + 16 * (i % 2) ;
+		attr_table[attr_table_entry].sprite  = DUCK_DOWN_SPRITE_OFFSET + duck_state * NUM_SPRITES_PER_DUCK + i ;
+		
+		printf("printing for duck %d at attr entry %d sprite number %d :\n", duck_id, attr_table_entry, attr_table[attr_table_entry].sprite);
+		if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[attr_table_entry])) {
+			perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
+			return 0;
+		}
 	}
+
 
 	return 1;
 }
