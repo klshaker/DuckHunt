@@ -55,7 +55,7 @@ typedef struct {
 
 typedef struct {
 	unsigned char bullets, score, round;
-	int num_ducks_seen;
+	int spawned_ducks;
 	int visible_ducks;
 } game_config_t;
 

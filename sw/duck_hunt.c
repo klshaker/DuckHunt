@@ -16,7 +16,7 @@
 #include <time.h>
 
 
-#define SECONDS_BETWEEN_SPAWNS 5 
+#define SECONDS_BETWEEN_SPAWNS 1 
 
 int duck_hunt_fd;
 
@@ -29,7 +29,7 @@ void play_game(){
 			.bullets = kBulletsPerRound, 
 			.score = 0, 
 			.round = 0,
-			.num_ducks_seen = 0,
+			.spawned_ducks = 0,
 			.visible_ducks = 0
 		};
 
@@ -50,7 +50,7 @@ void play_game(){
 			// Introduce a duck every 5 seconds if there are fewer than 2 ducks on the screen.
 			time_t now = time(0);
 			if(now - last_spawned_time > SECONDS_BETWEEN_SPAWNS 
-					&& game_data.visible_ducks < NUM_DUCKS ) {
+				&& game_data.visible_ducks < NUM_DUCKS && game_data.spawned_ducks < kDucksPerRound) {
 
 				//printf("trying to spawn duck\n");
 				last_spawned_time = now;
@@ -69,10 +69,12 @@ void play_game(){
 					update_duck_attr(duck_hunt_fd, ducks[i].coord.x, ducks[i].coord.y, ducks[i].state, ducks[i].id);
 				}
 			}
-			update_game_state_attrs(duck_hunt_fd, game_data.bullets, game_data.score);
 			if(is_round_over(&game_data)){
-			    start_new_round(&game_data);
+			   	start_new_round(&game_data);
+				update_game_state_attrs(duck_hunt_fd, game_data.bullets, game_data.score, game_data.round);
+				usleep(2000000);
 			}
+			update_game_state_attrs(duck_hunt_fd, game_data.bullets, game_data.score, game_data.round);
 			usleep(10000);	
 		}
 		printf("GAME_OVER");
