@@ -57,22 +57,22 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 		return 1;
 	}
 
-	if(duck->coord.x <= 0) {
+	if(duck->coord.x <= 0 || (rand() % 256 == 0)) {
 		duck->x_direction = east;
 		duck->y_angle = rand() % 45;
 	}
 	// right edge of the graphic at the edge of the screen
-	else if(duck->coord.x >= kHorizontalScreenSize - kGraphicSize - 1){
+	else if(duck->coord.x >= kHorizontalScreenSize - kGraphicSize - 1 || (rand() % 256 == 0)){
 		duck->x_direction = west;
 		duck->y_angle = rand() % 45;
 	}
 	// at the top of the screen
-	if(duck->coord.y <= 0) {
+	if(duck->coord.y <= 0 || (rand() % 256 == 0)) {
 		duck->y_direction = south;
 		duck->state = flap_down;
 		duck->y_angle = rand() % 45;
 	}
-	else if(duck->coord.y >= kVerticalScreenSize - kGraphicSize - 1) {
+	else if(duck->coord.y >= kVerticalScreenSize - kGraphicSize - 1 || (rand() % 256 == 0)) {
 		duck->y_direction = north;
 		duck->y_angle = rand() % 45;
 	}
