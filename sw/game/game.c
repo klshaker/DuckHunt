@@ -63,7 +63,7 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 		duck->y_angle = rand() % 45;
 	}
 	// right edge of the graphic at the edge of the screen
-	if(duck->coord.x >= kHorizontalScreenSize - kGraphicSize - 1){
+	else if(duck->coord.x >= kHorizontalScreenSize - kGraphicSize - 1){
 		duck->x_direction = west;
 		duck->y_angle = rand() % 45;
 	}
@@ -73,28 +73,29 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 		duck->state = flap_down;
 		duck->y_angle = rand() % 45;
 	}
-	if(duck->coord.y >= kVerticalScreenSize - kGraphicSize - 1) {
+	else if(duck->coord.y >= kVerticalScreenSize - kGraphicSize - 1) {
 		duck->y_direction = north;
 		duck->y_angle = rand() % 45;
 	}
+	printf("angle %f\n", duck->y_angle);
 
 	// Otherwise a duck should continue moving in the x and y direction it was previously.
 	if(duck->x_direction == east){
-		duck->coord.x++;
+		duck->coord.x += ceil(duck->velocity * cos(duck->y_angle*kPI/180.0));
 	}
-	if(duck->x_direction == west){
-		duck->coord.x--;
+	else if(duck->x_direction == west){
+		duck->coord.x -= ceil(duck->velocity * cos(duck->y_angle*kPI/180.0));
 	}
 	if(duck->y_direction == north){
 		// convert to radians and calculate the change in y given a change of 1 unit in the x direction.
 		// calculations need to take place as doubles and then be ceiled so they will make sense as ints.
-		duck->coord.y -= ceil(tan(duck->y_angle*kPI/180.0));
+		duck->coord.y -= ceil(duck->velocity * sin(duck->y_angle*kPI/180.0));
 		//printf("angle %f\n", duck->y_angle);
 		//printf("tan: %f\n", tan(duck->y_angle*kPI/180.0));
 	}
-	if(duck->y_direction == south){
+	else if(duck->y_direction == south){
 		// convert to radians and calculate the change in y given a change of 1 unit in the x direction.
-		duck->coord.y += ceil(tan(duck->y_angle*kPI/180));
+		duck->coord.y += ceil(duck->velocity * sin(duck->y_angle*kPI/180.0));
 	}
 
 	// If we have hit this if statememnt we know the duck is not dead or flying a way. A dead duck or a flying away duck should not be constrained by num moves. 

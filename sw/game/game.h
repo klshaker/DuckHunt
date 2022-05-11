@@ -44,6 +44,8 @@ typedef struct {
 	// Angle in degrees that ducks will move at an angle on the y plane to make game_play more interesting. 
 	// an angle of 45 degrees denotes 1 unit of movement in the y plane for every one unit of movement in the x plane.
 	double y_angle;
+	// Velocity multiplier
+	double velocity;
 	// unique_id associated with each duck.
 	int id; 
 	enum duck_state state;
