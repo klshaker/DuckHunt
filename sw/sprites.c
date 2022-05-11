@@ -1306,17 +1306,32 @@ int update_game_state_attrs(int fd, int num_bullets, int score, int round){
 	return 1;
 }
 
-int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id) {
+int update_duck_attr(int fd, duck_t * duck) {
 
 	int i = 0;
 	for(; i < NUM_SPRITES_PER_DUCK; ++i){
 
-		int attr_table_entry = DUCK_ATTR_TABLE_OFFSET + duck_id * NUM_SPRITES_PER_DUCK + i;
-		attr_table[attr_table_entry].coord.x = x_coord + SPRITE_TABLE_ENTRY_SIZE * (i / 2);
-		attr_table[attr_table_entry].coord.y = y_coord + SPRITE_TABLE_ENTRY_SIZE * (i % 2) ;
-		attr_table[attr_table_entry].sprite  = DUCK_DOWN_SPRITE_OFFSET + duck_state * NUM_SPRITES_PER_DUCK + i ;
-
-		//		printf("printing for duck %d at attr entry %d sprite number %d :\n", duck_id, attr_table_entry, attr_table[attr_table_entry].sprite);
+		int attr_table_entry = DUCK_ATTR_TABLE_OFFSET + duck->id * NUM_SPRITES_PER_DUCK + i;
+		attr_table[attr_table_entry].coord.x = duck->coord.x + SPRITE_TABLE_ENTRY_SIZE * (i / 2);
+		attr_table[attr_table_entry].coord.y = duck->coord.y + SPRITE_TABLE_ENTRY_SIZE * (i % 2) ;
+		if(duck->state == flap_up && duck->x_direction == east){
+			attr_table[attr_table_entry].sprite  = DUCK_UP_EAST_SPRITE_OFFSET  + i ;
+		}	
+		if(duck->state == flap_up && duck->x_direction == west){
+			attr_table[attr_table_entry].sprite  = DUCK_UP_WEST_SPRITE_OFFSET  + i ;
+		}
+		if(duck->state == flap_down && duck->x_direction == east){
+			attr_table[attr_table_entry].sprite  = DUCK_DOWN_EAST_SPRITE_OFFSET  + i ;
+		}
+		if(duck->state == flap_down && duck->x_direction == west){
+			attr_table[attr_table_entry].sprite  = DUCK_DOWN_WEST_SPRITE_OFFSET  + i ;
+		}
+		if(duck->state == dead) { 
+			attr_table[attr_table_entry].sprite  = DUCK_DEAD_SPRITE_OFFSET  + i ;
+		}
+		if(duck->state == flying_away) { 
+			attr_table[attr_table_entry].sprite  = DUCK_FLYING_AWAY_SPRITE_OFFSET  + i ;
+		}
 		if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[attr_table_entry])) {
 			perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
 			return 0;

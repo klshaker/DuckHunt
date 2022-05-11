@@ -82,4 +82,7 @@ int start_new_round(game_config_t * config);
 int is_game_over(game_config_t * config);
 int spawn_duck(duck_t * duck, game_config_t * config);
 
+
+
+
 #endif

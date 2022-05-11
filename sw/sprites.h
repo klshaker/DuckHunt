@@ -6,6 +6,7 @@
 #define _SPRITES_H
 
 #include "ppu.h"
+#include "game/game.h"
 
 #ifndef __KERNEL__
 #include <stdint.h>
@@ -24,15 +25,19 @@
 
 // Offsets of various classes of sprites in the sprite table. 
 // The 0th offset is reserved for sprites we do not want to see on the screen.
-#define DUCK_DOWN_SPRITE_OFFSET 1
-#define DUCK_UP_SPRITE_OFFSET 5 
-#define DUCK_DEAD_SPRITE_OFFSET 9
-#define BULLET_SPRITE_OFFSET 17
+#define DUCK_DOWN_EAST_SPRITE_OFFSET 1
+#define DUCK_UP_EAST_SPRITE_OFFSET 5 
+#define DUCK_DOWN_WEST_SPRITE_OFFSET 13
+#define DUCK_UP_WEST_SPRITE_OFFSET 17
+#define DUCK_DEAD_SPRITE_OFFSET 29
+#define DUCK_FLYING_AWAY_SPRITE_OFFSET 33
+
+#define BULLET_SPRITE_OFFSET 37
 // Shaded and non shaded bullets will share the same sprite but point
 // to different color tables.
-#define NUMBER_SPRITE_OFFSET 18
+#define NUMBER_SPRITE_OFFSET 38
 // 6 + 10 digits = 16
-#define CROSSHAIR_SPRITE_OFFSET 28
+#define CROSSHAIR_SPRITE_OFFSET 48
 
 // Offsets of various classes of entries in the sprite attribution table.
 // The order in which these entries are laid out is an implementation decision.
@@ -63,7 +68,7 @@ int write_color_table(int fd);
 int update_game_state_attrs(int fd, int num_bullets, int score, int round);
 
 // Updates the duck attr for the duck corresponding to duck_id in the attr table every round.
-int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id);
+int update_duck_attr(int fd, duck_t* duck);
 
 // Updates the crosshair attribute for display.
 int update_crosshair_attr(int fd, int x_coord, int y_coord);

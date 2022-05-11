@@ -66,7 +66,7 @@ void play_game(){
 			move_ducks(ducks, NUM_DUCKS, &game_data);
 			for(int i = 0; i < NUM_DUCKS; ++i){
 				if(ducks[i].state != inactive){
-					update_duck_attr(duck_hunt_fd, ducks[i].coord.x, ducks[i].coord.y, ducks[i].state, ducks[i].id);
+					update_duck_attr(duck_hunt_fd, &ducks[i]);
 				}
 			}
 			if(is_round_over(&game_data)){
