@@ -18,7 +18,8 @@ extern const int kGraphicSize;
 // Number of moves a duck can make on screen before it flies away.
 extern const int kMaxNumDuckMoves;
 // How many ducks to give the player an opportunity to shoot before we end the game.
-extern const int kDucksPerRound;
+
+#define NUM_DUCKS_PER_ROUND 2
 
 extern const int kBulletsPerRound;
 

@@ -8,8 +8,7 @@ const int kVerticalScreenSize = 300;
 const int kHorizontalScreenSize = 640;
 const double kPI = 3.14159;
 const int kMaxDuckTimeSeconds = 3;
-const int kDucksPerRound = 2;
-const int kRoundsPerGame = 5;
+const int kRoundsPerGame = 6;
 const int kCrossHairSquareSize = 10;
 const int kGraphicSize = 32;
 const int kBulletsPerRound = 3;
@@ -123,7 +122,7 @@ int shoot_at_ducks(duck_t* ducks, int num_ducks, coord_t cross_hair, game_config
 
 // The round is over only if we have seen all the allowed ducks per round
 int is_round_over(game_config_t * config){
-	return config->spawned_ducks == kDucksPerRound && config->visible_ducks == 0;
+	return config->spawned_ducks == NUM_DUCKS_PER_ROUND && config->visible_ducks == 0;
 }
 
 int is_game_over(game_config_t * config){
@@ -144,7 +143,7 @@ int spawn_duck(duck_t * duck, game_config_t * config){
 	duck->spawn_time = time(0);
 	duck->value = rand() % 10;
 	duck->state = flap_up;
-	duck->velocity = 2;
+	duck->velocity = 2 + config->round/2;
 	// Randomly pick whether the duck starts moving east or west.
 	duck->x_direction = rand() % 2; 
 	// Duck always starts moving upward since it is coming out of the grass.

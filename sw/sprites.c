@@ -19,7 +19,7 @@ int build_sprite_attr_table(attr_table_entry_t * entries){
 
 	int num_entries = 0;
 	int i = 0;
-	for(;i < NUM_DUCKS * NUM_SPRITES_PER_DUCK; ++i){
+	for(;i < NUM_DUCKS_PER_ROUND * NUM_SPRITES_PER_DUCK; ++i){
 		attr_table_entry_t duck = {
 			.coord = { .x = 0, .y = 0 },
 			// duck starts off screen;
@@ -372,8 +372,8 @@ int write_sprite_table(int fd){
 
 		// LEFT FACING DUCK
 		// Duck Flap Down Top Left
-		[13] = {
-			.id  = 13,
+		[15] = {
+			.id  = 15,
 			.line = {
 				0x0,
 				0x0,
@@ -394,8 +394,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Flap Down Top Right
-		[14] = {
-			.id  = 14,
+		[16] = {
+			.id  = 16,
 			.line = {
 				0x3a555,
 				0xffc555,
@@ -416,8 +416,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Flap Down Bottom Left
-		[15] = {
-			.id  = 15,
+		[13] = {
+			.id  = 13,
 			.line = {
 				0x0,
 				0x3ec00,
@@ -438,8 +438,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Flap Down Bottom Right
-		[16] = {
-			.id  = 16,
+		[14] = {
+			.id  = 14,
 			.line = {
 				0x40000000,
 				0x40000000,
@@ -460,8 +460,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Flap Up Top Left
-		[17] = {
-			.id  = 17,
+		[19] = {
+			.id  = 19,
 			.line = {
 				0x0,
 				0x5,
@@ -482,8 +482,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Flap Up Top Right
-		[18] = {
-			.id  = 18,
+		[20] = {
+			.id  = 20,
 			.line = {
 				0x55556aa5,
 				0x25556aaa,
@@ -504,8 +504,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Flap Up Bottom Left
-		[19] = {
-			.id  = 19,
+		[17] = {
+			.id  = 17,
 			.line = {
 				0x14000000,
 				0x64000000,
@@ -526,8 +526,8 @@ int write_sprite_table(int fd){
 			},
 		},
 		// Duck Flap Up Bottom Right
-		[20] = {
-			.id  = 20,
+		[18] = {
+			.id  = 18,
 			.line = {
 				0x55800000,
 				0x54000000,

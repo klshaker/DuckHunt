@@ -20,7 +20,6 @@
 #define NUM_SPRITES_PER_DUCK 4
 
 #define NUM_BULLETS 3
-#define NUM_DUCKS 2
 #define NUM_SCORE_DIGITS 2 
 
 // Offsets of various classes of sprites in the sprite table. 
@@ -42,10 +41,10 @@
 // Offsets of various classes of entries in the sprite attribution table.
 // The order in which these entries are laid out is an implementation decision.
 #define DUCK_ATTR_TABLE_OFFSET 0
-#define BULLET_ATTR_TABLE_OFFSET 8
-#define SCORE_ATTR_TABLE_OFFSET 11
-#define ROUND_ATTR_TABLE_OFFSET 13
-#define CROSSHAIR_ATTR_TABLE_OFFSET 14
+#define BULLET_ATTR_TABLE_OFFSET NUM_DUCKS_PER_ROUND * NUM_SPRITES_PER_DUCK 
+#define SCORE_ATTR_TABLE_OFFSET BULLET_ATTR_TABLE_OFFSET + NUM_BULLETS
+#define ROUND_ATTR_TABLE_OFFSET SCORE_ATTR_TABLE_OFFSET + NUM_SCORE_DIGITS
+#define CROSSHAIR_ATTR_TABLE_OFFSET ROUND_ATTR_TABLE_OFFSET
 
 #define DUCK_COLOR_TABLE_OFFSET 0
 #define SHADED_BULLET_COLOR_TABLE_OFFSET 1

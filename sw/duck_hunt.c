@@ -34,8 +34,8 @@ void play_game(){
 		};
 
 		// Set initial duck state. Value initialize array to all member variables are zero initialized. There will only ever be ducksperround ducks on the screen.
-		duck_t ducks[NUM_DUCKS] = {};
-		for(int i = 0; i < NUM_DUCKS; ++i){
+		duck_t ducks[NUM_DUCKS_PER_ROUND] = {};
+		for(int i = 0; i < NUM_DUCKS_PER_ROUND; ++i){
 			ducks[i].id = i;
 			ducks[i].state = inactive;
 		}
@@ -46,16 +46,17 @@ void play_game(){
 		printf("TIME %ld\n", last_spawned_time);
 
 		while(!is_game_over(&game_data)){
+			usleep(10000);	
 
 			// Introduce a duck every 5 seconds if there are fewer than 2 ducks on the screen.
 			time_t now = time(0);
 			if(now - last_spawned_time > SECONDS_BETWEEN_SPAWNS 
-				&& game_data.visible_ducks < NUM_DUCKS && game_data.spawned_ducks < kDucksPerRound) {
+				&& game_data.visible_ducks < NUM_DUCKS_PER_ROUND && game_data.spawned_ducks < NUM_DUCKS_PER_ROUND) {
 
 				//printf("trying to spawn duck\n");
 				last_spawned_time = now;
 				// spawn the first duck that is currently not visible.
-				for(int i = 0; i < NUM_DUCKS; ++i){
+				for(int i = 0; i < NUM_DUCKS_PER_ROUND; ++i){
 					if(ducks[i].state == inactive){
 						spawn_duck(&ducks[i], &game_data);
 						break;
@@ -63,8 +64,8 @@ void play_game(){
 				}
 
 			}
-			move_ducks(ducks, NUM_DUCKS, &game_data);
-			for(int i = 0; i < NUM_DUCKS; ++i){
+			move_ducks(ducks, NUM_DUCKS_PER_ROUND, &game_data);
+			for(int i = 0; i < NUM_DUCKS_PER_ROUND; ++i){
 				if(ducks[i].state != inactive){
 					update_duck_attr(duck_hunt_fd, &ducks[i]);
 				}
@@ -75,7 +76,6 @@ void play_game(){
 				usleep(2000000);
 			}
 			update_game_state_attrs(duck_hunt_fd, game_data.bullets, game_data.score, game_data.round);
-			usleep(10000);	
 		}
 		printf("GAME_OVER");
 
