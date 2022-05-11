@@ -63,7 +63,7 @@ int write_color_table(int fd);
 int update_game_state_attrs(int fd, int num_bullets, int score);
 
 // Updates the duck attr for the duck corresponding to duck_id in the attr table every round.
-int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id, int visible);
+int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id);
 
 // Updates the crosshair attribute for display.
 int update_crosshair_attr(int fd, int x_coord, int y_coord);

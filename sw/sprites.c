@@ -855,11 +855,8 @@ int update_game_state_attrs(int fd, int num_bullets, int score){
 	return 1;
 }
 
-int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id, int visible) {
+int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id) {
 
-	if(!visible){
-		return 1;
-	}	
 	int i = 0;
 	for(; i < NUM_SPRITES_PER_DUCK; ++i){
 

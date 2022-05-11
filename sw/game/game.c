@@ -8,9 +8,11 @@ const int kVerticalScreenSize = 300;
 const int kHorizontalScreenSize = 640;
 const double kPI = 3.14159;
 const int kMaxDuckTimeSeconds = 8;
-const int kMaxDucksPerGame = 8;
+const int kDucksPerRound = 2;
+const int kRoundsPerGame = 5;
 const int kCrossHairSquareSize = 10;
 const int kGraphicSize = 32;
+const int kBulletsPerRound = 3;
 
 coord_t get_center_of_graphic(coord_t* top_left) {
 	return (coord_t){.x = top_left->x + kGraphicSize/2, .y = top_left->y + kGraphicSize/2};
@@ -20,7 +22,7 @@ int calculate_hit(duck_t * duck, coord_t cross_hair){
 	coord_t cross_hair_center = get_center_of_graphic(&cross_hair);
 	coord_t duck_center = get_center_of_graphic(&duck->coord);
 
-	return duck->is_visible && duck->state != flying_away && duck->state != dead && cross_hair_center.x < (duck_center.x + kCrossHairSquareSize) && cross_hair_center.x > (duck_center.x - kCrossHairSquareSize)
+	return duck->state != inactive && duck->state != flying_away && duck->state != dead && cross_hair_center.x < (duck_center.x + kCrossHairSquareSize) && cross_hair_center.x > (duck_center.x - kCrossHairSquareSize)
 		&& cross_hair_center.y < (duck_center.y + kCrossHairSquareSize) && cross_hair_center.y > (duck_center.y - kCrossHairSquareSize);
 }
 
@@ -34,7 +36,7 @@ int move_ducks(duck_t* ducks, int num_ducks, game_config_t * game_config){
 int move_duck(duck_t * duck, game_config_t * game_config){
 
 	// a dead duck should not move at all on the x plane. It should drop down where it was shot. Dropping in our coordinate system means adding to the y coord.
-	if(!duck->is_visible) return 1;
+	if(duck->state == inactive) return 1;
 	if(duck->state == dead ){
 		if(duck->coord.y < kVerticalScreenSize + kGraphicSize){
 			duck->coord.y++;	
@@ -48,7 +50,7 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 		}
 		else {
 			printf("flew off screen\n");
-			duck->is_visible = 0;
+			duck->state = inactive;
 			++game_config->num_ducks_seen;
 			--game_config->visible_ducks;
 			printf("%d", game_config->visible_ducks);
@@ -130,16 +132,32 @@ int shoot_at_ducks(duck_t* ducks, int num_ducks, coord_t cross_hair, game_config
 	return 1;
 }
 
-int is_game_over(game_config_t * config){
-	return config->bullets ==0 || config->num_ducks_seen == kMaxDucksPerGame;
+// The round is over only if we have seen all the allowed ducks per round
+int is_round_over(game_config_t * config){
+	return config->num_ducks_seen == kDucksPerRound;
 }
-int spawn_duck(duck_t * duck, game_config_t * config){
 
+int is_game_over(game_config_t * config){
+	return config->bullets == 0 && config->round == kRoundsPerGame || config->round == kRoundsPerGame && config->num_ducks_seen == kDucksPerRound;
+}
+
+int start_new_round(game_config_t * config){
+	++config->round;
+	config->bullets = kBulletsPerRound;
+	config->num_ducks_seen = 0;
+}
+
+int spawn_duck(duck_t * duck, game_config_t * config){
+	
 	duck->coord.x = 250;
 	duck->coord.y = kVerticalScreenSize;
-	duck->is_visible = 1;
 	duck->spawn_time = time(0);
+	duck->value = rand() % 10;
 	duck->state = flap_up;
+	// Randomly pick whether the duck starts moving east or west.
+	duck->x_direction = rand() % 2; 
+	// Duck always starts moving upward since it is coming out of the grass.
+	duck->y_direction = north;
 
 	config->visible_ducks++;
 

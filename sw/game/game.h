@@ -18,9 +18,11 @@ extern const int kGraphicSize;
 // Number of moves a duck can make on screen before it flies away.
 extern const int kMaxNumDuckMoves;
 // How many ducks to give the player an opportunity to shoot before we end the game.
-extern const int kMaxDucksPerGame;
+extern const int kDucksPerRound;
 
-enum duck_state { flap_down, flap_up,  dead, flying_away };
+extern const int kBulletsPerRound;
+
+enum duck_state { flap_down, flap_up,  dead, flying_away, inactive };
 // east and west denote movement on the x plane. north and south denote movement
 // on the y plane.
 enum direction { east, west, north, south };
@@ -47,7 +49,6 @@ typedef struct {
 	enum duck_state state;
 	// when the duck was created.
 	time_t spawn_time; 
-	int is_visible;
 } duck_t;
 
 typedef struct {
@@ -73,6 +74,8 @@ int move_duck(duck_t * duck, game_config_t * game_config);
 // moves all of the ducks.
 int move_ducks(duck_t* ducks, int num_ducks, game_config_t * game_config);
 
+int is_round_over(game_config_t * config);
+int start_new_round(game_config_t * config);
 // game is over if we are out of bullets or if we've seen a set number of ducks.
 int is_game_over(game_config_t * config);
 int spawn_duck(duck_t * duck, game_config_t * config);
