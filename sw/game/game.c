@@ -32,18 +32,17 @@ int move_ducks(duck_t* ducks, int num_ducks, game_config_t * game_config){
 	}
 }
 
-// Once a duck has moved off of the screen, it is no longer considered "shootable".
 int move_duck(duck_t * duck, game_config_t * game_config){
 
-	// a dead duck should not move at all on the x plane. It should drop down where it was shot. Dropping in our coordinate system means adding to the y coord.
 	if(duck->state == inactive) return 1;
+	// A dead duck should not move at all on the x plane. It should drop down where it was shot. Dropping in our coordinate system means adding to the y coord.
 	if(duck->state == dead ){
 		if(duck->coord.y < kVerticalScreenSize + kGraphicSize){
-			duck->coord.y++;	
+			++duck->coord.y;	
 		}
 		return 1;
 	}
-	// a flying away duck should not move on the x plane. It should leave the screen by flyinga directly upward. 
+	// A flying away duck should not move on the x plane. It should leave the screen by flyinga directly upward. 
 	if(duck->state == flying_away ){
 		if(duck->coord.y > 0 - kGraphicSize){
 			duck->coord.y--;
@@ -56,7 +55,6 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 		}	
 		return 1;
 	}
-
 	if(duck->coord.x <= 0 || (rand() % 256 == 0)) {
 		duck->x_direction = east;
 		duck->y_angle = rand() % 45;
@@ -76,8 +74,6 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 		duck->y_direction = north;
 		duck->y_angle = rand() % 45;
 	}
-	//printf("angle %f\n", duck->y_angle);
-
 	// Otherwise a duck should continue moving in the x and y direction it was previously.
 	if(duck->x_direction == east){
 		duck->coord.x += ceil(duck->velocity * cos(duck->y_angle*kPI/180.0));
@@ -96,17 +92,12 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 		// convert to radians and calculate the change in y given a change of 1 unit in the x direction.
 		duck->coord.y += ceil(duck->velocity * sin(duck->y_angle*kPI/180.0));
 	}
-
-	// If we have hit this if statememnt we know the duck is not dead or flying a way. A dead duck or a flying away duck should not be constrained by num moves. 
-	//printf("spawn time %ld\n",  time(0) - duck->spawn_time);
 	if(time(0) - duck->spawn_time  > kMaxDuckTimeSeconds){
 		duck->state = flying_away;
 	}
-	
 	if(duck->y_direction == north){
 		duck->state = (time(0) % 2) ? flap_up : flap_down;
 	}	
-
 	return 1;
 }
 
