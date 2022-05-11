@@ -16,7 +16,7 @@
 #include <time.h>
 
 
-#define SECONDS_BETWEEN_SPAWNS 5 
+#define SECONDS_BETWEEN_SPAWNS 1 
 
 int duck_hunt_fd;
 
@@ -26,32 +26,20 @@ void play_game(){
 
 		// Set inintial game state.
 		game_config_t game_data = {
-			.bullets = 3, 
+			.bullets = kBulletsPerRound, 
 			.score = 0, 
 			.round = 0,
-			.num_ducks_seen = 0,
+			.spawned_ducks = 0,
 			.visible_ducks = 0
 		};
 
-		// Set initial duck state. As in original game. ducks come out of the grass.
-		duck_t ducks[NUM_DUCKS] = {
-			{ 
-				.value =  1,
-				.coord= { .x = 200, .y = kVerticalScreenSize },
-				.x_direction = east,
-				.id = 0x0,
-				.state = flap_up,
-				.is_visible = 0
-			},
-			{ .value = 5,
-				.coord= { .x = 250, .y = kVerticalScreenSize },
-				.x_direction = east,
-				.id = 0x1,
-				.state = flap_up,
-				.is_visible = 0
-			}
-		};
-
+		// Set initial duck state. Value initialize array to all member variables are zero initialized. There will only ever be ducksperround ducks on the screen.
+		duck_t ducks[NUM_DUCKS] = {};
+		for(int i = 0; i < NUM_DUCKS; ++i){
+			ducks[i].id = i;
+			ducks[i].state = inactive;
+		}
+		
 		coord_t cross_hair = { .x = 0, .y = 0};
 
 		time_t last_spawned_time = time(0);
@@ -62,28 +50,31 @@ void play_game(){
 			// Introduce a duck every 5 seconds if there are fewer than 2 ducks on the screen.
 			time_t now = time(0);
 			if(now - last_spawned_time > SECONDS_BETWEEN_SPAWNS 
-					&& game_data.visible_ducks < NUM_DUCKS ) {
+				&& game_data.visible_ducks < NUM_DUCKS && game_data.spawned_ducks < kDucksPerRound) {
 
 				//printf("trying to spawn duck\n");
 				last_spawned_time = now;
-				int i = 0;
 				// spawn the first duck that is currently not visible.
-				for(; i < NUM_DUCKS; ++i){
-					if(!ducks[i].is_visible){
+				for(int i = 0; i < NUM_DUCKS; ++i){
+					if(ducks[i].state == inactive){
 						spawn_duck(&ducks[i], &game_data);
 						break;
 					}
 				}
 
 			}
-			// poll wii controller.
-			// if trigger pressed
 			move_ducks(ducks, NUM_DUCKS, &game_data);
-			int i = 0;
-			for(; i < NUM_DUCKS; ++i){
-				update_duck_attr(duck_hunt_fd, ducks[i].coord.x, ducks[i].coord.y, ducks[i].state, ducks[i].id, ducks[i].is_visible);
+			for(int i = 0; i < NUM_DUCKS; ++i){
+				if(ducks[i].state != inactive){
+					update_duck_attr(duck_hunt_fd, ducks[i].coord.x, ducks[i].coord.y, ducks[i].state, ducks[i].id);
+				}
 			}
-			update_game_state_attrs(duck_hunt_fd, game_data.bullets, game_data.score);
+			if(is_round_over(&game_data)){
+			   	start_new_round(&game_data);
+				update_game_state_attrs(duck_hunt_fd, game_data.bullets, game_data.score, game_data.round);
+				usleep(2000000);
+			}
+			update_game_state_attrs(duck_hunt_fd, game_data.bullets, game_data.score, game_data.round);
 			usleep(10000);	
 		}
 		printf("GAME_OVER");

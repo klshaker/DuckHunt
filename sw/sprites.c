@@ -1271,10 +1271,16 @@ int write_sprite_attr_table(int fd){
 }
 
 
-int update_game_state_attrs(int fd, int num_bullets, int score){
+int update_game_state_attrs(int fd, int num_bullets, int score, int round){
 
-	int i = 0;
-	for(; i < NUM_BULLETS; ++i){
+
+	attr_table[ROUND_ATTR_TABLE_OFFSET].sprite = NUMBER_SPRITE_OFFSET + round;
+	if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[ROUND_ATTR_TABLE_OFFSET])) { 
+		perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
+		return 0;
+	}
+
+	for(int i = 0; i < NUM_BULLETS; ++i){
 		if(num_bullets > i ){
 			attr_table[BULLET_ATTR_TABLE_OFFSET + i].color_table = SHADED_BULLET_COLOR_TABLE_OFFSET;
 		}
@@ -1287,9 +1293,8 @@ int update_game_state_attrs(int fd, int num_bullets, int score){
 		}
 	}
 
-	i = NUM_SCORE_DIGITS;
 	// work from lowest significant digit to highest significant digit. 
-	for(; i > 0; --i) {
+	for(int i = NUM_SCORE_DIGITS; i > 0; --i) {
 		attr_table[SCORE_ATTR_TABLE_OFFSET + i - 1].sprite = NUMBER_SPRITE_OFFSET + score % 10; 
 		score = score / 10;	
 		if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[SCORE_ATTR_TABLE_OFFSET + i - 1])) {
@@ -1297,14 +1302,12 @@ int update_game_state_attrs(int fd, int num_bullets, int score){
 			return 0;
 		}
 	}	
+
 	return 1;
 }
 
-int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id, int visible) {
+int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_id) {
 
-	if(!visible){
-		return 1;
-	}	
 	int i = 0;
 	for(; i < NUM_SPRITES_PER_DUCK; ++i){
 
@@ -1312,8 +1315,8 @@ int update_duck_attr(int fd, int x_coord, int y_coord, int duck_state, int duck_
 		attr_table[attr_table_entry].coord.x = x_coord + SPRITE_TABLE_ENTRY_SIZE * (i / 2);
 		attr_table[attr_table_entry].coord.y = y_coord + SPRITE_TABLE_ENTRY_SIZE * (i % 2) ;
 		attr_table[attr_table_entry].sprite  = DUCK_DOWN_SPRITE_OFFSET + duck_state * NUM_SPRITES_PER_DUCK + i ;
-		
-		printf("printing for duck %d at attr entry %d sprite number %d :\n", duck_id, attr_table_entry, attr_table[attr_table_entry].sprite);
+
+		//		printf("printing for duck %d at attr entry %d sprite number %d :\n", duck_id, attr_table_entry, attr_table[attr_table_entry].sprite);
 		if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[attr_table_entry])) {
 			perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
 			return 0;
