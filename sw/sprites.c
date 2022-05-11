@@ -281,51 +281,51 @@ int write_sprite_table(int fd){
 				0x0,
 			},
 		},
-		// Duck Dead Top
+		// Duck Flap Mid Top Left
 		[9] = {
 			.id  = 9,
 			.line = {
 				0x0,
-				0x110000,
-				0x150000,
-				0x58000,
-				0x6a300,
-				0x2896af20,
-				0x2896bf2c,
-				0x2656bf7f,
-				0x1596bfaf,
-				0x1565afaf,
-				0x1565aaaf,
-				0x1559aaac,
-				0x1555aa00,
-				0x15556a00,
-				0x5556a00,
-				0x1556a00,
-			},
-		},
-		// Duck Dead Bottom
-		[10] = {
-			.id  = 10,
-			.line = {
-				0x556800,
-				0x556800,
-				0x156400,
-				0x155000,
-				0x55000,
-				0x54000,
-				0x54000,
-				0xa8000,
-				0xfc000,
-				0x3ffc00,
-				0x3fff30,
-				0xffaff0,
-				0xfe6bc0,
-				0xfd57fc,
-				0x3d54ff,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
 				0x0,
 			},
 		},
-		// Duck Dead Empty
+		// Duck Flap Mid Top Right
+		[10] = {
+			.id  = 10,
+			.line = {
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Flap Mid Bottom Left
 		[11] = {
 			.id  = 11,
 			.line = {
@@ -347,7 +347,7 @@ int write_sprite_table(int fd){
 				0x0,
 			},
 		},
-		// Duck Dead Empty 2
+		// Duck Flap Mid Bottom Right
 		[12] = {
 			.id  = 12,
 			.line = {
@@ -369,9 +369,454 @@ int write_sprite_table(int fd){
 				0x0,
 			},
 		},
-		// Duck Flying Away Top Left
+
+		// LEFT FACING DUCK
+		// Duck Flap Down Top Left
 		[13] = {
 			.id  = 13,
+			.line = {
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x15000000,
+				0x55550000,
+				0x55555400,
+				0x55555554,
+				0x55555555,
+				0x55555558,
+				0x55555560,
+				0x55555580,
+				0x55565a80,
+				0x5556aa00,
+				0x555aa800,
+			},
+		},
+		// Duck Flap Down Top Right
+		[14] = {
+			.id  = 14,
+			.line = {
+				0x555ac000,
+				0x5553ff00,
+				0x5560ff00,
+				0x55603f00,
+				0x55800c00,
+				0x59800000,
+				0x9a000000,
+				0xa0000000,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Flap Down Bottom Left
+		[15] = {
+			.id  = 15,
+			.line = {
+				0x0,
+				0x3bc000,
+				0xeaf000,
+				0xdafc00,
+				0x3daff00,
+				0x3feaff90,
+				0x3ffbff95,
+				0x3fffff95,
+				0x3ffe95,
+				0xe55,
+				0x55,
+				0x5,
+				0x2,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Flap Down Bottom Right
+		[16] = {
+			.id  = 16,
+			.line = {
+				0x1,
+				0x1,
+				0x1,
+				0x1,
+				0x5,
+				0x5,
+				0x5,
+				0x15,
+				0x16,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Flap Up Top Left
+		[17] = {
+			.id  = 17,
+			.line = {
+				0x0,
+				0x50000000,
+				0x64000000,
+				0xa9800000,
+				0xaa900000,
+				0xaa900000,
+				0xaaa00000,
+				0xaaa00000,
+				0xaaa00000,
+				0xaaa80000,
+				0x6aa80000,
+				0x2aa80000,
+				0x2aa80000,
+				0x6aa94000,
+				0x5aa95500,
+				0x5aa95554,
+			},
+		},
+		// Duck Flap Up Top Right
+		[18] = {
+			.id  = 18,
+			.line = {
+				0x5aa95555,
+				0xaaa95558,
+				0xaaa95560,
+				0xaaaa5680,
+				0x2aaaaa80,
+				0x2aaaa00,
+				0x2aa800,
+				0x2c000,
+				0xff00,
+				0x3f00,
+				0xf00,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Flap Up Bottom Left
+		[19] = {
+			.id  = 19,
+			.line = {
+				0x14,
+				0x19,
+				0x1a,
+				0x6,
+				0x6,
+				0x2,
+				0x1,
+				0x0,
+				0xbc000,
+				0x2af000,
+				0x1afc00,
+				0xdaff00,
+				0x3feaff90,
+				0x3ffbff95,
+				0x3fffff95,
+				0xffe95,
+			},
+		},
+		// Duck Flap Up Bottom Right
+		[20] = {
+			.id  = 20,
+			.line = {
+				0x255,
+				0x15,
+				0x2,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Flap Mid Top Left
+		[21] = {
+			.id  = 21,
+			.line = {
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Flap Mid Top Right
+		[22] = {
+			.id  = 22,
+			.line = {
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Flap Mid Bottom Left
+		[23] = {
+			.id  = 23,
+			.line = {
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Flap Mid Bottom Right
+		[24] = {
+			.id  = 24,
+			.line = {
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+
+		// Duck Just Shot Top Left
+		[25] = {
+			.id  = 25,
+			.line = {
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Just Shot Top Right
+		[26] = {
+			.id  = 26,
+			.line = {
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Just Shot Bottom Left
+		[27] = {
+			.id  = 27,
+			.line = {
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Just Shot Bottom Right
+		[28] = {
+			.id  = 28,
+			.line = {
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+
+
+		// Duck Dead Top
+		[29] = {
+			.id  = 29,
+			.line = {
+				0x0,
+				0x110000,
+				0x150000,
+				0x58000,
+				0x6a300,
+				0x2896af20,
+				0x2896bf2c,
+				0x2656bf7f,
+				0x1596bfaf,
+				0x1565afaf,
+				0x1565aaaf,
+				0x1559aaac,
+				0x1555aa00,
+				0x15556a00,
+				0x5556a00,
+				0x1556a00,
+			},
+		},
+		// Duck Dead Bottom
+		[30] = {
+			.id  = 30,
+			.line = {
+				0x556800,
+				0x556800,
+				0x156400,
+				0x155000,
+				0x55000,
+				0x54000,
+				0x54000,
+				0xa8000,
+				0xfc000,
+				0x3ffc00,
+				0x3fff30,
+				0xffaff0,
+				0xfe6bc0,
+				0xfd57fc,
+				0x3d54ff,
+				0x0,
+			},
+		},
+		// Duck Dead Empty
+		[31] = {
+			.id  = 31,
+			.line = {
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Dead Empty 2
+		[32] = {
+			.id  = 32,
+			.line = {
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			},
+		},
+		// Duck Flying Away Top Left
+		[33] = {
+			.id  = 33,
 			.line = {
 				0x0,
 				0x0,
@@ -393,8 +838,8 @@ int write_sprite_table(int fd){
 
 		},
 		// Duck Flying Away Top Right
-		[14] = {
-			.id  = 14,
+		[34] = {
+			.id  = 34,
 			.line = {
 				0x55555555,
 				0x55555556,
@@ -416,8 +861,8 @@ int write_sprite_table(int fd){
 
 		},
 		// Duck Flying Away Bottom Left
-		[15] = {
-			.id  = 15,
+		[35] = {
+			.id  = 35,
 			.line = {
 				0x0,
 				0x0,
@@ -439,8 +884,8 @@ int write_sprite_table(int fd){
 
 		},
 		// Duck Flying Away Bottom Right
-		[16] = {
-			.id  = 16,
+		[36] = {
+			.id  = 36,
 			.line = {
 				0x15555555,
 				0x15555555,
@@ -462,8 +907,8 @@ int write_sprite_table(int fd){
 
 		},
 		// Bullet Shaded & Non Shaded
-		[17] = {
-			.id  = 17,
+		[37] = {
+			.id  = 37,
 			.line = {
 				0x0,
 				0x0,
@@ -486,8 +931,8 @@ int write_sprite_table(int fd){
 		},
 		// Number Sprites
 		// 0 
-		[18] = {
-			.id  = 18,
+		[38] = {
+			.id  = 38,
 			.line = {
 				0x0,
 				0x555500,
@@ -509,8 +954,8 @@ int write_sprite_table(int fd){
 
 		},
 		// 1 
-		[19] = {
-			.id  = 19,
+		[39] = {
+			.id  = 39,
 			.line = {
 				0x0,
 				0x15540,
@@ -532,8 +977,8 @@ int write_sprite_table(int fd){
 
 		},
 		// 2
-		[20] = {
-			.id = 20,
+		[40] = {
+			.id = 40,
 			.line = {
 				0x0,
 				0x555550,
@@ -554,8 +999,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 3
-		[21] = {
-			.id = 21,
+		[41] = {
+			.id = 41,
 			.line = {
 				0x0,
 				0x555550,
@@ -576,8 +1021,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 4
-		[22] = {
-			.id = 22,
+		[42] = {
+			.id = 42,
 			.line = {
 				0x0,
 				0x5555550,
@@ -598,8 +1043,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 5
-		[23] = {
-			.id = 23,
+		[43] = {
+			.id = 43,
 			.line = {
 				0x0,
 				0x5555550,
@@ -620,8 +1065,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 6
-		[24] = {
-			.id = 24,
+		[44] = {
+			.id = 44,
 			.line = {
 				0x0,
 				0x5550,
@@ -642,8 +1087,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 7
-		[25] = {
-			.id = 25,
+		[45] = {
+			.id = 45,
 			.line = {
 				0x0,
 				0x555550,
@@ -664,8 +1109,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 8
-		[26] = {
-			.id = 26,
+		[46] = {
+			.id = 46,
 			.line = {
 				0x0,
 				0x555500,
@@ -686,8 +1131,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// 9
-		[27] = {
-			.id = 27,
+		[47] = {
+			.id = 47,
 			.line = {
 				0x0,
 				0x555500,
@@ -708,8 +1153,8 @@ int write_sprite_table(int fd){
 			}
 		},
 		// Crosshair
-		[28] = {
-			.id = 28,
+		[48] = {
+			.id = 48,
 			.line = {
 				0x0,
 				0x0,
