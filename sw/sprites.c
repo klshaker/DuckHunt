@@ -1270,6 +1270,20 @@ int write_sprite_attr_table(int fd){
 	}
 }
 
+int write_pattern_table(int fd){
+	pattern_table_entry_t pattern = {0};
+	pattern.sprite = 50;
+	int i = 0;
+	for(; i < 1200; ++i){
+		pattern.id = i;
+		if (i > 800 - 4 )
+			pattern.sprite = 0;
+		if (ioctl(fd, PATTERN_TABLE_WRITE_DATA, &pattern)) {
+			perror("ioctl(PATTERN_TABLE_WRITE_DATA) failed");
+			return 0;
+		} 
+	}
+}
 
 int update_game_state_attrs(int fd, int num_bullets, int score, int round){
 

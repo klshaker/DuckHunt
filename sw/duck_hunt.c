@@ -96,6 +96,7 @@ int main()
 	write_sprite_table(duck_hunt_fd);
 	write_color_table(duck_hunt_fd);
 	write_sprite_attr_table(duck_hunt_fd);
+	write_pattern_table(duck_hunt_fd);
 
 	play_game();
 
