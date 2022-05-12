@@ -178,7 +178,7 @@ module ppu
 
 				dc_en <= hcount[0] ? {VISIBLE_SPRITES{1'b0}} : {VISIBLE_SPRITES{1'b1}};
 				if (hcount[4:0] == 5'b11110) ping_pong <= ping_pong ? 0 : 1;
-				pp_sh_en[ping_pong] <= !hcount[0];
+				pp_sh_en[ping_pong] <= hcount[0];
 
 				//Start loading !ping_pong
 				case (pp_state)
