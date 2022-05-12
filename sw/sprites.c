@@ -1174,6 +1174,72 @@ int write_sprite_table(int fd){
 				0x0,
 			}
 		},
+		// Grass Body
+		[49] = {
+			.id = 49,
+			.line = {
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+			}
+		},
+		// Grass Top
+		[50] = {
+			.id = 50,
+			.line = {
+				0xffffffff,
+				0xffffffff,
+				0xffffffff,
+				0x5aaaaaaa,
+				0xaaaaaaaa,
+				0x55555555,
+				0x95555555,
+				0x55655555,
+				0x56555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+			}
+		},
+		// Sky
+		[51] = {
+			.id = 51,
+			.line = {
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+				0x55555555,
+			}
+		},
 	};
 
 	int i = 0;
@@ -1233,15 +1299,26 @@ int write_color_table(int fd){
 				[3] = {.r = 0,  .g = 0,   .b = 255},
 			},
 		},
-		// TODO( shouldn't need this but nothing shows up when we use color table 0 )
+		// Grass Background
 		[4] =
 		{
 			.id = 0x4,
 			.color = {
 				[0] = {.r = 0,  .g = 0,   .b = 0  },
-				[1] = {.r = 0,  .g = 101, .b = 0  },
-				[2] = {.r = 0,  .g = 255, .b = 0  },
-				[3] = {.r = 0,  .g = 0,   .b = 255},
+				[1] = {.r = 113, .g = 170, .b = 52 },
+				[2] = {.r = 182, .g = 213, .b = 60 },
+				[3] = {.r = 52, .g = 85, .b = 81 },
+			},
+		},
+		// Sky Background
+		[5] =
+		{
+			.id = 5,
+			.color = {
+				[0] = {.r = 0,  .g = 0,   .b = 0  },
+				[1] = {.r = 223, .g = 246, .b = 245 },
+				[2] = {.r = 0,  .g = 0,   .b = 0  },
+				[3] = {.r = 0,  .g = 0,   .b = 0  },
 			},
 		}
 
@@ -1270,6 +1347,29 @@ int write_sprite_attr_table(int fd){
 	}
 }
 
+int write_pattern_table(int fd, int back_c){
+	pattern_table_entry_t pattern = {0};
+	pattern.sprite = 51;
+	pattern.color_table = back_c;
+	int i = 0;
+	for(; i < 1200; ++i){
+		pattern.id = i;
+		if (i > 840 - 3 ) {
+			pattern.sprite = 49;
+			pattern.color_table = 4;
+		}
+		else if (i > 800 - 3 ) {
+			printf("HERE\n");
+			pattern.sprite = 50;
+			pattern.color_table = 4;
+		}
+
+		if (ioctl(fd, PATTERN_TABLE_WRITE_DATA, &pattern)) {
+			perror("ioctl(PATTERN_TABLE_WRITE_DATA) failed");
+			return 0;
+		} 
+	}
+}
 
 int update_game_state_attrs(int fd, int num_bullets, int score, int round){
 
@@ -1346,6 +1446,7 @@ int update_crosshair_attr(int fd, int x_coord, int y_coord) {
 	int attr_table_entry = CROSSHAIR_ATTR_TABLE_OFFSET;
 	attr_table[attr_table_entry].coord.x = x_coord;
 	attr_table[attr_table_entry].coord.y = y_coord;
+	attr_table[attr_table_entry].color_table = 0;
 
 	if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[attr_table_entry])) {
 		perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");

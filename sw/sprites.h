@@ -15,7 +15,7 @@
 #endif
 
 #define NUM_SPRITES 64 
-#define NUM_COLOR_TABLE_ENTRIES 4
+#define NUM_COLOR_TABLE_ENTRIES 6
 #define NUM_ATTR_TABLE_ENTRIES 64
 #define NUM_SPRITES_PER_DUCK 4
 
@@ -44,7 +44,7 @@
 #define BULLET_ATTR_TABLE_OFFSET NUM_DUCKS_PER_ROUND * NUM_SPRITES_PER_DUCK 
 #define SCORE_ATTR_TABLE_OFFSET BULLET_ATTR_TABLE_OFFSET + NUM_BULLETS
 #define ROUND_ATTR_TABLE_OFFSET SCORE_ATTR_TABLE_OFFSET + NUM_SCORE_DIGITS
-#define CROSSHAIR_ATTR_TABLE_OFFSET ROUND_ATTR_TABLE_OFFSET
+#define CROSSHAIR_ATTR_TABLE_OFFSET ROUND_ATTR_TABLE_OFFSET + 1
 
 #define DUCK_COLOR_TABLE_OFFSET 0
 #define SHADED_BULLET_COLOR_TABLE_OFFSET 1
@@ -71,4 +71,5 @@ int update_duck_attr(int fd, duck_t* duck);
 
 // Updates the crosshair attribute for display.
 int update_crosshair_attr(int fd, int x_coord, int y_coord);
+int write_pattern_table(int fd, int back_c);
 #endif

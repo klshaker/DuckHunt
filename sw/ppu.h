@@ -90,9 +90,10 @@ typedef struct {
 
 /* ioctls and their arguments */
 #define PPU_MAGIC 'p'
-#define ATTR_TABLE_WRITE_DATA   _IOW(PPU_MAGIC, 1, attr_table_entry_t *)
-#define SPRITE_TABLE_WRITE_DATA _IOW(PPU_MAGIC, 2, sprite_table_entry_t *)
-#define COLOR_TABLE_WRITE_DATA  _IOW(PPU_MAGIC, 3, color_table_entry_t *)
-#define WRITE_TO_ADDRESS        _IOW(PPU_MAGIC, 4, struct wta *)
+#define ATTR_TABLE_WRITE_DATA     _IOW(PPU_MAGIC, 1, attr_table_entry_t *)
+#define PATTERN_TABLE_WRITE_DATA  _IOW(PPU_MAGIC, 2, color_table_entry_t *)
+#define SPRITE_TABLE_WRITE_DATA   _IOW(PPU_MAGIC, 3, sprite_table_entry_t *)
+#define COLOR_TABLE_WRITE_DATA    _IOW(PPU_MAGIC, 4, color_table_entry_t *)
+#define WRITE_TO_ADDRESS          _IOW(PPU_MAGIC, 5, struct wta *)
 
 #endif

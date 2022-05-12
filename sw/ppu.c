@@ -47,7 +47,7 @@ static void write_to_attr_table(attr_table_entry_t *attr)
 
 }
 
-static void write_to_pattern_table(attr_table_entry_t *pat)
+static void write_to_pattern_table(pattern_table_entry_t *pat)
 {
 
 	int data = 0x0;
@@ -105,7 +105,8 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	attr_table_entry_t      attr_table_entry;
 	sprite_table_entry_t    sprite;
 	color_table_entry_t     color_palette;
-    struct wta av;
+	pattern_table_entry_t   pattern;
+	struct wta av;
 
 	switch (cmd) {
 		case ATTR_TABLE_WRITE_DATA:
@@ -125,7 +126,7 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 			if (copy_from_user(&pattern, (pattern_table_entry_t*) arg,
 						sizeof(pattern_table_entry_t)))
 				return -EACCES;
-			write_to_pattern_table(&pattern_palette);
+			write_to_pattern_table(&pattern);
 			break;
 
 		case COLOR_TABLE_WRITE_DATA:

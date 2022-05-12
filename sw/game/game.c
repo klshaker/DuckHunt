@@ -7,9 +7,9 @@
 const int kVerticalScreenSize = 300;
 const int kHorizontalScreenSize = 640;
 const double kPI = 3.14159;
-const int kMaxDuckTimeSeconds = 3;
+const int kMaxDuckTimeSeconds = 6;
 const int kRoundsPerGame = 6;
-const int kCrossHairSquareSize = 10;
+const int kCrossHairSquareSize = 40;
 const int kGraphicSize = 32;
 const int kBulletsPerRound = 3;
 
@@ -18,7 +18,8 @@ coord_t get_center_of_graphic(coord_t* top_left) {
 }
 
 int calculate_hit(duck_t * duck, coord_t cross_hair){
-	coord_t cross_hair_center = get_center_of_graphic(&cross_hair);
+	// coord_t cross_hair_center = get_center_of_graphic(&cross_hair);
+	coord_t cross_hair_center = (coord_t) {.x = cross_hair.x + 8, .y = cross_hair.y + 8};
 	coord_t duck_center = get_center_of_graphic(&duck->coord);
 
 	return duck->state != inactive && duck->state != flying_away && duck->state != dead && cross_hair_center.x < (duck_center.x + kCrossHairSquareSize) && cross_hair_center.x > (duck_center.x - kCrossHairSquareSize)
@@ -36,8 +37,13 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 	if(duck->state == inactive) return 1;
 	// A dead duck should not move at all on the x plane. It should drop down where it was shot. Dropping in our coordinate system means adding to the y coord.
 	if(duck->state == dead ){
-		if(duck->coord.y < kVerticalScreenSize + kGraphicSize){
+		if(duck->coord.y < kVerticalScreenSize){
 			++duck->coord.y;	
+		} else {
+			printf("duck dead\n");
+			duck->state = inactive;
+			--game_config->visible_ducks;
+			printf("visible ducks:%d\n", game_config->visible_ducks);
 		}
 		return 1;
 	}
@@ -122,7 +128,7 @@ int shoot_at_ducks(duck_t* ducks, int num_ducks, coord_t cross_hair, game_config
 
 // The round is over only if we have seen all the allowed ducks per round
 int is_round_over(game_config_t * config){
-	return config->spawned_ducks == NUM_DUCKS_PER_ROUND && config->visible_ducks == 0;
+	return (config->bullets == 0) || (config->spawned_ducks == NUM_DUCKS_PER_ROUND && config->visible_ducks == 0);
 }
 
 int is_game_over(game_config_t * config){
@@ -141,7 +147,7 @@ int spawn_duck(duck_t * duck, game_config_t * config){
 	duck->coord.x = 250;
 	duck->coord.y = kVerticalScreenSize;
 	duck->spawn_time = time(0);
-	duck->value = rand() % 10;
+	duck->value = 1 + config->round/2;
 	duck->state = flap_up;
 	duck->velocity = 2 + config->round/2;
 	// Randomly pick whether the duck starts moving east or west.
