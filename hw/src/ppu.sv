@@ -41,7 +41,7 @@ module ppu
 	logic [VISIBLE_SPRITES-1:0]	dc_en, dc_ld, dc_done, dc_r;
 	logic [VISIBLE_SPRITES-1:0]	sh_en, sh_ld, sh_r;
 	logic [1:0]			sh_out [VISIBLE_SPRITES - 1: 0];
-	logic [3:0]			color [VISIBLE_SPRITES - 1: 0];
+	logic [5:0]			color [VISIBLE_SPRITES - 1: 0];
 
 
 	// attribute count variable to loop through attribute table entries. 
