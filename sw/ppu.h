@@ -28,11 +28,13 @@ iowrite calls.
 
 #define ATTR_TABLE_MEMORY_OFFSET    (0x0000 * 4)
 #define COLOR_TABLE_MEMORY_OFFSET   (0x1000 * 4)
-#define SPRITE_TABLE_MEMORY_OFFSET  (0x2000 * 4)
+#define PATTERN_TABLE_MEMORY_OFFSET (0x2000 * 4)
+#define SPRITE_TABLE_MEMORY_OFFSET  (0x3000 * 4)
 
 // first argument is dev.base, second argument is distance from table offset.
 #define ATTR_WRITE(x, y)  (x + ATTR_TABLE_MEMORY_OFFSET    + (y * 4))
 #define SPRITE_WRITE(x,y) (x + SPRITE_TABLE_MEMORY_OFFSET  + (y * 4))
+#define PATTERN_WRITE(x,y)(x + PATTERN_TABLE_MEMORY_OFFSET + (y * 4))
 #define COLOR_WRITE(x, y) (x + COLOR_TABLE_MEMORY_OFFSET   + (y * 4))
 
 //Write to address structure - used for debugging. 
@@ -59,6 +61,16 @@ typedef struct {
 	int id;
 } attr_table_entry_t;
 
+#define PAT_ID_OFFSET 0
+#define PAT_SPRITE_OFFSET 0
+#define PAT_COLOR_OFFSET 8
+typedef struct {
+    uint32_t 	id;
+    char 	sprite;
+    char 	color_table;
+} pattern_table_entry_t;
+
+
 typedef struct {
     uint32_t id;
     uint32_t line[16];
@@ -78,9 +90,10 @@ typedef struct {
 
 /* ioctls and their arguments */
 #define PPU_MAGIC 'p'
-#define ATTR_TABLE_WRITE_DATA   _IOW(PPU_MAGIC, 1, attr_table_entry_t *)
-#define SPRITE_TABLE_WRITE_DATA _IOW(PPU_MAGIC, 2, sprite_table_entry_t *)
-#define COLOR_TABLE_WRITE_DATA  _IOW(PPU_MAGIC, 3, color_table_entry_t *)
-#define WRITE_TO_ADDRESS        _IOW(PPU_MAGIC, 4, struct wta *)
+#define ATTR_TABLE_WRITE_DATA     _IOW(PPU_MAGIC, 1, attr_table_entry_t *)
+#define PATTERN_TABLE_WRITE_DATA  _IOW(PPU_MAGIC, 2, color_table_entry_t *)
+#define SPRITE_TABLE_WRITE_DATA   _IOW(PPU_MAGIC, 3, sprite_table_entry_t *)
+#define COLOR_TABLE_WRITE_DATA    _IOW(PPU_MAGIC, 4, color_table_entry_t *)
+#define WRITE_TO_ADDRESS          _IOW(PPU_MAGIC, 5, struct wta *)
 
 #endif

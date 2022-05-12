@@ -13,7 +13,7 @@
 #define MAX_WIIMOTES 2
 #define SECONDS_BETWEEN_SPAWNS 1
 
-enum game_progress { START, ROUND_OVER, GAME_OVER };
+enum game_progress { ROUND_START, IN_PROGRESS, ROUND_OVER };
 
 int duck_hunt_fd;
 
@@ -137,35 +137,12 @@ void play_game(){
 		time_t last_spawned_time = time(0);
 		printf("TIME %ld\n", last_spawned_time);
 
-		enum game_progress progress;
+		enum game_progress progress = ROUND_START;
 
-		while(!is_game_over(&game_data) && 
-				any_wiimote_connected(wiimotes, MAX_WIIMOTES)){
-			usleep(8000);	
-
-			// Introduce a duck every 5 seconds if there are fewer than 2 ducks on the screen.
-			time_t now = time(0);
-			if(now - last_spawned_time > SECONDS_BETWEEN_SPAWNS 
-				&& game_data.visible_ducks < NUM_DUCKS_PER_ROUND && game_data.spawned_ducks < NUM_DUCKS_PER_ROUND) {
-
-				//printf("trying to spawn duck\n");
-				last_spawned_time = now;
-				// spawn the first duck that is currently not visible.
-				for(int i = 0; i < NUM_DUCKS_PER_ROUND; ++i){
-					if(ducks[i].state == inactive){
-						spawn_duck(&ducks[i], &game_data);
-						break;
-					}
-				}
-
-			}
-			
+		// START SCREEN
+		while (any_wiimote_connected(wiimotes, MAX_WIIMOTES)) {
 			// poll wii controller.
 			if (wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
-				/*
-				 *	This happens if something happened on any wiimote.
-				 *	So go through each one and check if anything happened.
-				 */
 				int i = 0;
 				for (; i < MAX_WIIMOTES; ++i) {
 					switch (wiimotes[i]->event) {
@@ -178,11 +155,67 @@ void play_game(){
 								printf("UP pressed\n");
 								wiiuse_set_ir(wm, 1);
 							}
-							if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_DOWN)) {
-								printf("DOWN pressed\n");
-								wiiuse_set_ir(wm, 0);
+							if (IS_PRESSED(wm, WIIMOTE_BUTTON_A)) {
+								printf("A pressed\n");
+								goto loop_out;
 							}
+					}
+				}
+			}
+		}
 
+		loop_out:;
+		// GAME LOOP
+		int muzzle_flash = 0;
+		time_t last_round_time = time(0);
+		while(!is_game_over(&game_data) && 
+				any_wiimote_connected(wiimotes, MAX_WIIMOTES)){
+			usleep(8000);	
+			printf("ROUND STATE: %d\n", progress);
+
+			time_t now = time(0);
+			if (progress == ROUND_START && now - last_round_time > 2) {
+				last_spawned_time = now;
+			   	start_new_round(&game_data);
+				update_game_state_attrs(duck_hunt_fd, game_data.bullets, game_data.score, game_data.round);
+				progress = IN_PROGRESS;
+			}
+			// Introduce a duck every 5 seconds if there are fewer than 2 ducks on the screen.
+			if(progress == IN_PROGRESS && now - last_spawned_time > SECONDS_BETWEEN_SPAWNS 
+				&& game_data.visible_ducks < NUM_DUCKS_PER_ROUND && game_data.spawned_ducks < NUM_DUCKS_PER_ROUND) {
+
+				//printf("trying to spawn duck\n");
+				// spawn the first duck that is currently not visible.
+				for(int i = 0; i < NUM_DUCKS_PER_ROUND; ++i){
+					if(ducks[i].state == inactive){
+						spawn_duck(&ducks[i], &game_data);
+						break;
+					}
+				}
+
+			}
+
+			// Stop muzzle flash after 5 ticks
+			if (muzzle_flash > 0) {
+				if (muzzle_flash == 1) {
+					write_pattern_table(duck_hunt_fd, 0);
+					wiiuse_rumble(wiimotes[0], 0);
+				}
+				muzzle_flash -= 1;
+			}
+			
+			// poll wii controller.
+			if (wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
+				/*
+				 *	This happens if something happened on any wiimote.
+				 *	So go through each one and check if anything happened.
+				 */
+				int i = 0;
+				for (; i < MAX_WIIMOTES; ++i) {
+					switch (wiimotes[i]->event) {
+						case WIIUSE_EVENT:;
+							struct wiimote_t* wm = wiimotes[i];
+							// printf("\n\n--- EVENT [id %i] ---\n", wm->unid);
 							/*
 							 *	If IR tracking is enabled then print the coordinates
 							 *	on the virtual screen that the wiimote is pointing to.
@@ -207,18 +240,20 @@ void play_game(){
 									cross_hair.y = scaled_y;
 								}
 
-								printf("IR cursor: (%u, %u)\n", wm->ir.x, wm->ir.y);
+								// printf("IR cursor: (%u, %u)\n", wm->ir.x, wm->ir.y);
 								// printf("IR z distance: %f\n", wm->ir.z);
 							}
 							
 							// If trigger just pressed, check if killed duck
 							if (IS_JUST_PRESSED(wm, WIIMOTE_BUTTON_B)) {
-								shoot_at_ducks(ducks, NUM_DUCKS_PER_ROUND, cross_hair, &game_data);
-								printf("B pressed\n");
-								wiiuse_rumble(wm, 1);
-							} else {
-								wiiuse_rumble(wm, 0);
-							}
+								if (progress == IN_PROGRESS) {
+									write_pattern_table(duck_hunt_fd, 1);
+									muzzle_flash = 15;
+									shoot_at_ducks(ducks, NUM_DUCKS_PER_ROUND, cross_hair, &game_data);
+									printf("B pressed\n");
+									wiiuse_rumble(wm, 1);
+								}
+							} 
 
 							break;
 
@@ -239,17 +274,17 @@ void play_game(){
 				}
 			}
 
+			update_crosshair_attr(duck_hunt_fd, cross_hair.x, cross_hair.y); 
 			move_ducks(ducks, NUM_DUCKS_PER_ROUND, &game_data);
 			for(int i = 0; i < NUM_DUCKS_PER_ROUND; ++i){
 				if(ducks[i].state != inactive){
 					update_duck_attr(duck_hunt_fd, &ducks[i]);
 				}
 			}
-			update_crosshair_attr(duck_hunt_fd, cross_hair.x, cross_hair.y); 
 			if(is_round_over(&game_data)){
-			   	start_new_round(&game_data);
-				update_game_state_attrs(duck_hunt_fd, game_data.bullets, game_data.score, game_data.round);
-				usleep(2000000);
+				// usleep(2000000);
+				progress = ROUND_START;
+				last_round_time = time(0);
 			}
 			update_game_state_attrs(duck_hunt_fd, game_data.bullets, game_data.score, game_data.round);
 		}
@@ -272,6 +307,7 @@ int main()
 	write_sprite_table(duck_hunt_fd);
 	write_color_table(duck_hunt_fd);
 	write_sprite_attr_table(duck_hunt_fd);
+	write_pattern_table(duck_hunt_fd, 0);
 
 	// Wii stuff
 	wiimotes = wiiuse_init(2);

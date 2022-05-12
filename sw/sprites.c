@@ -1200,9 +1200,9 @@ int write_sprite_table(int fd){
 		[50] = {
 			.id = 50,
 			.line = {
-				0xfc000000,
 				0xffffffff,
-				0x5fffffff,
+				0xffffffff,
+				0xffffffff,
 				0x5aaaaaaa,
 				0xaaaaaaaa,
 				0x55555555,
@@ -1347,14 +1347,23 @@ int write_sprite_attr_table(int fd){
 	}
 }
 
-int write_pattern_table(int fd){
+int write_pattern_table(int fd, int back_c){
 	pattern_table_entry_t pattern = {0};
-	pattern.sprite = 50;
+	pattern.sprite = 51;
+	pattern.color_table = back_c;
 	int i = 0;
 	for(; i < 1200; ++i){
 		pattern.id = i;
-		if (i > 800 - 4 )
-			pattern.sprite = 0;
+		if (i > 840 - 3 ) {
+			pattern.sprite = 49;
+			pattern.color_table = 4;
+		}
+		else if (i > 800 - 3 ) {
+			printf("HERE\n");
+			pattern.sprite = 50;
+			pattern.color_table = 4;
+		}
+
 		if (ioctl(fd, PATTERN_TABLE_WRITE_DATA, &pattern)) {
 			perror("ioctl(PATTERN_TABLE_WRITE_DATA) failed");
 			return 0;
@@ -1437,6 +1446,7 @@ int update_crosshair_attr(int fd, int x_coord, int y_coord) {
 	int attr_table_entry = CROSSHAIR_ATTR_TABLE_OFFSET;
 	attr_table[attr_table_entry].coord.x = x_coord;
 	attr_table[attr_table_entry].coord.y = y_coord;
+	attr_table[attr_table_entry].color_table = 0;
 
 	if (ioctl(fd, ATTR_TABLE_WRITE_DATA, &attr_table[attr_table_entry])) {
 		perror("ioctl(ATTR_TABLE_WRITE_DATA) failed");
