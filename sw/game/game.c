@@ -8,8 +8,8 @@ const int kVerticalScreenSize = 300;
 const int kHorizontalScreenSize = 640;
 const double kPI = 3.14159;
 const int kMaxDuckTimeSeconds = 6;
-const int kRoundsPerGame = 6;
-const int kCrossHairSquareSize = 40;
+const int kRoundsPerGame = 8;
+const int kCrossHairSquareSize = 32;
 const int kGraphicSize = 32;
 const int kBulletsPerRound = 3;
 
@@ -50,7 +50,7 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 	// A flying away duck should not move on the x plane. It should leave the screen by flyinga directly upward. 
 	if(duck->state == flying_away ){
 		if(duck->coord.y > 0 - kGraphicSize){
-			duck->coord.y--;
+			duck->coord.y-= 2;
 		}
 		else {
 			printf("flew off screen\n");
@@ -152,8 +152,11 @@ int spawn_duck(duck_t * duck, game_config_t * config){
 	duck->coord.y = kVerticalScreenSize;
 	duck->spawn_time = time(0);
 	duck->value = 1 + config->round/2;
+	if (config->round == 8) duck->value = 10;
 	duck->state = flap_up;
-	duck->velocity = 2 + config->round/2;
+	duck->velocity = 2;
+	if (config->round > 0) duck->velocity += (config->round-1)/2;
+	if (config->round == 8) duck->velocity = 7;
 	// Randomly pick whether the duck starts moving east or west.
 	duck->x_direction = rand() % 2; 
 	// Duck always starts moving upward since it is coming out of the grass.

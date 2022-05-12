@@ -114,7 +114,7 @@ short any_wiimote_connected(wiimote** wm, int wiimotes) {
 
 void play_game(){
 
-	//while(1){
+	while(1) {
 
 		// Set inintial game state.
 		game_config_t game_data = {
@@ -304,13 +304,33 @@ void play_game(){
 				}
 				progress = ROUND_START;
 				last_round_time = time(0);
+				if (game_data.round == 8) goto game_over;
 			}
 			
 			update_game_state_attrs(duck_hunt_fd, game_data.bullets, game_data.score, game_data.round);
 		}
+		game_over:
 		printf("GAME_OVER");
+		// END SCREEN
+		while (any_wiimote_connected(wiimotes, MAX_WIIMOTES)) {
+			// poll wii controller.
+			if (wiiuse_poll(wiimotes, MAX_WIIMOTES)) {
+				int i = 0;
+				for (; i < MAX_WIIMOTES; ++i) {
+					switch (wiimotes[i]->event) {
+						case WIIUSE_EVENT:;
+							struct wiimote_t* wm = wiimotes[i];
+							if (IS_PRESSED(wm, WIIMOTE_BUTTON_A)) {
+								printf("A pressed\n");
+								goto end_game;
+							}
+					}
+				}
+			}
+		}
+		end_game:;
 
-	//}
+	}
 }
 
 int main()

@@ -1156,22 +1156,39 @@ int write_sprite_table(int fd){
 		[48] = {
 			.id = 48,
 			.line = {
-				0x0,
-				0x0,
-				0x0,
-				0x0,
-				0xfc3f00,
-				0xffff00,
-				0xffff00,
-				0x3ffc00,
-				0x3ffc00,
-				0xffff00,
-				0xffff00,
-				0xfc3f00,
-				0x0,
-				0x0,
-				0x0,
-				0x0,
+				// 0x0,
+				// 0x0,
+				// 0x0,
+				// 0x0,
+				// 0xfc3f00,
+				// 0xffff00,
+				// 0xffff00,
+				// 0x3ffc00,
+				// 0x3ffc00,
+				// 0xffff00,
+				// 0xffff00,
+				// 0xfc3f00,
+				// 0x0,
+				// 0x0,
+				// 0x0,
+				// 0x0,
+				0x0003c000,
+				0x0003c000,
+				0x0003c000,
+				0x0003c000,
+				0x0003c000,
+				0x0003c000,
+				0x0003c000,
+				0xffffffff,
+				0xffffffff,
+				0x0003c000,
+				0x0003c000,
+				0x0003c000,
+				0x0003c000,
+				0x0003c000,
+				0x0003c000,
+				0x0003c000,
+				
 			}
 		},
 		// Grass Body
@@ -1329,7 +1346,7 @@ int write_color_table(int fd){
 				[0] = {.r = 0,  .g = 0,   .b = 0  },
 				[1] = {.r = 1, .g = 1, .b = 1 },
 				[2] = {.r = 255,  .g = 255,   .b = 255  },
-				[3] = {.r = 0,  .g = 200,   .b = 0  },
+				[3] = {.r = 0,  .g = 80,   .b = 0  },
 			},
 		},
 	};
@@ -1423,7 +1440,10 @@ int update_duck_attr(int fd, duck_t * duck) {
 		int attr_table_entry = DUCK_ATTR_TABLE_OFFSET + duck->id * NUM_SPRITES_PER_DUCK + i;
 		attr_table[attr_table_entry].coord.x = duck->coord.x + SPRITE_TABLE_ENTRY_SIZE * (i / 2);
 		attr_table[attr_table_entry].coord.y = duck->coord.y + SPRITE_TABLE_ENTRY_SIZE * (i % 2) ;
-		if (duck->velocity > 3) {
+		if (duck->velocity > 5) {
+			attr_table[attr_table_entry].color_table  = 1 ;
+		}
+		else if (duck->velocity > 3) {
 			attr_table[attr_table_entry].color_table  = 0 ;
 		} else {
 			attr_table[attr_table_entry].color_table  = 6 ;
