@@ -28,11 +28,13 @@ iowrite calls.
 
 #define ATTR_TABLE_MEMORY_OFFSET    (0x0000 * 4)
 #define COLOR_TABLE_MEMORY_OFFSET   (0x1000 * 4)
-#define SPRITE_TABLE_MEMORY_OFFSET  (0x2000 * 4)
+#define PATTERN_TABLE_MEMORY_OFFSET (0x2000 * 4)
+#define SPRITE_TABLE_MEMORY_OFFSET  (0x3000 * 4)
 
 // first argument is dev.base, second argument is distance from table offset.
 #define ATTR_WRITE(x, y)  (x + ATTR_TABLE_MEMORY_OFFSET    + (y * 4))
 #define SPRITE_WRITE(x,y) (x + SPRITE_TABLE_MEMORY_OFFSET  + (y * 4))
+#define PATTERN_WRITE(x,y)(x + PATTERN_TABLE_MEMORY_OFFSET + (y * 4))
 #define COLOR_WRITE(x, y) (x + COLOR_TABLE_MEMORY_OFFSET   + (y * 4))
 
 //Write to address structure - used for debugging. 
@@ -58,6 +60,16 @@ typedef struct {
 	// be computed by multiplying id * ATTR_TABLE_ENTRY_SIZE.
 	int id;
 } attr_table_entry_t;
+
+#define PAT_ID_OFFSET 0
+#define PAT_SPRITE_OFFSET 0
+#define PAT_COLOR_OFFSET 8
+typedef struct {
+    uint32_t 	id;
+    char 	sprite;
+    char 	color_table;
+} pattern_table_entry_t;
+
 
 typedef struct {
     uint32_t id;

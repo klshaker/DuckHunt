@@ -31,49 +31,57 @@ module ppu
 	output logic 	   	VGA_SYNC_n);
 
 
+	logic [7:0]		background_r, background_g, background_b;
         // which table in memroy to write to (if any).
-	logic [2:0]		mem_write;
 	// which horizontal pixel we are currently on. 
 	logic [10:0]		hcount;
-	// which vertical pixel we are currently on.
 	logic [9:0]		vcount;
-	logic [31:0]		sprite_attr, sprite;
 
-	// down counter enable and load variables.
+	// down counter enable and load variables used for (sprite,color) -> pixel color
 	logic [VISIBLE_SPRITES-1:0]	dc_en, dc_ld, dc_done, dc_r;
-	// shifter enable and load variables.
 	logic [VISIBLE_SPRITES-1:0]	sh_en, sh_ld, sh_r;
+	logic [1:0]			sh_out [VISIBLE_SPRITES - 1: 0];
+	logic [3:0]			color [VISIBLE_SPRITES - 1: 0];
 
-	logic [31:0]		w_data;
-	logic [15:0]		w_addr;
 
-	logic [9:0]		s_addr;
-       	logic [5:0]		a_addr;
-       	logic [5:0]		c_addr;
-	logic [31:0]		color_out;
-
-	logic [7:0]		background_r, background_g, background_b;
-
-	logic [1:0]		sh_out [VISIBLE_SPRITES - 1: 0];
-	logic [3:0]		color [VISIBLE_SPRITES - 1: 0];
 	// attribute count variable to loop through attribute table entries. 
 	// vc variable to keep track of how many attributes are actually
 	// visible on screen.
 	logic [5:0]		ac, vc;
 	logic [9:0]		tx; // ty;
-	logic [9:0]		sr_addr, ar_addr;
-	logic [5:0]		tcolor;
-	logic [15:0]		haddr;
+
+	//Address and Data to write to a table
+	logic [31:0]		w_data;
+	logic [15:0]		w_addr;
+
+	//Address used to index into each table
+       	logic [5:0]		a_addr;
+	logic [10:0]		p_addr;
+	logic [11:0]		s_addr;
+       	logic [5:0]		c_addr;
+
+	//Address used to read a table entry
+        logic [5:0] 		ar_addr; 
+	logic [10:0]		pr_addr;
+	logic [11:0]		sr_addr;
+	logic [5:0]		cr_addr;
+	
+	//Outputs of each table
+	logic [31:0]		sprite_attr, sprite, pattern, color_out;
 
 
+	logic [3:0] mem_write;
 	assign a_addr = mem_write[0] ? w_addr[5:0]: ar_addr[5:0];
-	assign c_addr = mem_write[1] ? w_addr[5:0]: tcolor;
-	assign s_addr = mem_write[2] ? w_addr[9:0]: sr_addr;
+	assign c_addr = mem_write[1] ? w_addr[5:0]: cr_addr;
+	assign p_addr = mem_write[2] ? w_addr[11:0]: (vcount[9:4] * 40) + hcount[10:5];
+	assign s_addr = mem_write[3] ? w_addr[11:0]: (state == OUTPUT ? ( (pattern[7:0] << 4) + vcount[9:4]): sr_addr);
+
 
 	vga_counters 		counters(.clk50(clk), .*);
-	memory #(32,  64, 6) 	attr_table  (.clk(clk), .we(mem_write[0]), .addr(a_addr[5:0]), .data_in(w_data), .data_out(sprite_attr));
-	memory #(32,  64, 6)  	color_table (.clk(clk), .we(mem_write[1]), .addr(c_addr[5:0]), .data_in(w_data), .data_out(color_out));
-	memory #(32, 1024, 10) 	sprite_table(.clk(clk), .we(mem_write[2]), .addr(s_addr[9:0]), .data_in(w_data), .data_out(sprite));
+	memory #(32,  64, 6) 	attr_table  (.clk(clk),  .we(mem_write[0]), .addr(a_addr[5:0]), .data_in(w_data), .data_out(sprite_attr));
+	memory #(32,  64, 6)  	color_table (.clk(clk),  .we(mem_write[1]), .addr(c_addr[5:0]), .data_in(w_data), .data_out(color_out));
+	memory #(32, 2048, 11) 	pattern_table(.clk(clk), .we(mem_write[2]), .addr(p_addr[10:0]), .data_in(w_data), .data_out(pattern));
+	memory #(32, 4096, 12) 	sprite_table(.clk(clk),  .we(mem_write[3]), .addr(s_addr[11:0]), .data_in(w_data), .data_out(sprite));
 
 	genvar k;
 	generate
@@ -84,9 +92,14 @@ module ppu
 	endgenerate
 	assign sh_en = dc_done;
 
-	always_ff @(posedge clk) begin
-		if (address) haddr <= address;
-	end
+
+	logic ping_pong;
+	logic [1:0] pp_sh_en, pp_sh_ld, pp_sh_reset;
+        logic [1:0] pp_sh_out [1:0];
+        logic [31:0] pp_color [1:0];
+	shift ping_sh(.clk(clk), .en(pp_sh_en[0]), .ld(pp_sh_ld[0]), .reset(pp_sh_reset[0]), .data_in(sprite), .data_out(pp_sh_out[0]));
+	shift pong_sh(.clk(clk), .en(pp_sh_en[1]), .ld(pp_sh_ld[1]), .reset(pp_sh_reset[1]), .data_in(sprite), .data_out(pp_sh_out[1]));
+
 
 
 	always_ff @(posedge clk) begin
@@ -95,12 +108,14 @@ module ppu
 			// The first two bits of the address tell us which
 			// table we are writing to. 
 			// 0X0000 Sprite Attribute Table 
-			// 0x0100 Sprite Table 
-			// 0x0200 Color Table
+			// 0x1000 Color Table
+			// 0x2000 Pattern Table
+			// 0x3000+ Sprite Table 
 			case(address[15:12])
 				4'b0000: mem_write[0]	<= 1'b1;
 				4'b0001: mem_write[1]	<= 1'b1;
-				default: mem_write[2]	<= 1'b1;
+				4'b0010: mem_write[2]	<= 1'b1;
+				default: mem_write[3]	<= 1'b1;
 			endcase
 			w_addr <= address;
 			w_data <= writedata;
@@ -108,9 +123,14 @@ module ppu
 	end
 			
 	enum logic [3:0] {A_INDEX, CHECK, S_INDEX, SET, IDLE, OUTPUT} state;
+	enum logic [1:0] {PP_P_INDEX, PP_P_CHECK, PP_S_READ} pp_state;
+
 	always_ff @(posedge clk) begin
 		dc_en <= {VISIBLE_SPRITES{1'b0}}; dc_ld <={VISIBLE_SPRITES{1'b0}}; dc_r <= {VISIBLE_SPRITES{1'b0}};
 		sh_ld <= {VISIBLE_SPRITES{1'b0}}; sh_r <= {VISIBLE_SPRITES{1'b0}};
+		pp_sh_en <= 2'b0; pp_sh_ld <= 2'b0; pp_sh_reset <= 2'b0; 
+
+
 		case (state)
 			A_INDEX: begin //Attr table index set, data available next cycle
 				state <= CHECK;
@@ -152,6 +172,30 @@ module ppu
 				end
 			end
 			OUTPUT: begin
+
+				//Ping-Pong Pattern logic:
+				//Pingpong every 32 cycles
+				if (hcount[4:0] == 5'b11111) ping_pong <= ping_pong ? 0 : 1;
+				pp_sh_en[ping_pong] <= hcount[0];
+
+				//Start loading !ping_pong
+				case (pp_state)
+					PP_P_INDEX: begin //Pattern table addr has been set
+						pp_state <= PP_P_CHECK;
+					end
+					PP_P_CHECK: begin //Patterntable outputing sprite index
+						pp_color[!ping_pong] <= (pattern[20:12] << 2); //Save color;
+						pp_sh_ld[!ping_pong] <= 1; //Set !ping_pong shifter to load next cycle
+						pp_state <= PP_S_READ; //Sprite table should be outputting sprite next cycle
+					end
+					PP_S_READ: begin //Sprite table outputting pattern sprite, just wait...
+						if(hcount[5:0] == 5'b11111) pp_state <= PP_P_INDEX;
+					end
+					default:pp_state <= PP_P_INDEX;
+						
+				endcase
+
+
 				dc_en <= hcount[0] ? {VISIBLE_SPRITES{1'b0}} : {VISIBLE_SPRITES{1'b1}};
 				if (hcount == 11'd1279) begin 
 					dc_r	<= {VISIBLE_SPRITES{1'b1}};
@@ -160,16 +204,20 @@ module ppu
 					ar_addr	<= 8'b0;
 					ac	<= 4'b0; 
 					vc	<= 4'b0; 
+
+					//reset ping_pong;
+					ping_pong <= 1'b0;
+					pp_sh_reset  <= 2'b11;
 				end
-				tcolor <= 6'b0;
-				if(sh_out[0] != 2'b0)	   tcolor <= color[0] + {3'b0, sh_out[0]};
-				else if(sh_out[1] != 2'b0) tcolor <= color[1] + {3'b0, sh_out[1]};
-				else if(sh_out[2] != 2'b0) tcolor <= color[2] + {3'b0, sh_out[2]};
-				else if(sh_out[3] != 2'b0) tcolor <= color[3] + {3'b0, sh_out[3]};
-				else if(sh_out[4] != 2'b0) tcolor <= color[4] + {3'b0, sh_out[4]};
-				else if(sh_out[5] != 2'b0) tcolor <= color[5] + {3'b0, sh_out[5]};
-				else if(sh_out[6] != 2'b0) tcolor <= color[6] + {3'b0, sh_out[6]};
-				else if(sh_out[7] != 2'b0) tcolor <= color[7] + {3'b0, sh_out[7]};
+				cr_addr <= pp_color[ping_pong] + {3'b0, pp_sh_out[ping_pong]};
+				if(sh_out[0] != 2'b0)	   cr_addr <= color[0] + {3'b0, sh_out[0]};
+				else if(sh_out[1] != 2'b0) cr_addr <= color[1] + {3'b0, sh_out[1]};
+				else if(sh_out[2] != 2'b0) cr_addr <= color[2] + {3'b0, sh_out[2]};
+				else if(sh_out[3] != 2'b0) cr_addr <= color[3] + {3'b0, sh_out[3]};
+				else if(sh_out[4] != 2'b0) cr_addr <= color[4] + {3'b0, sh_out[4]};
+				else if(sh_out[5] != 2'b0) cr_addr <= color[5] + {3'b0, sh_out[5]};
+				else if(sh_out[6] != 2'b0) cr_addr <= color[6] + {3'b0, sh_out[6]};
+				else if(sh_out[7] != 2'b0) cr_addr <= color[7] + {3'b0, sh_out[7]};
 
 				background_r <= color_out[7:0];
 				background_g <= color_out[15:8];
@@ -190,15 +238,20 @@ module ppu
 			{VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0};
 	end
 
+	//Hex Display debug
+	logic [15:0]		haddr;
+	always_ff @(posedge clk) begin
+		if (address) haddr <= address;
+	end
 
 	hex7seg h0(haddr[3:0],	HEX0);
 	hex7seg h1(haddr[7:4],	HEX1);
 
 	hex7seg h2(haddr[11:8],	HEX2);
-	hex7seg h3(haddr[15:12],	HEX3);
+	hex7seg h3(haddr[15:12],HEX3);
 
-	hex7seg h4(ac[3:0],		HEX4);
-	hex7seg h5(state[3:0],		HEX5);
+	hex7seg h4(ac[3:0],	HEX4);
+	hex7seg h5(state[3:0],	HEX5);
 
 endmodule
 

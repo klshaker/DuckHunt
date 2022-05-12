@@ -47,6 +47,21 @@ static void write_to_attr_table(attr_table_entry_t *attr)
 
 }
 
+static void write_to_pattern_table(attr_table_entry_t *pat)
+{
+
+	int data = 0x0;
+	data = data | (pat->sprite << PAT_SPRITE_OFFSET);
+	data = data | (pat->color_table << PAT_COLOR_OFFSET);
+
+	iowrite32(data, PATTERN_WRITE(dev.virtbase, pat->id));
+
+	printk(KERN_INFO "Wrote pattern(%d) to %x\n", pat->id,  
+	(unsigned int) PATTERN_WRITE(dev.virtbase, pat->id));
+
+}
+
+
 static void write_to_color_table(color_table_entry_t *color_palette)
 {
     // All color tables take up COLOR_TABLE_ENTRY_SIZE 'rows' in the 32 bit FPGA memory. Each call to this function represents one color
@@ -105,6 +120,14 @@ static long ppu_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 				return -EACCES;
 			write_to_sprite_table(&sprite);
 			break;
+
+		case PATTERN_TABLE_WRITE_DATA:
+			if (copy_from_user(&pattern, (pattern_table_entry_t*) arg,
+						sizeof(pattern_table_entry_t)))
+				return -EACCES;
+			write_to_pattern_table(&pattern_palette);
+			break;
+
 		case COLOR_TABLE_WRITE_DATA:
 			if (copy_from_user(&color_palette, (color_table_entry_t*) arg,
 						sizeof(color_table_entry_t)))

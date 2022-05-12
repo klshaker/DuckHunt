@@ -13,7 +13,8 @@
 
 #define ATTR_TABLE_MEMORY_OFFSET 0x0000
 #define COLOR_TABLE_MEMORY_OFFSET 0x1000
-#define SPRITE_TABLE_MEMORY_OFFSET 0x2000
+#define PATTERN_TABLE_MEMORY_OFFSET 0x2000
+#define SPRITE_TABLE_MEMORY_OFFSET 0x3000
 
 
 int32_t attr_to_int(attr_table_entry_t *attr)
@@ -23,6 +24,14 @@ int32_t attr_to_int(attr_table_entry_t *attr)
 	data = data | (attr->coord.y	 << OBJ_Y_COORD_OFFSET);
 	data = data | (attr->sprite	 << OBJ_SPRITE_OFFSET );
 	data = data | (attr->color_table << OBJ_COLOR_OFFSET  );
+	return data;
+}
+
+int32_t pattern_to_int( pattern_table_entry_t *pat)
+{
+	int data = 0x00000000;
+	data = data | (pat->sprite << PAT_SPRITE_OFFSET);
+	data = data | (pat->color_table << PAT_COLOR_OFFSET);
 	return data;
 }
 
@@ -108,6 +117,35 @@ int main(int argc, const char ** argv, const char ** env) {
 
 	}
 
+	pattern_table_entry_t patt = {
+		.id = 0,
+		.sprite = 0,
+		.color_table = 0,
+	};
+	for (int i = 0; i < 1200; i++)
+	{
+	
+		//CLOCK HIGH
+		dut->clk = 1;
+		clock++;
+		time += 10;
+
+		dut->writedata = pattern_to_int(&patt);
+		dut->address = PATTERN_TABLE_MEMORY_OFFSET + i;
+
+
+		dut->eval();
+		tfp->dump( time );
+
+		//CLOCK LOW
+		dut->clk = 0;
+		time += 10;
+
+		dut->eval();
+		tfp->dump( time );
+
+	}
+
 	// Write all of the sprites to the Sprite Attribute Table. Will take NUM_SPRITES clock cycles.
 	for(int i = 0; i < 16; i++) {
 		//CLOCK HIGH
@@ -138,15 +176,15 @@ int main(int argc, const char ** argv, const char ** env) {
 
 
 	for(int i = 0; i < 16; i++) {
-		for (int c = 0; c < 4; c++) {
+		for (int c = 0; c < 16; c++) {
 			//CLOCK HIGH
 			dut->clk = 1;
 			clock++;
 			time += 10;
 
 			//std::cout << attr_to_int(&attr) << std::endl;
-			dut->writedata = sprite.line[i];
-			dut->address = SPRITE_TABLE_MEMORY_OFFSET + i;
+			dut->writedata = sprite.line[c];
+			dut->address = SPRITE_TABLE_MEMORY_OFFSET + c + i;
 
 			dut->eval();
 			tfp->dump( time );
@@ -161,16 +199,17 @@ int main(int argc, const char ** argv, const char ** env) {
 		}
 	}
 
+
 	for(int i = 0; i < 16; i++) {
-		for (int c = 0; c < 16; c++) {
+		for (int c = 0; c < 4; c++) {
 			//CLOCK HIGH
 			dut->clk = 1;
 			clock++;
 			time += 10;
 
 			//std::cout << attr_to_int(&attr) << std::endl;
-			dut->writedata = color_to_int(&color_palette.color[i]);
-			dut->address = COLOR_TABLE_MEMORY_OFFSET + i;
+			dut->writedata = color_to_int(&color_palette.color[c]);
+			dut->address = COLOR_TABLE_MEMORY_OFFSET + c + i;
 
 			dut->eval();
 			tfp->dump( time );
