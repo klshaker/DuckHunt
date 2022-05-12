@@ -1,21 +1,21 @@
 [*]
 [*] GTKWave Analyzer v3.3.111 (w)1999-2020 BSI
-[*] Thu Apr 28 17:44:05 2022
+[*] Thu May 12 04:20:19 2022
 [*]
 [dumpfile] "/home/bryce/DuckHunt/hw/tb/ppu.vcd"
-[dumpfile_mtime] "Thu Apr 28 17:40:35 2022"
-[dumpfile_size] 23675397
+[dumpfile_mtime] "Thu May 12 04:07:14 2022"
+[dumpfile_size] 128392378
 [savefile] "/home/bryce/DuckHunt/hw/tb/ppu.gtkw"
-[timestart] 1023630
-[size] 2229 1291
-[pos] 62 65
-*-11.007214 993270 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[timestart] 833827
+[size] 2560 1329
+[pos] 1982 97
+*-5.907214 834101 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.ppu.
 [sst_width] 284
-[signals_width] 283
+[signals_width] 258
 [sst_expanded] 1
-[sst_vpaned_height] 371
+[sst_vpaned_height] 340
 @28
 TOP.ppu.clk
 TOP.ppu.reset
@@ -23,22 +23,23 @@ TOP.ppu.chipselect
 TOP.ppu.write
 @22
 TOP.ppu.address[15:0]
-@28
-TOP.ppu.mem_write[2:0]
-@22
 TOP.ppu.writedata[31:0]
 @200
 -
 @22
 TOP.ppu.w_addr[15:0]
 TOP.ppu.w_data[31:0]
+@800022
+TOP.ppu.mem_write[3:0]
+@28
+(0)TOP.ppu.mem_write[3:0]
+(1)TOP.ppu.mem_write[3:0]
+(2)TOP.ppu.mem_write[3:0]
+(3)TOP.ppu.mem_write[3:0]
+@1001200
+-group_end
 @200
 -
-@22
-TOP.ppu.c_addr[3:0]
-TOP.ppu.a_addr[3:0]
-TOP.ppu.s_addr[7:0]
-@200
 -
 -ATTR TABLE ENTRIES
 -
@@ -55,28 +56,72 @@ TOP.ppu.state[3:0]
 @22
 TOP.ppu.sprite_attr[31:0]
 TOP.ppu.tx[9:0]
-TOP.ppu.taddr[7:0]
-TOP.ppu.tcolor[3:0]
 @200
 -
 @22
 TOP.ppu.sprite[31:0]
 @200
 -
+@24
+TOP.ppu.p_addr[10:0]
 @22
-TOP.ppu.dc_en[15:0]
-TOP.ppu.dc_ld[15:0]
+TOP.ppu.pattern_table.data_out[31:0]
+@28
+TOP.ppu.pp_state[1:0]
 @200
 -
-@22
-TOP.ppu.dc_done[15:0]
+@28
+TOP.ppu.pp_sh_en[1:0]
 @200
 -
+-PING
+@28
+[color] 1
+TOP.ppu.ping_sh.en
+[color] 1
+TOP.ppu.ping_sh.ld
+@22
+[color] 1
+TOP.ppu.ping_sh.data_in[31:0]
+@28
+[color] 1
+TOP.ppu.ping_sh.data_out[1:0]
+[color] 2
+TOP.ppu.ping_pong
+@200
+-PONG
 @29
+[color] 3
+TOP.ppu.pong_sh.en
+[color] 3
+TOP.ppu.pong_sh.ld
+@23
+[color] 3
+TOP.ppu.pong_sh.data_in[31:0]
+@29
+[color] 3
+TOP.ppu.pong_sh.data_out[1:0]
+@200
+-
+@22
+TOP.ppu.dc_en[7:0]
+TOP.ppu.dc_done[7:0]
+TOP.ppu.sh_en[7:0]
+@28
+TOP.ppu.sh_out[0][1:0]
+TOP.ppu.sh_out[7][1:0]
 TOP.ppu.VGA_BLANK_n
 @22
+[color] 1
 TOP.ppu.VGA_R[7:0]
 TOP.ppu.VGA_G[7:0]
+[color] 5
 TOP.ppu.VGA_B[7:0]
+@200
+-
+-COLOR_TABLE
+@22
+TOP.ppu.color_table.addr[5:0]
+TOP.ppu.color_table.data_out[31:0]
 [pattern_trace] 1
 [pattern_trace] 0
