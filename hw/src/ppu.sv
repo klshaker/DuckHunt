@@ -97,8 +97,8 @@ module ppu
 	logic [1:0] pp_sh_en, pp_sh_ld, pp_sh_reset;
         logic [1:0] pp_sh_out [1:0];
         logic [31:0] pp_color [1:0];
-	shift ping_sh(.clk(clk), .en(pp_sh_en[0]), .ld(pp_sh_ld[0]), .reset(pp_sh_reset[0]), .data_in(sprite), .data_out(pp_sh_out[0]));
-	shift pong_sh(.clk(clk), .en(pp_sh_en[1]), .ld(pp_sh_ld[1]), .reset(pp_sh_reset[1]), .data_in(sprite), .data_out(pp_sh_out[1]));
+	shift pong_sh(.clk(clk), .en(pp_sh_en[0]), .ld(pp_sh_ld[0]), .reset(pp_sh_reset[0]), .data_in(sprite), .data_out(pp_sh_out[0]));
+	shift ping_sh(.clk(clk), .en(pp_sh_en[1]), .ld(pp_sh_ld[1]), .reset(pp_sh_reset[1]), .data_in(sprite), .data_out(pp_sh_out[1]));
 
 
 
@@ -166,18 +166,19 @@ module ppu
 				vc	<= vc + 1'b1;
 			end
 			IDLE: begin
-				if (hcount == 11'd1598) sr_addr <= (pattern[7:0] << 4) + vcount[3:0];
+				if (hcount == 11'd1597) sr_addr <= (pattern[7:0] << 4) + vcount[3:0];
+				if (hcount == 11'd1598) pp_sh_ld[ping_pong] <= 1'b1;
 				if (hcount == 11'd1599) begin
 					state <= OUTPUT;
 					dc_en <= {VISIBLE_SPRITES{1'b1}};
-					pp_sh_ld[ping_pong] <= 1'b1;
+					pp_sh_en[ping_pong] <= 1'b1;
 
 				end
 			end
 			OUTPUT: begin
 
 				dc_en <= hcount[0] ? {VISIBLE_SPRITES{1'b0}} : {VISIBLE_SPRITES{1'b1}};
-				if (hcount[4:0] == 5'b11110) ping_pong <= ping_pong ? 0 : 1;
+				if (hcount[4:0] == 5'b11111) ping_pong <= ping_pong ? 0 : 1;
 				pp_sh_en[ping_pong] <= hcount[0];
 
 				//Start loading !ping_pong
@@ -191,9 +192,9 @@ module ppu
 						pp_state <= PP_S_READ; //Sprite table should be outputting sprite next cycle
 					end
 					PP_S_READ: begin //Sprite table outputting pattern sprite, just wait...
-						if(hcount[4:0] == 5'b11110) begin
+						if(hcount[4:0] == 5'b11111) begin
 							pp_state <= PP_P_INDEX;
-							pp_sh_en[!ping_pong] <= 1'b1;
+							pp_sh_en[!ping_pong] <= 1'b1; //en set high on 11110, outputs 11111
 						end
 					end
 					default:pp_state <= PP_P_INDEX;
