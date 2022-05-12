@@ -73,8 +73,8 @@ module ppu
 	logic [3:0] mem_write;
 	assign a_addr = mem_write[0] ? w_addr[5:0]: ar_addr[5:0];
 	assign c_addr = mem_write[1] ? w_addr[5:0]: cr_addr;
-	assign p_addr = mem_write[2] ? w_addr[11:0]: (vcount[9:4] * 40) + hcount[10:5];
-	assign s_addr = mem_write[3] ? w_addr[11:0]: (state == OUTPUT ? ( (pattern[7:0] << 4) + vcount[9:4]): sr_addr);
+	assign p_addr = mem_write[2] ? w_addr[11:0]: (state == OUTPUT ? ( (vcount[9:4] * 40) + hcount[10:5]) : vcount[9:4] * 40);
+	assign s_addr = mem_write[3] ? w_addr[11:0]: (state == OUTPUT ? ( (pattern[7:0] << 4) + vcount[3:0]): sr_addr);
 
 
 	vga_counters 		counters(.clk50(clk), .*);
@@ -166,17 +166,19 @@ module ppu
 				vc	<= vc + 1'b1;
 			end
 			IDLE: begin
+				if (hcount == 11'd1598) sr_addr <= (pattern[7:0] << 4) + vcount[3:0];
 				if (hcount == 11'd1599) begin
 					state <= OUTPUT;
 					dc_en <= {VISIBLE_SPRITES{1'b1}};
+					pp_sh_ld[ping_pong] <= 1'b1;
+
 				end
 			end
 			OUTPUT: begin
 
-				//Ping-Pong Pattern logic:
-				//Pingpong every 32 cycles
-				if (hcount[4:0] == 5'b11111) ping_pong <= ping_pong ? 0 : 1;
-				pp_sh_en[ping_pong] <= hcount[0];
+				dc_en <= hcount[0] ? {VISIBLE_SPRITES{1'b0}} : {VISIBLE_SPRITES{1'b1}};
+				if (hcount[4:0] == 5'b11110) ping_pong <= ping_pong ? 0 : 1;
+				pp_sh_en[ping_pong] <= !hcount[0];
 
 				//Start loading !ping_pong
 				case (pp_state)
@@ -184,31 +186,21 @@ module ppu
 						pp_state <= PP_P_CHECK;
 					end
 					PP_P_CHECK: begin //Patterntable outputing sprite index
-						pp_color[!ping_pong] <= (pattern[20:12] << 2); //Save color;
+						pp_color[!ping_pong] <= (pattern[11:8] << 2); //Save color;
 						pp_sh_ld[!ping_pong] <= 1; //Set !ping_pong shifter to load next cycle
 						pp_state <= PP_S_READ; //Sprite table should be outputting sprite next cycle
 					end
 					PP_S_READ: begin //Sprite table outputting pattern sprite, just wait...
-						if(hcount[5:0] == 5'b11111) pp_state <= PP_P_INDEX;
+						if(hcount[4:0] == 5'b11110) begin
+							pp_state <= PP_P_INDEX;
+							pp_sh_en[!ping_pong] <= 1'b1;
+						end
 					end
 					default:pp_state <= PP_P_INDEX;
 						
 				endcase
 
 
-				dc_en <= hcount[0] ? {VISIBLE_SPRITES{1'b0}} : {VISIBLE_SPRITES{1'b1}};
-				if (hcount == 11'd1279) begin 
-					dc_r	<= {VISIBLE_SPRITES{1'b1}};
-					sh_r	<= {VISIBLE_SPRITES{1'b1}};
-					state	<= A_INDEX;
-					ar_addr	<= 8'b0;
-					ac	<= 4'b0; 
-					vc	<= 4'b0; 
-
-					//reset ping_pong;
-					ping_pong <= 1'b0;
-					pp_sh_reset  <= 2'b11;
-				end
 				cr_addr <= pp_color[ping_pong] + {3'b0, pp_sh_out[ping_pong]};
 				if(sh_out[0] != 2'b0)	   cr_addr <= color[0] + {3'b0, sh_out[0]};
 				else if(sh_out[1] != 2'b0) cr_addr <= color[1] + {3'b0, sh_out[1]};
@@ -222,6 +214,19 @@ module ppu
 				background_r <= color_out[7:0];
 				background_g <= color_out[15:8];
 				background_b <= color_out[23:16];
+
+				if (hcount == 11'd1279) begin 
+					dc_r	<= {VISIBLE_SPRITES{1'b1}};
+					sh_r	<= {VISIBLE_SPRITES{1'b1}};
+					state	<= A_INDEX;
+					ar_addr	<= 8'b0;
+					ac	<= 4'b0; 
+					vc	<= 4'b0; 
+
+					//reset ping_pong;
+					ping_pong <= 1'b0;
+					pp_sh_reset  <= 2'b11;
+				end
 			end
 			default: state <= CHECK;
 
@@ -250,7 +255,7 @@ module ppu
 	hex7seg h2(haddr[11:8],	HEX2);
 	hex7seg h3(haddr[15:12],HEX3);
 
-	hex7seg h4(ac[3:0],	HEX4);
+	hex7seg h4({3'b0, ping_pong},	HEX4);
 	hex7seg h5(state[3:0],	HEX5);
 
 endmodule

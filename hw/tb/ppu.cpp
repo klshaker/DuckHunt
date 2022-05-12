@@ -184,7 +184,7 @@ int main(int argc, const char ** argv, const char ** env) {
 
 			//std::cout << attr_to_int(&attr) << std::endl;
 			dut->writedata = sprite.line[c];
-			dut->address = SPRITE_TABLE_MEMORY_OFFSET + c + i;
+			dut->address = SPRITE_TABLE_MEMORY_OFFSET +  c +  i * SPRITE_TABLE_ENTRY_SIZE;
 
 			dut->eval();
 			tfp->dump( time );
@@ -207,9 +207,9 @@ int main(int argc, const char ** argv, const char ** env) {
 			clock++;
 			time += 10;
 
-			//std::cout << attr_to_int(&attr) << std::endl;
-			dut->writedata = color_to_int(&color_palette.color[c]);
-			dut->address = COLOR_TABLE_MEMORY_OFFSET + c + i;
+			std::cout << color_to_int(&color_palette.color[c]) << "@" << COLOR_TABLE_MEMORY_OFFSET + c + i <<std::endl;
+			dut->writedata = color_to_int(&(color_palette.color[c]));
+			dut->address = COLOR_TABLE_MEMORY_OFFSET + c + i * COLOR_TABLE_ENTRY_SIZE;
 
 			dut->eval();
 			tfp->dump( time );
