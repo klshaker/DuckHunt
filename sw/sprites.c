@@ -1222,22 +1222,22 @@ int write_sprite_table(int fd){
 		[51] = {
 			.id = 51,
 			.line = {
-				0x55555555,
-				0x55555555,
-				0x55555555,
-				0x55555555,
-				0x55555555,
-				0x55555555,
-				0x55555555,
-				0x55555555,
-				0x55555555,
-				0x55555555,
-				0x55555555,
-				0x55555555,
-				0x55555555,
-				0x55555555,
-				0x55555555,
-				0x55555555,
+				0xaaaaaaaa,
+				0xaaaaaaaa,
+				0xaaaaaaaa,
+				0xaaaaaaaa,
+				0xaaaaaaaa,
+				0xaaaaaaaa,
+				0xaaaaaaaa,
+				0xaaaaaaaa,
+				0xaaaaaaaa,
+				0xaaaaaaaa,
+				0xaaaaaaaa,
+				0xaaaaaaaa,
+				0xaaaaaaaa,
+				0xaaaaaaaa,
+				0xaaaaaaaa,
+				0xaaaaaaaa,
 			}
 		},
 	};
@@ -1316,12 +1316,22 @@ int write_color_table(int fd){
 			.id = 5,
 			.color = {
 				[0] = {.r = 0,  .g = 0,   .b = 0  },
-				[1] = {.r = 223, .g = 246, .b = 245 },
-				[2] = {.r = 0,  .g = 0,   .b = 0  },
+				[1] = {.r = 0,  .g = 0,   .b = 0  },
+				[2] = {.r = 135, .g = 206, .b = 235 },
 				[3] = {.r = 0,  .g = 0,   .b = 0  },
 			},
-		}
-
+		},
+		// Flash Background
+		[6] =
+		{
+			.id = 6,
+			.color = {
+				[0] = {.r = 0,  .g = 0,   .b = 0  },
+				[1] = {.r = 1, .g = 1, .b = 1 },
+				[2] = {.r = 255,  .g = 255,   .b = 255  },
+				[3] = {.r = 0,  .g = 200,   .b = 0  },
+			},
+		},
 	};
 
 	int i = 0;
@@ -1354,12 +1364,11 @@ int write_pattern_table(int fd, int back_c){
 	int i = 0;
 	for(; i < 1200; ++i){
 		pattern.id = i;
-		if (i > 840 - 3 ) {
+		if (i > 840 - 1 ) {
 			pattern.sprite = 49;
 			pattern.color_table = 4;
 		}
-		else if (i > 800 - 3 ) {
-			printf("HERE\n");
+		else if (i > 800 - 1 ) {
 			pattern.sprite = 50;
 			pattern.color_table = 4;
 		}
@@ -1414,6 +1423,11 @@ int update_duck_attr(int fd, duck_t * duck) {
 		int attr_table_entry = DUCK_ATTR_TABLE_OFFSET + duck->id * NUM_SPRITES_PER_DUCK + i;
 		attr_table[attr_table_entry].coord.x = duck->coord.x + SPRITE_TABLE_ENTRY_SIZE * (i / 2);
 		attr_table[attr_table_entry].coord.y = duck->coord.y + SPRITE_TABLE_ENTRY_SIZE * (i % 2) ;
+		if (duck->velocity > 3) {
+			attr_table[attr_table_entry].color_table  = 0 ;
+		} else {
+			attr_table[attr_table_entry].color_table  = 6 ;
+		}
 		if(duck->state == flap_up && duck->x_direction == east){
 			attr_table[attr_table_entry].sprite  = DUCK_UP_EAST_SPRITE_OFFSET  + i ;
 		}	

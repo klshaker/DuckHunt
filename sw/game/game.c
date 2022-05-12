@@ -42,7 +42,7 @@ int move_duck(duck_t * duck, game_config_t * game_config){
 		} else {
 			printf("duck dead\n");
 			duck->state = inactive;
-			--game_config->visible_ducks;
+			// --game_config->visible_ducks;
 			printf("visible ducks:%d\n", game_config->visible_ducks);
 		}
 		return 1;
@@ -128,6 +128,10 @@ int shoot_at_ducks(duck_t* ducks, int num_ducks, coord_t cross_hair, game_config
 
 // The round is over only if we have seen all the allowed ducks per round
 int is_round_over(game_config_t * config){
+	if (config->bullets == 0)
+		printf("ROUND OVER BECAUSE BULLETS \n");
+	if (config->spawned_ducks == NUM_DUCKS_PER_ROUND && config->visible_ducks == 0)
+		printf("DUCKS DEAD FAULT\n");
 	return (config->bullets == 0) || (config->spawned_ducks == NUM_DUCKS_PER_ROUND && config->visible_ducks == 0);
 }
 
@@ -144,7 +148,7 @@ int start_new_round(game_config_t * config){
 
 int spawn_duck(duck_t * duck, game_config_t * config){
 	
-	duck->coord.x = 250;
+	duck->coord.x = 100 + rand() % 300;
 	duck->coord.y = kVerticalScreenSize;
 	duck->spawn_time = time(0);
 	duck->value = 1 + config->round/2;
@@ -155,7 +159,7 @@ int spawn_duck(duck_t * duck, game_config_t * config){
 	// Duck always starts moving upward since it is coming out of the grass.
 	duck->y_direction = north;
 
-	config->visible_ducks++;
-	config->spawned_ducks++;
+	// config->visible_ducks++;
+	// config->spawned_ducks++;
 
 }
