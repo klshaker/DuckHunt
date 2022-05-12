@@ -1257,6 +1257,182 @@ int write_sprite_table(int fd){
 				0xaaaaaaaa,
 			}
 		},
+		// Score Text 1
+		[52] = {
+			.id = 52,
+			.line = {
+				0x7000d55c,
+				0x7c0ffadf,
+				0x5c0d70d7,
+				0xffcff0d7,
+				0x35c000d7,
+				0x35cd555c,
+				0x35fdfffc,
+				0x35f5c0ff,
+				0x5c35c0d7,
+				0x7c3dffdf,
+				0x700d555c,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			}
+		},
+		// Score Text 2
+		[53] = {
+			.id = 53,
+			.line = {
+				0x55570355,
+				0xeab73feb,
+				0xc035f5c3,
+				0xc035ffc3,
+				0xc035c000,
+				0xc035c000,
+				0xc035c000,
+				0xc035c000,
+				0xc035f5c3,
+				0xffffffff,
+				0x555c0355,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			}
+		},
+		// Score Text 1
+		[54] = {
+			.id = 54,
+			.line = {
+				0xc35555c3,
+				0xc37ab5c3,
+				0xcd7035f5,
+				0xcd7035f5,
+				0xcd7c35f5,
+				0xcd5c35f5,
+				0xcffff5f5,
+				0xc3f555f5,
+				0xc355f5f5,
+				0xcf5ff5ff,
+				0xcd5c35c3,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			}
+		},
+		// Score Text 1
+		[55] = {
+			.id = 55,
+			.line = {
+				0xd5555,
+				0xeaab5,
+				0x35,
+				0x35,
+				0x35,
+				0x3555,
+				0x3ff5,
+				0x35,
+				0x35,
+				0xffff5,
+				0xd5555,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			}
+		},
+		// Round Text 1
+		[56] = {
+			.id = 56,
+			.line = {
+				0x5c0d5557,
+				0xbc0dead7,
+				0x35f5c0d7,
+				0x35f5c0d7,
+				0x35f5f0d7,
+				0x35f570d7,
+				0x35ffffd7,
+				0x35cfd557,
+				0x35cd57d7,
+				0xfffd7fd7,
+				0x5c3570d7,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			}
+		},
+		// Round Text 1
+		[57] = {
+			.id = 57,
+			.line = {
+				0xc025c355,
+				0xc025c3ea,
+				0xc025f5c0,
+				0xc025f5c0,
+				0xc025f5c0,
+				0xc025f5c0,
+				0xc025f5c0,
+				0xc025f5c0,
+				0xc025f5c0,
+				0xffffffff,
+				0x555c0355,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			}
+		},
+		// Round Text 1
+		[58] = {
+			.id = 58,
+			.line = {
+				0x7d7035f5,
+				0x7d7035f5,
+				0x7d70d5f5,
+				0x7d7fd5f5,
+				0x7d7d55f5,
+				0x7d5555f5,
+				0x7d55f5f5,
+				0x7d55f5f5,
+				0x7d5c35f5,
+				0x7d7c35ff,
+				0x7d7035c3,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			}
+		},
+		// Round Text 1
+		[59] = {
+			.id = 59,
+			.line = {
+				0x3555,
+				0x3feb5,
+				0x35c35,
+				0xf7c35,
+				0xd7035,
+				0xd7035,
+				0xd7035,
+				0xf7c35,
+				0x35c35,
+				0x3fff5,
+				0x3555,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+				0x0,
+			}
+		},
 	};
 
 	int i = 0;
@@ -1347,6 +1523,17 @@ int write_color_table(int fd){
 				[1] = {.r = 1, .g = 1, .b = 1 },
 				[2] = {.r = 255,  .g = 255,   .b = 255  },
 				[3] = {.r = 0,  .g = 80,   .b = 0  },
+			},
+		},
+		// Text CM
+		[7] =
+		{
+			.id = 7,
+			.color = {
+				[0] = {.r = 0,  .g = 0,   .b = 0  },
+				[1] = {.r = 255, .g = 255, .b = 255 },
+				[2] = {.r = 255, .g = 255, .b = 255 },
+				[3] = {.r = 255, .g = 255, .b = 255 },
 			},
 		},
 	};
