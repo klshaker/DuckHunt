@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-const int kBulletSpriteXLoc = 5;
+const int kBulletSpriteXLoc = 45;
 const int kScoreSpriteXLoc = 500;
 const int kLowerGraphicYLoc = 400;
 const int kBulletSpaceApart = 2;
@@ -1568,7 +1568,15 @@ int write_pattern_table(int fd, int back_c){
 	int i = 0;
 	for(; i < 1200; ++i){
 		pattern.id = i;
-		if (i > 840 - 1 ) {
+		if (i >= 990 && i <= 993) {
+			pattern.sprite = 52 + i - 990;
+			pattern.color_table = 7;
+		}
+		else if (i >= 882 && i <= 885) {
+			pattern.sprite = 56 + i - 882;
+			pattern.color_table = 7;
+		}
+		else if (i > 840 - 1 ) {
 			pattern.sprite = 49;
 			pattern.color_table = 4;
 		}
